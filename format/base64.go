@@ -45,7 +45,7 @@ func (coder *Base64Coder) Decode(string string) []byte {
 	}
 }
 
-var base64Coder BaseCoder = new (Base64Coder)
+var base64Coder BaseCoder = new(Base64Coder)
 
 func SetBase64Coder(coder BaseCoder) {
 	base64Coder = coder

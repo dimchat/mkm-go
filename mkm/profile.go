@@ -31,9 +31,9 @@
 package mkm
 
 import (
-	"mkm-go/crypto"
-	"mkm-go/format"
-	"mkm-go/types"
+	. "github.com/dimchat/mkm-go/crypto"
+	. "github.com/dimchat/mkm-go/format"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -51,7 +51,7 @@ type TAI interface {
 	 *
 	 * @return entity ID
 	 */
-	ID() *types.String
+	ID() *String
 
 	/**
 	 *  Check if signature matched
@@ -68,7 +68,7 @@ type TAI interface {
 	 * @param publicKey - public key in meta.key
 	 * @return true on signature matched
 	 */
-	Verify(publicKey *crypto.VerifyKey) bool
+	Verify(publicKey *VerifyKey) bool
 
 	/**
 	 *  Encode properties to 'data' and sign it to 'signature'
@@ -76,7 +76,7 @@ type TAI interface {
 	 * @param privateKey - private key match meta.key
 	 * @return signature
 	 */
-	Sign(privateKey *crypto.SignKey) []byte
+	Sign(privateKey *SignKey) []byte
 
 	//-------- properties
 
@@ -111,21 +111,21 @@ type TAI interface {
 	 *
 	 * @return public key
 	 */
-	GetKey() *crypto.EncryptKey
+	GetKey() *EncryptKey
 
 	/**
 	 *  Set public key for other user to encrypt message
 	 *
 	 * @param publicKey - public key in profile.key
 	 */
-	SetKey(publicKey *crypto.EncryptKey)
+	SetKey(publicKey *EncryptKey)
 }
 
 type Profile struct {
-	types.Dictionary
+	Dictionary
 	TAI
 
-	_identifier *types.String  // ID or String
+	_identifier *String  // ID or String
 	_data []byte               // JsON.encode(properties)
 	_signature []byte          // LocalUser(identifier).sign(data)
 
@@ -134,22 +134,24 @@ type Profile struct {
 }
 
 func (tai *Profile) Init(dictionary map[string]interface{}) *Profile {
-	tai.Dictionary.Init(dictionary)
-	tai._identifier = nil
-	tai._data = nil
-	tai._signature = nil
-	tai._properties = nil
-	tai._status = 0
+	if tai.Dictionary.Init(dictionary) != nil {
+		// lazy load
+		tai._identifier = nil
+		tai._data = nil
+		tai._signature = nil
+		tai._properties = nil
+		tai._status = 0
+	}
 	return tai
 }
 
-func (tai *Profile) ID() *types.String {
+func (tai *Profile) ID() *String {
 	if tai._identifier == nil {
 		id := tai.Get("ID")
 		if tai != nil {
 			str, ok := id.(string)
 			if ok {
-				tai._identifier = types.CreateString(str)
+				tai._identifier = CreateString(str)
 			}
 		}
 	}
@@ -167,7 +169,7 @@ func (tai *Profile) Data() []byte {
 		if json != nil {
 			str, ok := json.(string)
 			if ok {
-				tai._data = format.UTF8BytesFromString(str)
+				tai._data = UTF8BytesFromString(str)
 			}
 		}
 	}
@@ -185,7 +187,7 @@ func (tai *Profile) Signature() []byte {
 		if b64 != nil {
 			str, ok := b64.(string)
 			if ok {
-				tai._signature = format.Base64Decode(str)
+				tai._signature = Base64Decode(str)
 			}
 		}
 	}
@@ -198,7 +200,7 @@ func (tai *Profile) IsValid() bool {
 
 //-------- signature
 
-func (tai *Profile) Verify(publicKey *crypto.VerifyKey) bool {
+func (tai *Profile) Verify(publicKey *VerifyKey) bool {
 	if tai._status > 0 {
 		// already verify OK
 		return true
@@ -226,16 +228,16 @@ func (tai *Profile) Verify(publicKey *crypto.VerifyKey) bool {
 	return tai._status == 1
 }
 
-func (tai *Profile) Sign(privateKey *crypto.SignKey) []byte {
+func (tai *Profile) Sign(privateKey *SignKey) []byte {
 	if tai._status > 0 {
 		// already signed/verified
 		return tai._signature
 	}
 	tai._status = 1
-	tai._data = format.JSONBytesFromMap(tai.getProperties())
+	tai._data = JSONBytesFromMap(tai.getProperties())
 	tai._signature = (*privateKey).Sign(tai._data)
-	tai.Set("data", format.UTF8StringFromBytes(tai._data))
-	tai.Set("signature", format.Base64Encode(tai._signature))
+	tai.Set("data", UTF8StringFromBytes(tai._data))
+	tai.Set("signature", Base64Encode(tai._signature))
 	return tai._signature
 }
 
@@ -254,8 +256,8 @@ func (tai *Profile) getProperties() map[string]interface{} {
 		} else {
 			str, ok := data.(string)
 			if ok {
-				bytes := format.UTF8BytesFromString(str)
-				tai._properties = format.JSONMapFromBytes(bytes)
+				bytes := UTF8BytesFromString(str)
+				tai._properties = JSONMapFromBytes(bytes)
 			} else {
 				panic("failed to convert string")
 			}
@@ -269,7 +271,7 @@ func (tai *Profile) PropertyNames() []string {
 	if dict == nil {
 		return nil
 	}
-	return types.MapKeys(dict)
+	return MapKeys(dict)
 }
 
 func (tai *Profile) GetProperty(name string) interface{} {

@@ -26,12 +26,12 @@
 package crypto
 
 import (
-	"mkm-go/format"
-	"mkm-go/types"
+	. "github.com/dimchat/mkm-go/format"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 const _promise = "Moky loves May Lee forever!"
-var promise = format.UTF8BytesFromString(_promise)
+var promise = UTF8BytesFromString(_promise)
 
 /**
  *  Cryptography Key
@@ -45,21 +45,17 @@ var promise = format.UTF8BytesFromString(_promise)
  *  }
  */
 type CryptographyKey interface {
-	types.Map
+	Map
 }
 
 func CryptographyKeysEqual(key, other *CryptographyKey) bool {
-	if key == nil {
-		return other == nil
-	} else if other == nil {
-		return false
-	} else if *key == *other {
+	if *key == *other {
 		return true
 	}
 	// check inner maps
 	map1 := (*key).GetMap(false)
 	map2 := (*other).GetMap(false)
-	return types.MapsEqual(map1, map2)
+	return MapsEqual(map1, map2)
 }
 
 type EncryptKey interface {

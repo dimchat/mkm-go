@@ -38,24 +38,32 @@ type Group struct {
 	_founder *ID
 }
 
+func (group *Group) Init(identifier *ID) *Group {
+	if group.Entity.Init(identifier) != nil {
+		// lazy load
+		group._founder = nil
+	}
+	return group
+}
+
 func (group *Group) GetDataSource() *GroupDataSource {
 	return (*GroupDataSource)(unsafe.Pointer(group._delegate))
 }
 
 func (group *Group) GetFounder() *ID {
 	if group._founder == nil {
-		ds := group.GetDataSource()
-		group._founder = (*ds).GetFounder((*group)._identifier)
+		delegate := group.GetDataSource()
+		group._founder = (*delegate).GetFounder(group.ID())
 	}
 	return group._founder
 }
 
 func (group *Group) GetOwner() *ID {
-	ds := group.GetDataSource()
-	return (*ds).GetOwner((*group)._identifier)
+	delegate := group.GetDataSource()
+	return (*delegate).GetOwner(group.ID())
 }
 
 func (group *Group) GetMembers() []*ID {
-	ds := group.GetDataSource()
-	return (*ds).GetMembers((*group)._identifier)
+	delegate := group.GetDataSource()
+	return (*delegate).GetMembers(group.ID())
 }

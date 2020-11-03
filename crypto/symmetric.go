@@ -53,11 +53,6 @@ type SymmetricKey interface {
 }
 
 func SymmetricKeysEqual(key, other *SymmetricKey) bool {
-	if key == nil {
-		return other == nil
-	} else if other == nil {
-		return false
-	}
 	ptr1 := (*CryptographyKey)(unsafe.Pointer(key))
 	ptr2 := (*CryptographyKey)(unsafe.Pointer(other))
 	if CryptographyKeysEqual(ptr1, ptr2) {

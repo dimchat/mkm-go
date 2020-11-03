@@ -30,7 +30,9 @@
  */
 package mkm
 
-import "mkm-go/crypto"
+import (
+	. "github.com/dimchat/mkm-go/crypto"
+)
 
 type EntityDataSource interface {
 
@@ -85,7 +87,7 @@ type UserDataSource interface {
 	 * @param user - user ID
 	 * @return public key
 	 */
-	GetPublicKeyForEncryption(user *ID) *crypto.EncryptKey
+	GetPublicKeyForEncryption(user *ID) *EncryptKey
 
 	/**
 	 *  Get user's private keys for decryption
@@ -94,7 +96,7 @@ type UserDataSource interface {
 	 * @param user - user ID
 	 * @return private keys
 	 */
-	GetPrivateKeysForDecryption(user *ID) []*crypto.DecryptKey
+	GetPrivateKeysForDecryption(user *ID) []*DecryptKey
 
 	/**
 	 *  Get user's private key for signature
@@ -103,7 +105,7 @@ type UserDataSource interface {
 	 * @param user - user ID
 	 * @return private key
 	 */
-	GetPrivateKeyForSignature(user *ID) *crypto.SignKey
+	GetPrivateKeyForSignature(user *ID) *SignKey
 
 	/**
 	 *  Get user's public keys for verification
@@ -112,7 +114,7 @@ type UserDataSource interface {
 	 * @param user - user ID
 	 * @return public keys
 	 */
-	GetPublicKeysForVerification(user *ID) []*crypto.VerifyKey
+	GetPublicKeysForVerification(user *ID) []*VerifyKey
 }
 
 type GroupDataSource interface {

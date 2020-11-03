@@ -56,11 +56,6 @@ type PublicKey interface {
 }
 
 func PublicKeysEqual(key, other *PublicKey) bool {
-	if key == nil {
-		return other == nil
-	} else if other == nil {
-		return false
-	}
 	ptr1 := (*CryptographyKey)(unsafe.Pointer(key))
 	ptr2 := (*CryptographyKey)(unsafe.Pointer(other))
 	return CryptographyKeysEqual(ptr1, ptr2)
@@ -74,7 +69,7 @@ func PublicKeysEqual(key, other *PublicKey) bool {
  */
 func AsymmetricKeyMatch(publicKey *PublicKey, privateKey *PrivateKey) bool {
 	// 1. if the SK has the same public key, return true
-	pKey := (*privateKey).PublicKey()
+	pKey := (*privateKey).GetPublicKey()
 	if PublicKeysEqual(pKey, publicKey) {
 		return true
 	}
@@ -103,21 +98,16 @@ type PrivateKey interface {
 	 *
 	 * @return public key paired to this private key
 	 */
-	PublicKey() *PublicKey
+	GetPublicKey() *PublicKey
 }
 
 func PrivateKeysEqual(key, other *PrivateKey) bool {
-	if key == nil {
-		return other == nil
-	} else if other == nil {
-		return false
-	}
 	ptr1 := (*CryptographyKey)(unsafe.Pointer(key))
 	ptr2 := (*CryptographyKey)(unsafe.Pointer(other))
 	if CryptographyKeysEqual(ptr1, ptr2) {
 		return true
 	}
 	// check by public
-	publicKey := (*key).PublicKey()
+	publicKey := (*key).GetPublicKey()
 	return AsymmetricKeyMatch(publicKey, other)
 }

@@ -32,8 +32,8 @@ package mkm
 
 import (
 	"fmt"
-	. "mkm-go/protocol"
-	"mkm-go/types"
+	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 	"unsafe"
 )
 
@@ -48,7 +48,7 @@ import (
  */
 type Address interface {
 	fmt.Stringer
-	types.Object
+	Object
 
 	/**
 	 *  get address type
@@ -78,18 +78,6 @@ func AddressIsBroadcast(address *Address) bool {
 	return false
 }
 
-func AddressesEqual(address, other *Address) bool {
-	if address == nil {
-		return other == nil
-	} else if other == nil {
-		return false
-	} else if *address == *other {
-		return true
-	}
-	// check inner strings
-	return (*address).String() == (*other).String()
-}
-
 /**
  *  Address for broadcast
  */
@@ -108,7 +96,7 @@ func createBroadcastAddress(string string, network NetworkType) *Address {
 }
 
 type broadcastAddress struct {
-	types.String
+	String
 	Address
 
 	_network NetworkType

@@ -31,8 +31,8 @@
 package mkm
 
 import (
-	. "mkm-go/protocol"
-	"mkm-go/types"
+	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -46,7 +46,7 @@ import (
  *          terminal - entity login resource(device), OPTIONAL
  */
 type ID struct {
-	types.String
+	String
 
 	_name string
 	_address *Address
@@ -54,10 +54,11 @@ type ID struct {
 }
 
 func (id *ID) Init(string string, name string, address *Address, terminal string) *ID {
-	id.String.Init(string)
-	id._name = name
-	id._address = address
-	id._terminal = terminal
+	if id.String.Init(string) != nil {
+		id._name = name
+		id._address = address
+		id._terminal = terminal
+	}
 	return id
 }
 
@@ -84,38 +85,49 @@ func (id *ID) Address() *Address {
  * @return address type as network ID
  */
 func (id *ID) Type() NetworkType {
-	address := (*id).Address()
+	address := id.Address()
 	return (*address).Type()
 }
 
 func (id *ID) IsUser() bool {
-	address := (*id).Address()
+	address := id.Address()
 	return AddressIsUser(address)
 }
 
 func (id *ID) IsGroup() bool {
-	address := (*id).Address()
+	address := id.Address()
 	return AddressIsGroup(address)
 }
 
 func (id *ID) IsBroadcast() bool {
-	address := (*id).Address()
+	address := id.Address()
 	return AddressIsBroadcast(address)
 }
 
-func (id *ID) Equal(other *ID) bool {
-	if other == nil {
-		return false
-	} else if *id == *other {
-		return true
-	}
-	//if id.String.String() == other.String.String() {
+func (id *ID) Equal(other interface{}) bool {
+	//if (*id).String.Equal(other) {
 	//	return true
 	//}
-	if !AddressesEqual((*id).Address(), (*other).Address()) {
+	ptr, ok := other.(*ID)
+	if !ok {
+		obj, ok := other.(ID)
+		if !ok {
+			return false
+		}
+		ptr = &obj
+	}
+	if *id == *ptr {
+		return true
+	}
+
+	// check ID.name
+	if id.Name() != ptr.Name() {
 		return false
 	}
-	return (*id).Name() != (*other).Name()
+	// check ID.address
+	addr1 := id.Address()
+	addr2 := ptr.Address()
+	return (*addr1).Equal(addr2)
 }
 
 func CreateID(name string, address *Address, terminal string) *ID {

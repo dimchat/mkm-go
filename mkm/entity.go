@@ -31,8 +31,8 @@
 package mkm
 
 import (
-	"mkm-go/protocol"
-	"mkm-go/types"
+	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -49,7 +49,7 @@ import (
  *      name       - nickname
  */
 type Entity struct {
-	types.Object
+	Object
 
 	_identifier *ID
 
@@ -62,29 +62,19 @@ func (entity *Entity) Init(identifier *ID) *Entity {
 }
 
 func (entity *Entity) Equal(other interface{}) bool {
-	if other == nil {
-		return false
-	}
-	var identifier *ID
 	ptr, ok := other.(*Entity)
-	if ok {
-		if *entity == *ptr {
-			return true
-		}
-		identifier = (*ptr)._identifier
-	} else {
+	if !ok {
 		obj, ok := other.(Entity)
-		if ok {
-			if *entity == obj {
-				return true
-			}
-			identifier = obj._identifier
-		} else {
+		if !ok {
 			return false
 		}
+		ptr = &obj
+	}
+	if *entity == *ptr {
+		return true
 	}
 	// check by ID
-	return entity._identifier.Equal(identifier)
+	return entity.ID().Equal(ptr.ID())
 }
 
 func (entity *Entity) ID() *ID {
@@ -109,16 +99,18 @@ func (entity *Entity) SetDataSource(delegate interface{}) {
  *
  * @return ID(address) type as entity type
  */
-func (entity *Entity) Type() protocol.NetworkType {
-	return (*entity._identifier).Type()
+func (entity *Entity) Type() NetworkType {
+	return entity.ID().Type()
 }
 
-func (entity *Entity) Meta() *Meta {
-	return (*entity._delegate).GetMeta(entity._identifier)
+func (entity *Entity) GetMeta() *Meta {
+	delegate := entity.GetDataSource()
+	return (*delegate).GetMeta(entity.ID())
 }
 
-func (entity *Entity) Profile() *Profile {
-	return (*entity._delegate).GetProfile(entity._identifier)
+func (entity *Entity) GetProfile() *Profile {
+	delegate := entity.GetDataSource()
+	return (*delegate).GetProfile(entity.ID())
 }
 
 /**
@@ -126,9 +118,9 @@ func (entity *Entity) Profile() *Profile {
  *
  * @return name string
  */
-func (entity *Entity) Name() string {
+func (entity *Entity) GetName() string {
 	// get from profile
-	profile := entity.Profile()
+	profile := entity.GetProfile()
 	if profile != nil {
 		name := profile.GetName()
 		if name != "" {
@@ -136,5 +128,5 @@ func (entity *Entity) Name() string {
 		}
 	}
 	// get ID.name
-	return (*entity._identifier).Name()
+	return entity.ID().Name()
 }

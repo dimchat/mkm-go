@@ -29,12 +29,3 @@ type Object interface {
 
 	Equal(other interface{}) bool
 }
-
-func ObjectsEqual(obj1, obj2 *Object) bool {
-	if obj1 == nil {
-		return obj2 == nil
-	} else if obj2 == nil {
-		return false
-	}
-	return *obj1 == *obj2
-}

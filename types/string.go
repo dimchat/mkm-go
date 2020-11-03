@@ -46,26 +46,19 @@ func (str *String) String() string {
 }
 
 func (str *String) Equal(other interface{}) bool {
-	if other == nil {
-		return false
-	}
-	var str2 *String
 	ptr, ok := other.(*String)
-	if ok {
-		str2 = ptr
-	} else {
+	if !ok {
 		obj, ok := other.(String)
-		if ok {
-			str2 = &obj
-		} else {
+		if !ok {
 			return false
 		}
+		ptr = &obj
 	}
-	if *str == *str2 {
+	if *str == *ptr {
 		return true
 	}
 	// check inner strings
-	return (*str)._string == (*str2)._string
+	return str._string == ptr._string
 }
 
 func CreateString(string string) *String {

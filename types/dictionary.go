@@ -27,7 +27,6 @@ package types
 
 import (
 	"reflect"
-	"unsafe"
 )
 
 type Map interface {
@@ -54,28 +53,19 @@ func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
 }
 
 func (dict *Dictionary) Equal(other interface{}) bool {
-	if other == nil {
-		return false
-	}
-	var dict2 *Dictionary
 	ptr, ok := other.(*Dictionary)
-	if ok {
-		dict2 = ptr
-	} else {
+	if !ok {
 		obj, ok := other.(Dictionary)
-		if ok {
-			dict2 = &obj
-		} else {
+		if !ok {
 			return false
 		}
+		ptr = &obj
 	}
-	ptr1 := (*Object)(unsafe.Pointer(dict))
-	ptr2 := (*Object)(unsafe.Pointer(dict2))
-	if *ptr1 == *ptr2 {
+	if dict == ptr {
 		return true
 	}
 	// check inner maps
-	return MapsEqual((*dict)._dictionary, (*dict2)._dictionary)
+	return MapsEqual(dict._dictionary, ptr._dictionary)
 }
 
 func (dict *Dictionary) Get(key string) interface{} {
