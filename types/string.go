@@ -25,43 +25,44 @@
  */
 package types
 
-import (
-	"fmt"
-)
+import "fmt"
 
-type String struct {
+type Stringer interface {
+
 	fmt.Stringer
 	Object
+}
+
+func StringsEqual(str1, str2 Stringer) bool {
+	if ObjectsEqual(str1, str2) {
+		return true
+	}
+	return str1.String() == str2.String()
+}
+
+type ConstantString struct {
+	Stringer
 
 	_string string
 }
 
-func (str *String) Init(string string) *String {
+func (str *ConstantString) Init(string string) *ConstantString {
 	str._string = string
 	return str
 }
 
-func (str *String) String() string {
+func (str ConstantString) String() string {
 	return str._string
 }
 
-func (str *String) Equal(other interface{}) bool {
-	ptr, ok := other.(*String)
-	if !ok {
-		obj, ok := other.(String)
-		if !ok {
-			return false
-		}
-		ptr = &obj
+func (str ConstantString) Equal(other interface{}) bool {
+	other = ObjectValue(other)
+	switch other.(type) {
+	case Stringer:
+		return StringsEqual(str, other.(Stringer))
+	case string:
+		return str._string == other.(string)
+	default:
+		return false
 	}
-	if *str == *ptr {
-		return true
-	}
-	// check inner strings
-	return str._string == ptr._string
-}
-
-func CreateString(string string) *String {
-	str := new(String)
-	return str.Init(string)
 }

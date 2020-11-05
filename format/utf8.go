@@ -34,7 +34,6 @@ func (parser *UTF8Parser) Encode(object interface{}) []byte {
 	if ok {
 		return []byte(str)
 	} else {
-		//panic("failed to convert string")
 		return nil
 	}
 }
@@ -43,7 +42,7 @@ func (parser *UTF8Parser) Decode(bytes []byte) interface{} {
 	return string(bytes)
 }
 
-var utf8Parser DataParser = new(JSONParser)
+var utf8Parser DataParser = new(UTF8Parser)
 
 func SetUTF8Parser(parser DataParser)  {
 	utf8Parser = parser
@@ -54,7 +53,6 @@ func UTF8StringFromBytes(bytes []byte) string {
 	if ok {
 		return str
 	} else {
-		//panic("failed to convert string")
 		return ""
 	}
 }

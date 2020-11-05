@@ -47,7 +47,6 @@ func (parser *JSONParser) Decode(bytes []byte) interface{} {
 	if err == nil {
 		return dict
 	} else {
-		//panic("failed to decode JsON string")
 		return nil
 	}
 }
@@ -60,14 +59,10 @@ func SetJSONParser(parser DataParser) {
 
 func JSONMapFromBytes(bytes []byte) map[string]interface{} {
 	dict := jsonParser.Decode(bytes)
-	if dict == nil {
-		return nil
-	}
 	res, ok := dict.(map[string]interface{})
 	if ok {
 		return res
 	} else {
-		//panic("failed to convert map")
 		return nil
 	}
 }

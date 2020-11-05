@@ -48,14 +48,8 @@ type CryptographyKey interface {
 	Map
 }
 
-func CryptographyKeysEqual(key, other *CryptographyKey) bool {
-	if *key == *other {
-		return true
-	}
-	// check inner maps
-	map1 := (*key).GetMap(false)
-	map2 := (*other).GetMap(false)
-	return MapsEqual(map1, map2)
+func CryptographyKeysEqual(key1, key2 CryptographyKey) bool {
+	return MapsEqual(key1, key2)
 }
 
 type EncryptKey interface {

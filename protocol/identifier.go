@@ -28,10 +28,9 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package mkm
+package protocol
 
 import (
-	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
 )
 
@@ -45,16 +44,56 @@ import (
  *          address  - a string to identify an entity
  *          terminal - entity login resource(device), OPTIONAL
  */
-type ID struct {
-	String
+type ID interface {
+	Stringer
+
+	/**
+	 *  Get ID name
+	 *
+	 * @return ID.name
+	 */
+	Name() string
+
+	/**
+	 *  Get ID address
+	 *
+	 * @return ID.address
+	 */
+	Address() Address
+
+	/**
+	 *  get ID type
+	 *
+	 * @return network type
+	 */
+	Type() NetworkType
+}
+
+func IdentifiersEqual(id1, id2 ID) bool {
+	if id1 == id2 {
+		return true
+	}
+	// check ID.name
+	if id1.Name() != id2.Name() {
+		return false
+	}
+	// check ID.address
+	addr1 := id1.Address()
+	addr2 := id2.Address()
+	return AddressesEqual(addr1, addr2)
+}
+
+type Identifier struct {
+	ConstantString
+	ID
 
 	_name string
-	_address *Address
+	_address Address
 	_terminal string
 }
 
-func (id *ID) Init(string string, name string, address *Address, terminal string) *ID {
-	if id.String.Init(string) != nil {
+func (id *Identifier) Init(string string, name string, address Address, terminal string) *Identifier {
+	if id.ConstantString.Init(string) != nil {
 		id._name = name
 		id._address = address
 		id._terminal = terminal
@@ -62,83 +101,66 @@ func (id *ID) Init(string string, name string, address *Address, terminal string
 	return id
 }
 
-func (id *ID) Name() string {
+func (id Identifier) Equal(other interface{}) bool {
+	id2 := ObjectValue(other).(ID)
+	return IdentifiersEqual(id, id2)
+}
+
+func (id Identifier) String() string {
+	return id.ConstantString.String()
+}
+
+func (id Identifier) Name() string {
 	return id._name
 }
 
-func (id *ID) Terminal() string {
-	return id._terminal
-}
-
-/**
- *  Get ID Address
- *
- * @return address
- */
-func (id *ID) Address() *Address {
+func (id Identifier) Address() Address {
 	return id._address
 }
 
 /**
- *  Get Network ID
+ *  Get ID network type
  *
- * @return address type as network ID
+ * @return address type
  */
-func (id *ID) Type() NetworkType {
+func (id Identifier) Type() NetworkType {
 	address := id.Address()
-	return (*address).Type()
+	return address.Type()
 }
 
-func (id *ID) IsUser() bool {
+/**
+ *  Get ID login point
+ *
+ * @return ID.terminal
+ */
+func (id Identifier) Terminal() string {
+	return id._terminal
+}
+
+func (id Identifier) IsUser() bool {
 	address := id.Address()
 	return AddressIsUser(address)
 }
 
-func (id *ID) IsGroup() bool {
+func (id Identifier) IsGroup() bool {
 	address := id.Address()
 	return AddressIsGroup(address)
 }
 
-func (id *ID) IsBroadcast() bool {
+func (id Identifier) IsBroadcast() bool {
 	address := id.Address()
 	return AddressIsBroadcast(address)
 }
 
-func (id *ID) Equal(other interface{}) bool {
-	//if (*id).String.Equal(other) {
-	//	return true
-	//}
-	ptr, ok := other.(*ID)
-	if !ok {
-		obj, ok := other.(ID)
-		if !ok {
-			return false
-		}
-		ptr = &obj
-	}
-	if *id == *ptr {
-		return true
-	}
-
-	// check ID.name
-	if id.Name() != ptr.Name() {
-		return false
-	}
-	// check ID.address
-	addr1 := id.Address()
-	addr2 := ptr.Address()
-	return (*addr1).Equal(addr2)
-}
-
-func CreateID(name string, address *Address, terminal string) *ID {
-	identifier := (*address).String()
+func NewID(name string, address Address, terminal string) ID {
+	identifier := address.String()
 	if name != "" {
 		identifier = name + "@" + identifier
 	}
 	if terminal != "" {
 		identifier = identifier + "/" + terminal
 	}
-	return new(ID).Init(identifier, name, address, terminal)
+	return new(Identifier).Init(identifier, name, address, terminal)
 }
 
 /**
@@ -149,5 +171,5 @@ const (
 	everyone = "everyone"
 )
 
-var ANYONE = CreateID(anyone, ANYWHERE, "")
-var EVERYONE = CreateID(everyone, EVERYWHERE, "")
+var ANYONE = NewID(anyone, ANYWHERE, "")
+var EVERYONE = NewID(everyone, EVERYWHERE, "")

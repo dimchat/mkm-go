@@ -32,6 +32,7 @@ package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
+	. "github.com/dimchat/mkm-go/protocol"
 )
 
 type EntityDataSource interface {
@@ -42,7 +43,7 @@ type EntityDataSource interface {
 	 * @param identifier - entity ID
 	 * @return meta object
 	 */
-	GetMeta(identifier *ID) *Meta
+	GetMeta(identifier ID) Meta
 
 	/**
 	 *  Get profile for entity ID
@@ -50,7 +51,7 @@ type EntityDataSource interface {
 	 * @param identifier - entity ID
 	 * @return profile object
 	 */
-	GetProfile(identifier *ID) *Profile
+	GetProfile(identifier ID) TAI
 }
 
 /**
@@ -78,7 +79,7 @@ type UserDataSource interface {
 	 * @param user - user ID
 	 * @return contacts list (ID)
 	 */
-	GetContacts(user *ID) []*ID
+	GetContacts(user ID) []ID
 
 	/**
 	 *  Get user's public key for encryption
@@ -87,7 +88,7 @@ type UserDataSource interface {
 	 * @param user - user ID
 	 * @return public key
 	 */
-	GetPublicKeyForEncryption(user *ID) *EncryptKey
+	GetPublicKeyForEncryption(user ID) EncryptKey
 
 	/**
 	 *  Get user's private keys for decryption
@@ -96,7 +97,7 @@ type UserDataSource interface {
 	 * @param user - user ID
 	 * @return private keys
 	 */
-	GetPrivateKeysForDecryption(user *ID) []*DecryptKey
+	GetPrivateKeysForDecryption(user ID) []DecryptKey
 
 	/**
 	 *  Get user's private key for signature
@@ -105,7 +106,7 @@ type UserDataSource interface {
 	 * @param user - user ID
 	 * @return private key
 	 */
-	GetPrivateKeyForSignature(user *ID) *SignKey
+	GetPrivateKeyForSignature(user ID) SignKey
 
 	/**
 	 *  Get user's public keys for verification
@@ -114,7 +115,7 @@ type UserDataSource interface {
 	 * @param user - user ID
 	 * @return public keys
 	 */
-	GetPublicKeysForVerification(user *ID) []*VerifyKey
+	GetPublicKeysForVerification(user ID) []VerifyKey
 }
 
 type GroupDataSource interface {
@@ -126,7 +127,7 @@ type GroupDataSource interface {
 	 * @param group - group ID
 	 * @return fonder ID
 	 */
-	GetFounder(group *ID) *ID
+	GetFounder(group ID) ID
 
 	/**
 	 *  Get group owner
@@ -134,7 +135,7 @@ type GroupDataSource interface {
 	 * @param group - group ID
 	 * @return owner ID
 	 */
-	GetOwner(group *ID) *ID
+	GetOwner(group ID) ID
 
 	/**
 	 *  Get group members list
@@ -142,5 +143,5 @@ type GroupDataSource interface {
 	 * @param group - group ID
 	 * @return members list (ID)
 	 */
-	GetMembers(group *ID) []*ID
+	GetMembers(group ID) []ID
 }

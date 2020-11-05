@@ -32,7 +32,7 @@ package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
-	"unsafe"
+	. "github.com/dimchat/mkm-go/protocol"
 )
 
 /**
@@ -52,15 +52,15 @@ type User struct {
 	Entity
 }
 
-func (user *User) Init(identifier *ID) *User {
+func (user *User) Init(identifier ID) *User {
 	if user.Entity.Init(identifier) != nil {
 		// ...
 	}
 	return user
 }
 
-func (user *User) GetDataSource() *UserDataSource {
-	return (*UserDataSource)(unsafe.Pointer(user._delegate))
+func (user User) GetDataSource() UserDataSource {
+	return user._delegate.(UserDataSource)
 }
 
 /**
@@ -68,38 +68,36 @@ func (user *User) GetDataSource() *UserDataSource {
  *
  * @return contact list
  */
-func (user *User) GetContacts() []*ID {
+func (user User) GetContacts() []ID {
 	delegate := user.GetDataSource()
-	return (*delegate).GetContacts(user.ID())
+	return delegate.GetContacts(user.ID())
 }
 
-func (user *User) metaKey() *VerifyKey {
+func (user User) metaKey() PublicKey {
 	meta := user.GetMeta()
 	if meta == nil {
 		return nil
+	} else {
+		return meta.Key()
 	}
-	key := (*meta).Key()
-	if key == nil {
-		return nil
-	}
-	return (*VerifyKey)(unsafe.Pointer(key))
 }
 
-func (user *User) profileKey() *EncryptKey {
+func (user User) profileKey() EncryptKey {
 	profile := user.GetProfile()
 	if profile == nil || !profile.IsValid() {
 		// profile not found or not valid
 		return nil
+	} else {
+		return profile.GetKey()
 	}
-	return profile.GetKey()
 }
 
 // NOTICE: meta.key will never changed, so use profile.key to encrypt
 //         is the better way
-func (user *User) encryptKey() *EncryptKey {
+func (user User) encryptKey() EncryptKey {
 	// 0. get key from data source
 	delegate := user.GetDataSource()
-	key := (*delegate).GetPublicKeyForEncryption(user.ID())
+	key := delegate.GetPublicKeyForEncryption(user.ID())
 	if key != nil {
 		return key
 	}
@@ -111,9 +109,9 @@ func (user *User) encryptKey() *EncryptKey {
 	// 2. get key from meta
 	mKey := user.metaKey()
 	if mKey != nil {
-		k, ok := (*mKey).(EncryptKey)
+		key, ok := mKey.(EncryptKey)
 		if ok {
-			return &k
+			return key
 		}
 	}
 	//panic("failed to get encrypt key for user")
@@ -122,20 +120,20 @@ func (user *User) encryptKey() *EncryptKey {
 
 // NOTICE: I suggest using the private key paired with meta.key to sign message
 //         so here should return the meta.key
-func (user *User) verifyKeys() []*VerifyKey {
+func (user User) verifyKeys() []VerifyKey {
 	// 0. get keys from data source
 	delegate := user.GetDataSource()
-	keys := (*delegate).GetPublicKeysForVerification(user.ID())
+	keys := delegate.GetPublicKeysForVerification(user.ID())
 	if keys != nil && len(keys) > 0 {
 		return keys
 	}
-	keys = make([]*VerifyKey, 0)
+	keys = make([]VerifyKey, 0)
 	// 1. get key from profile
 	pKey := user.profileKey()
 	if pKey != nil {
-		k, ok := (*pKey).(VerifyKey)
+		key, ok := pKey.(VerifyKey)
 		if ok {
-			keys = append(keys, &k)
+			keys = append(keys, key)
 		}
 	}
 	// 2. get key from meta
@@ -153,14 +151,14 @@ func (user *User) verifyKeys() []*VerifyKey {
  * @param signature - message signature
  * @return true on correct
  */
-func (user *User) Verify(data []byte, signature []byte) bool {
+func (user User) Verify(data []byte, signature []byte) bool {
 	keys := user.verifyKeys()
 	if keys == nil {
 		//panic("failed to get keys for verification")
 		return false
 	}
 	for _, key := range keys {
-		if (*key).Verify(data, signature) {
+		if key.Verify(data, signature) {
 			// matched!
 			return true
 		}
@@ -174,13 +172,14 @@ func (user *User) Verify(data []byte, signature []byte) bool {
  * @param plaintext - message data
  * @return encrypted data
  */
-func (user *User) Encrypt(plaintext []byte) []byte {
+func (user User) Encrypt(plaintext []byte) []byte {
 	key := user.encryptKey()
 	if key == nil {
-		panic("failed to get key for encryption")
+		//panic("failed to get key for encryption")
 		return nil
+	} else {
+		return key.Encrypt(plaintext)
 	}
-	return (*key).Encrypt(plaintext)
 }
 
 //
@@ -189,16 +188,16 @@ func (user *User) Encrypt(plaintext []byte) []byte {
 
 // NOTICE: I suggest use the private key which paired to meta.key
 //         to sign message
-func (user *User) signKey() *SignKey {
+func (user User) signKey() SignKey {
 	delegate := user.GetDataSource()
-	return (*delegate).GetPrivateKeyForSignature(user.ID())
+	return delegate.GetPrivateKeyForSignature(user.ID())
 }
 
 // NOTICE: if you provide a public key in profile for encryption
 //         here you should return the private key paired with profile.key
-func (user *User) decryptKeys() []*DecryptKey {
+func (user User) decryptKeys() []DecryptKey {
 	delegate := user.GetDataSource()
-	return (*delegate).GetPrivateKeysForDecryption(user.ID())
+	return delegate.GetPrivateKeysForDecryption(user.ID())
 }
 
 /**
@@ -207,13 +206,13 @@ func (user *User) decryptKeys() []*DecryptKey {
  * @param data - message data
  * @return signature
  */
-func (user *User) Sign(data []byte) []byte {
+func (user User) Sign(data []byte) []byte {
 	key := user.signKey()
 	if key == nil {
 		panic("failed to get key for signing")
 		return nil
 	}
-	return (*key).Sign(data)
+	return key.Sign(data)
 }
 
 /**
@@ -222,7 +221,7 @@ func (user *User) Sign(data []byte) []byte {
  * @param ciphertext - encrypted data
  * @return plain text
  */
-func (user *User) Decrypt(ciphertext []byte) []byte {
+func (user User) Decrypt(ciphertext []byte) []byte {
 	keys := user.decryptKeys()
 	if keys == nil {
 		panic("failed to get keys for decryption")
@@ -230,7 +229,7 @@ func (user *User) Decrypt(ciphertext []byte) []byte {
 	}
 	var plaintext []byte
 	for _, key := range keys {
-		plaintext = (*key).Decrypt(ciphertext)
+		plaintext = key.Decrypt(ciphertext)
 		if plaintext != nil {
 			// OK
 			return plaintext

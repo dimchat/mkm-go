@@ -27,7 +27,6 @@ package crypto
 
 import (
 	"bytes"
-	"unsafe"
 )
 
 const (
@@ -52,14 +51,12 @@ type SymmetricKey interface {
 	DecryptKey
 }
 
-func SymmetricKeysEqual(key, other *SymmetricKey) bool {
-	ptr1 := (*CryptographyKey)(unsafe.Pointer(key))
-	ptr2 := (*CryptographyKey)(unsafe.Pointer(other))
-	if CryptographyKeysEqual(ptr1, ptr2) {
+func SymmetricKeysEqual(key1, key2 SymmetricKey) bool {
+	if CryptographyKeysEqual(key1, key2) {
 		return true
 	}
 	// check by encryption
-	ciphertext := (*other).Encrypt(promise)
-	plaintext := (*key).Decrypt(ciphertext)
+	ciphertext := key2.Encrypt(promise)
+	plaintext := key1.Decrypt(ciphertext)
 	return bytes.Equal(promise, plaintext)
 }

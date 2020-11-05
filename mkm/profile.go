@@ -33,129 +33,31 @@ package mkm
 import (
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
+	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
 )
-
-/**
- *  The Additional Information
- *
- *      'Meta' is the information for entity which never changed,
- *          which contains the key for verify signature;
- *      'TAI' is the variable part,
- *          which could contain a public key for asymmetric encryption.
- */
-type TAI interface {
-
-	/**
-	 *  Get entity ID
-	 *
-	 * @return entity ID
-	 */
-	ID() *String
-
-	/**
-	 *  Check if signature matched
-	 *
-	 * @return False on signature not matched
-	 */
-	IsValid() bool
-
-	//-------- signature
-
-	/**
-	 *  Verify 'data' and 'signature' with public key
-	 *
-	 * @param publicKey - public key in meta.key
-	 * @return true on signature matched
-	 */
-	Verify(publicKey *VerifyKey) bool
-
-	/**
-	 *  Encode properties to 'data' and sign it to 'signature'
-	 *
-	 * @param privateKey - private key match meta.key
-	 * @return signature
-	 */
-	Sign(privateKey *SignKey) []byte
-
-	//-------- properties
-
-	/**
-	 *  Get all names for properties
-	 *
-	 * @return profile properties key set
-	 */
-	PropertyNames() []string
-
-	/**
-	 *  Get profile property data with key
-	 *
-	 * @param name - property name
-	 * @return property data
-	 */
-	GetProperty(name string) interface{}
-
-	/**
-	 *  Update profile property with key and data
-	 *  (this will reset 'data' and 'signature')
-	 *
-	 * @param name - property name
-	 * @param value - property data
-	 */
-	SetProperty(name string, value interface{})
-
-	//---- properties getter/setter
-
-	/**
-	 *  Get public key to encrypt message for user
-	 *
-	 * @return public key
-	 */
-	GetKey() *EncryptKey
-
-	/**
-	 *  Set public key for other user to encrypt message
-	 *
-	 * @param publicKey - public key in profile.key
-	 */
-	SetKey(publicKey *EncryptKey)
-}
 
 type Profile struct {
 	Dictionary
 	TAI
 
-	_identifier *String  // ID or String
-	_data []byte               // JsON.encode(properties)
-	_signature []byte          // LocalUser(identifier).sign(data)
+	_data []byte       // JsON.encode(properties)
+	_signature []byte  // LocalUser(identifier).sign(data)
+
+	_status int8       // 1 for valid, -1 for invalid
 
 	_properties map[string]interface{}
-	_status int8              // 1 for valid, -1 for invalid
 }
 
 func (tai *Profile) Init(dictionary map[string]interface{}) *Profile {
 	if tai.Dictionary.Init(dictionary) != nil {
 		// lazy load
-		tai._identifier = nil
 		tai._data = nil
 		tai._signature = nil
 		tai._properties = nil
 		tai._status = 0
 	}
 	return tai
-}
-
-func (tai *Profile) ID() *String {
-	if tai._identifier == nil {
-		id := tai.Get("ID")
-		if tai != nil {
-			str, ok := id.(string)
-			if ok {
-				tai._identifier = CreateString(str)
-			}
-		}
-	}
-	return tai._identifier
 }
 
 /**
@@ -165,12 +67,9 @@ func (tai *Profile) ID() *String {
  */
 func (tai *Profile) Data() []byte {
 	if tai._data == nil {
-		json := tai.Get("data")
-		if json != nil {
-			str, ok := json.(string)
-			if ok {
-				tai._data = UTF8BytesFromString(str)
-			}
+		str, ok := tai.Get("data").(string)
+		if ok {
+			tai._data = UTF8BytesFromString(str)
 		}
 	}
 	return tai._data
@@ -183,24 +82,21 @@ func (tai *Profile) Data() []byte {
  */
 func (tai *Profile) Signature() []byte {
 	if tai._signature == nil {
-		b64 := tai.Get("signature")
-		if b64 != nil {
-			str, ok := b64.(string)
-			if ok {
-				tai._signature = Base64Decode(str)
-			}
+		str, ok := tai.Get("signature").(string)
+		if ok {
+			tai._signature = Base64Decode(str)
 		}
 	}
 	return tai._signature
 }
 
-func (tai *Profile) IsValid() bool {
+func (tai Profile) IsValid() bool {
 	return tai._status >= 0
 }
 
 //-------- signature
 
-func (tai *Profile) Verify(publicKey *VerifyKey) bool {
+func (tai *Profile) Verify(publicKey VerifyKey) bool {
 	if tai._status > 0 {
 		// already verify OK
 		return true
@@ -219,7 +115,7 @@ func (tai *Profile) Verify(publicKey *VerifyKey) bool {
 	} else if tai._signature == nil {
 		// signature error
 		tai._status = -1
-	} else if (*publicKey).Verify(data, signature) {
+	} else if publicKey.Verify(data, signature) {
 		// signature matched
 		tai._status = 1
 	}
@@ -228,14 +124,14 @@ func (tai *Profile) Verify(publicKey *VerifyKey) bool {
 	return tai._status == 1
 }
 
-func (tai *Profile) Sign(privateKey *SignKey) []byte {
+func (tai *Profile) Sign(privateKey SignKey) []byte {
 	if tai._status > 0 {
 		// already signed/verified
 		return tai._signature
 	}
 	tai._status = 1
 	tai._data = JSONBytesFromMap(tai.getProperties())
-	tai._signature = (*privateKey).Sign(tai._data)
+	tai._signature = privateKey.Sign(tai._data)
 	tai.Set("data", UTF8StringFromBytes(tai._data))
 	tai.Set("signature", Base64Encode(tai._signature))
 	return tai._signature

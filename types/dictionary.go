@@ -35,7 +35,34 @@ type Map interface {
 	Get(key string) interface{}
 	Set(key string, value interface{})
 
+	Keys() []string
+
 	GetMap(clone bool) map[string]interface{}
+}
+
+func MapsEqual(map1, map2 Map) bool {
+	if ObjectsEqual(map1, map2) {
+		return true
+	}
+	return reflect.DeepEqual(map1.GetMap(false), map2.GetMap(false))
+}
+
+func MapKeys(dictionary map[string]interface{}) []string {
+	index := 0
+	keys := make([]string, len(dictionary))
+	for key := range dictionary {
+		keys[index] = key
+		index++
+	}
+	return keys
+}
+
+func CloneMap(dictionary map[string]interface{}) map[string]interface{} {
+	clone := make(map[string]interface{})
+	for key, value := range dictionary {
+		clone[key] = value
+	}
+	return clone
 }
 
 type Dictionary struct {
@@ -52,23 +79,23 @@ func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
 	return dict
 }
 
-func (dict *Dictionary) Equal(other interface{}) bool {
-	ptr, ok := other.(*Dictionary)
-	if !ok {
-		obj, ok := other.(Dictionary)
-		if !ok {
-			return false
-		}
-		ptr = &obj
+func (dict Dictionary) Equal(other interface{}) bool {
+	map1 := dict._dictionary
+	var map2 map[string]interface{}
+	// get inner map
+	other = ObjectValue(other)
+	switch other.(type) {
+	case Map:
+		map2 = other.(Map).GetMap(false)
+	case map[string]interface{}:
+		map2 = other.(map[string]interface{})
+	default:
+		return false
 	}
-	if dict == ptr {
-		return true
-	}
-	// check inner maps
-	return MapsEqual(dict._dictionary, ptr._dictionary)
+	return reflect.DeepEqual(map1, map2)
 }
 
-func (dict *Dictionary) Get(key string) interface{} {
+func (dict Dictionary) Get(key string) interface{} {
 	return dict._dictionary[key]
 }
 
@@ -80,32 +107,14 @@ func (dict *Dictionary) Set(key string, value interface{}) {
 	}
 }
 
-func (dict *Dictionary) GetMap(clone bool) map[string]interface{} {
+func (dict Dictionary) Keys() []string {
+	return MapKeys(dict._dictionary)
+}
+
+func (dict Dictionary) GetMap(clone bool) map[string]interface{} {
 	if clone {
 		return CloneMap(dict._dictionary)
 	} else {
 		return dict._dictionary
 	}
-}
-
-func CloneMap(dictionary map[string]interface{}) map[string]interface{} {
-	clone := make(map[string]interface{})
-	for key, value := range dictionary {
-		clone[key] = value
-	}
-	return clone
-}
-
-func MapKeys(dictionary map[string]interface{}) []string {
-	index := 0
-	keys := make([]string, len(dictionary))
-	for k := range dictionary {
-		keys[index] = k
-		index++
-	}
-	return keys
-}
-
-func MapsEqual(map1, map2 map[string]interface{}) bool {
-	return reflect.DeepEqual(map1, map2)
 }

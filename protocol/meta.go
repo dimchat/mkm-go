@@ -28,12 +28,11 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package mkm
+package protocol
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
-	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
 )
 
@@ -69,7 +68,7 @@ type Meta interface {
 	 *
 	 *      RSA / ECC
 	 */
-	Key() *PublicKey
+	Key() PublicKey
 
 	/**
 	 *  Seed to generate fingerprint
@@ -87,12 +86,12 @@ type Meta interface {
 	Fingerprint() []byte
 
 	// comparing
-	MatchID(identifier *ID) bool
-	MatchAddress(address *Address) bool
-	MatchKey(key *PublicKey) bool
+	MatchID(identifier ID) bool
+	MatchAddress(address Address) bool
+	MatchKey(key PublicKey) bool
 
 	// call 'GenerateAddress'
-	GenerateID(network NetworkType) *ID
+	GenerateID(network NetworkType) ID
 
 	/**
 	 *  Generate address with meta info and address type
@@ -100,61 +99,57 @@ type Meta interface {
 	 * @param network - address network type
 	 * @return Address object
 	 */
-	GenerateAddress(network NetworkType) *Address
+	GenerateAddress(network NetworkType) Address
 }
 
-func MetasEqual(meta1, meta2 *Meta) bool {
-	if *meta1 == *meta2 {
-		return true
-	}
-	// check inner maps
-	map1 := (*meta1).GetMap(false)
-	map2 := (*meta2).GetMap(false)
-	if MapsEqual(map1, map2) {
+func MetasEqual(meta1, meta2 Meta) bool {
+	if MapsEqual(meta1, meta2) {
 		return true
 	}
 	// check by generating ID
-	id := (*meta1).GenerateID(MAIN)
+	id := meta1.GenerateID(MAIN)
 	return MetaMatchID(meta2, id)
 }
 
-func MetaGenerateID(meta *Meta, network NetworkType) *ID {
-	name := (*meta).Seed()
-	address := (*meta).GenerateAddress(network)
-	return CreateID(name, address, "")
+func MetaGenerateID(meta Meta, network NetworkType) ID {
+	name := meta.Seed()
+	address := meta.GenerateAddress(network)
+	return NewID(name, address, "")
 }
 
-func MetaMatchID(meta *Meta, identifier *ID) bool {
+func MetaMatchID(meta Meta, identifier ID) bool {
 	// check ID.name
 	name := identifier.Name()
-	if MetaTypeHasSeed((*meta).Type()) {
-		if (*meta).Seed() == name {
+	if MetaTypeHasSeed(meta.Type()) {
+		// this meta has seed, it must be equal to ID.name
+		if meta.Seed() == name {
 			return false
 		}
 	} else if name != "" {
+		// this meta hasn't seed, so ID.name should be empty
 		return false
 	}
 	// check ID.address
 	return MetaMatchAddress(meta, identifier.Address())
 }
 
-func MetaMatchAddress(meta *Meta, address *Address) bool {
-	network := (*address).Type()
-	addr := (*meta).GenerateAddress(network)
-	return (*addr).Equal(address)
+func MetaMatchAddress(meta Meta, address Address) bool {
+	network := address.Type()
+	addr := meta.GenerateAddress(network)
+	return addr.Equal(address)
 }
 
-func MetaMatchKey(meta *Meta, key *PublicKey) bool {
+func MetaMatchKey(meta Meta, key PublicKey) bool {
 	// check whether the public key equals to meta.key
-	if (*key).Equal((*meta).Key()) {
+	if PublicKeysEqual(meta.Key(), key) {
 		return true
 	}
 	// check with seed & fingerprint
-	if MetaTypeHasSeed((*meta).Type()) {
+	if MetaTypeHasSeed(meta.Type()) {
 		// check whether keys equal by verifying signature
-		seed := (*meta).Seed()
-		fingerprint := (*meta).Fingerprint()
-		return (*key).Verify(UTF8BytesFromString(seed), fingerprint)
+		seed := meta.Seed()
+		fingerprint := meta.Fingerprint()
+		return key.Verify(UTF8BytesFromString(seed), fingerprint)
 	} else {
 		// ID with BTC/ETH address has no username
 		// so we can just compare the key.data to check matching

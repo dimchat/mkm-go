@@ -25,7 +25,29 @@
  */
 package types
 
+import "reflect"
+
 type Object interface {
 
 	Equal(other interface{}) bool
+}
+
+func ObjectsEqual(obj1, obj2 Object) bool {
+	return obj1 == obj2
+}
+
+func ObjectValue(i interface{}) interface{} {
+	value := reflect.ValueOf(i)
+	if value.Kind() == reflect.Ptr {
+		i = value.Elem().Interface()
+	}
+	return i
+}
+
+func ObjectPointer(i interface{}) interface{} {
+	value := reflect.ValueOf(i)
+	if value.Kind() == reflect.Ptr {
+		return i
+	}
+	return &i
 }

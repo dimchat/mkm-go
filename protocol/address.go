@@ -28,13 +28,10 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package mkm
+package protocol
 
 import (
-	"fmt"
-	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
-	"unsafe"
 )
 
 /**
@@ -47,35 +44,39 @@ import (
  *          number  - search number
  */
 type Address interface {
-	fmt.Stringer
-	Object
+	Stringer
 
 	/**
 	 *  get address type
 	 *
-	 * @return Network ID
+	 * @return network type
 	 */
 	Type() NetworkType
 }
 
-func AddressIsUser(address *Address) bool {
-	network := (*address).Type()
+func AddressesEqual(address1, address2 Address) bool {
+	return StringsEqual(address1, address2)
+}
+
+func AddressIsUser(address Address) bool {
+	network := address.Type()
 	return NetworkTypeIsUser(network)
 }
 
-func AddressIsGroup(address *Address) bool {
-	network := (*address).Type()
+func AddressIsGroup(address Address) bool {
+	network := address.Type()
 	return NetworkTypeIsGroup(network)
 }
 
-func AddressIsBroadcast(address *Address) bool {
-	network := (*address).Type()
+func AddressIsBroadcast(address Address) bool {
+	network := address.Type()
 	if network == MAIN {
-		return (*address).String() == anywhere
+		return AddressesEqual(address, ANYWHERE)
 	} else if network == GROUP {
-		return (*address).String() == everywhere
+		return AddressesEqual(address, EVERYWHERE)
+	} else {
+		return false
 	}
-	return false
 }
 
 /**
@@ -86,28 +87,28 @@ const (
 	everywhere = "everywhere"
 )
 
-var ANYWHERE = createBroadcastAddress(anywhere, MAIN)
-var EVERYWHERE = createBroadcastAddress(everywhere, GROUP)
+var ANYWHERE = newBroadcastAddress(anywhere, MAIN)
+var EVERYWHERE = newBroadcastAddress(everywhere, GROUP)
 
-func createBroadcastAddress(string string, network NetworkType) *Address {
+func newBroadcastAddress(string string, network NetworkType) Address {
 	address := new(broadcastAddress)
 	address.Init(string, network)
-	return (*Address)(unsafe.Pointer(address))
+	return address
 }
 
 type broadcastAddress struct {
-	String
-	Address
+	ConstantString
 
 	_network NetworkType
 }
 
 func (address *broadcastAddress) Init(string string, network NetworkType) *broadcastAddress {
-	address.String.Init(string)
-	address._network = network
+	if address.ConstantString.Init(string) != nil {
+		address._network = network
+	}
 	return address
 }
 
-func (address *broadcastAddress) Type() NetworkType {
+func (address broadcastAddress) Type() NetworkType {
 	return address._network
 }

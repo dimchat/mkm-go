@@ -51,42 +51,37 @@ import (
 type Entity struct {
 	Object
 
-	_identifier *ID
+	_delegate EntityDataSource
 
-	_delegate *EntityDataSource
+	_identifier ID
 }
 
-func (entity *Entity) Init(identifier *ID) *Entity {
+func (entity *Entity) Init(identifier ID) *Entity {
 	entity._identifier = identifier
 	return entity
 }
 
-func (entity *Entity) Equal(other interface{}) bool {
-	ptr, ok := other.(*Entity)
-	if !ok {
-		obj, ok := other.(Entity)
-		if !ok {
-			return false
-		}
-		ptr = &obj
-	}
-	if *entity == *ptr {
-		return true
+func (entity Entity) Equal(other interface{}) bool {
+	var identifier ID
+	other = ObjectValue(other)
+	switch other.(type) {
+	case Entity:
+		identifier = other.(Entity).ID()
+	case ID:
+		identifier = other.(ID)
+	default:
+		return false
 	}
 	// check by ID
-	return entity.ID().Equal(ptr.ID())
+	return entity.ID().Equal(identifier)
 }
 
-func (entity *Entity) ID() *ID {
-	return entity._identifier
-}
-
-func (entity *Entity) GetDataSource() *EntityDataSource {
+func (entity Entity) GetDataSource() EntityDataSource {
 	return entity._delegate
 }
 
 func (entity *Entity) SetDataSource(delegate interface{}) {
-	ds, ok := delegate.(*EntityDataSource)
+	ds, ok := delegate.(EntityDataSource)
 	if ok {
 		entity._delegate = ds
 	} else {
@@ -94,39 +89,25 @@ func (entity *Entity) SetDataSource(delegate interface{}) {
 	}
 }
 
+func (entity Entity) ID() ID {
+	return entity._identifier
+}
+
 /**
  *  Get entity type
  *
  * @return ID(address) type as entity type
  */
-func (entity *Entity) Type() NetworkType {
+func (entity Entity) Type() NetworkType {
 	return entity.ID().Type()
 }
 
-func (entity *Entity) GetMeta() *Meta {
+func (entity Entity) GetMeta() Meta {
 	delegate := entity.GetDataSource()
-	return (*delegate).GetMeta(entity.ID())
+	return delegate.GetMeta(entity.ID())
 }
 
-func (entity *Entity) GetProfile() *Profile {
+func (entity Entity) GetProfile() TAI {
 	delegate := entity.GetDataSource()
-	return (*delegate).GetProfile(entity.ID())
-}
-
-/**
- *  Get entity name
- *
- * @return name string
- */
-func (entity *Entity) GetName() string {
-	// get from profile
-	profile := entity.GetProfile()
-	if profile != nil {
-		name := profile.GetName()
-		if name != "" {
-			return name
-		}
-	}
-	// get ID.name
-	return entity.ID().Name()
+	return delegate.GetProfile(entity.ID())
 }

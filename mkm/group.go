@@ -30,15 +30,17 @@
  */
 package mkm
 
-import "unsafe"
+import (
+	. "github.com/dimchat/mkm-go/protocol"
+)
 
 type Group struct {
 	Entity
 
-	_founder *ID
+	_founder ID
 }
 
-func (group *Group) Init(identifier *ID) *Group {
+func (group *Group) Init(identifier ID) *Group {
 	if group.Entity.Init(identifier) != nil {
 		// lazy load
 		group._founder = nil
@@ -46,24 +48,24 @@ func (group *Group) Init(identifier *ID) *Group {
 	return group
 }
 
-func (group *Group) GetDataSource() *GroupDataSource {
-	return (*GroupDataSource)(unsafe.Pointer(group._delegate))
+func (group Group) GetDataSource() GroupDataSource {
+	return group._delegate.(GroupDataSource)
 }
 
-func (group *Group) GetFounder() *ID {
+func (group *Group) GetFounder() ID {
 	if group._founder == nil {
 		delegate := group.GetDataSource()
-		group._founder = (*delegate).GetFounder(group.ID())
+		group._founder = delegate.GetFounder(group.ID())
 	}
 	return group._founder
 }
 
-func (group *Group) GetOwner() *ID {
+func (group Group) GetOwner() ID {
 	delegate := group.GetDataSource()
-	return (*delegate).GetOwner(group.ID())
+	return delegate.GetOwner(group.ID())
 }
 
-func (group *Group) GetMembers() []*ID {
+func (group Group) GetMembers() []ID {
 	delegate := group.GetDataSource()
-	return (*delegate).GetMembers(group.ID())
+	return delegate.GetMembers(group.ID())
 }

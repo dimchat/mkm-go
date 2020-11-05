@@ -25,10 +25,6 @@
  */
 package crypto
 
-import (
-	"unsafe"
-)
-
 const (
 	RSA = "RSA"  //-- "RSA/ECB/PKCS1Padding", "SHA256withRSA"
 	ECC = "ECC"
@@ -52,13 +48,11 @@ type PublicKey interface {
 	AsymmetricKey
 	VerifyKey
 
-	Match(privateKey *PrivateKey) bool
+	Match(privateKey PrivateKey) bool
 }
 
-func PublicKeysEqual(key, other *PublicKey) bool {
-	ptr1 := (*CryptographyKey)(unsafe.Pointer(key))
-	ptr2 := (*CryptographyKey)(unsafe.Pointer(other))
-	return CryptographyKeysEqual(ptr1, ptr2)
+func PublicKeysEqual(key1, key2 PublicKey) bool {
+	return CryptographyKeysEqual(key1, key2)
 }
 
 /**
@@ -67,15 +61,15 @@ func PublicKeysEqual(key, other *PublicKey) bool {
  * @param privateKey - private key that can generate the same public key
  * @return true on keys matched
  */
-func AsymmetricKeyMatch(publicKey *PublicKey, privateKey *PrivateKey) bool {
+func AsymmetricKeysMatch(publicKey PublicKey, privateKey PrivateKey) bool {
 	// 1. if the SK has the same public key, return true
-	pKey := (*privateKey).GetPublicKey()
-	if PublicKeysEqual(pKey, publicKey) {
+	pKey := privateKey.GetPublicKey()
+	if publicKey.Equal(pKey) {
 		return true
 	}
 	// 2. check by signature
-	signature := (*privateKey).Sign(promise)
-	return (*publicKey).Verify(promise, signature)
+	signature := privateKey.Sign(promise)
+	return publicKey.Verify(promise, signature)
 }
 
 /**
@@ -98,16 +92,14 @@ type PrivateKey interface {
 	 *
 	 * @return public key paired to this private key
 	 */
-	GetPublicKey() *PublicKey
+	GetPublicKey() PublicKey
 }
 
-func PrivateKeysEqual(key, other *PrivateKey) bool {
-	ptr1 := (*CryptographyKey)(unsafe.Pointer(key))
-	ptr2 := (*CryptographyKey)(unsafe.Pointer(other))
-	if CryptographyKeysEqual(ptr1, ptr2) {
+func PrivateKeysEqual(key1, key2 PrivateKey) bool {
+	if CryptographyKeysEqual(key1, key2) {
 		return true
 	}
 	// check by public
-	publicKey := (*key).GetPublicKey()
-	return AsymmetricKeyMatch(publicKey, other)
+	publicKey := key1.GetPublicKey()
+	return AsymmetricKeysMatch(publicKey, key2)
 }
