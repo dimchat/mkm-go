@@ -32,6 +32,7 @@ package protocol
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -43,6 +44,7 @@ import (
  *          which could contain a public key for asymmetric encryption.
  */
 type TAI interface {
+	Map
 
 	/**
 	 *  Get entity ID
@@ -101,8 +103,26 @@ type TAI interface {
 	 * @param value - property data
 	 */
 	SetProperty(name string, value interface{})
+}
+
+type Profile interface {
+	TAI
 
 	//---- properties getter/setter
+
+	/**
+	 *  Get entity name
+	 *
+	 * @return name string
+	 */
+	GetName() string
+
+	/**
+	 *  Set entity name
+	 *
+	 * @param name - nickname of user; title of group
+	 */
+	SetName(name string)
 
 	/**
 	 *  Get public key to encrypt message for user

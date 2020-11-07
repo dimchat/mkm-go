@@ -48,24 +48,24 @@ func (group *Group) Init(identifier ID) *Group {
 	return group
 }
 
-func (group Group) GetDataSource() GroupDataSource {
+func (group Group) DataSource() GroupDataSource {
 	return group._delegate.(GroupDataSource)
 }
 
 func (group *Group) GetFounder() ID {
 	if group._founder == nil {
-		delegate := group.GetDataSource()
+		delegate := group.DataSource()
 		group._founder = delegate.GetFounder(group.ID())
 	}
 	return group._founder
 }
 
 func (group Group) GetOwner() ID {
-	delegate := group.GetDataSource()
+	delegate := group.DataSource()
 	return delegate.GetOwner(group.ID())
 }
 
 func (group Group) GetMembers() []ID {
-	delegate := group.GetDataSource()
+	delegate := group.DataSource()
 	return delegate.GetMembers(group.ID())
 }

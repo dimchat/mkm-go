@@ -59,7 +59,7 @@ func (user *User) Init(identifier ID) *User {
 	return user
 }
 
-func (user User) GetDataSource() UserDataSource {
+func (user User) DataSource() UserDataSource {
 	return user._delegate.(UserDataSource)
 }
 
@@ -69,7 +69,7 @@ func (user User) GetDataSource() UserDataSource {
  * @return contact list
  */
 func (user User) GetContacts() []ID {
-	delegate := user.GetDataSource()
+	delegate := user.DataSource()
 	return delegate.GetContacts(user.ID())
 }
 
@@ -96,7 +96,7 @@ func (user User) profileKey() EncryptKey {
 //         is the better way
 func (user User) encryptKey() EncryptKey {
 	// 0. get key from data source
-	delegate := user.GetDataSource()
+	delegate := user.DataSource()
 	key := delegate.GetPublicKeyForEncryption(user.ID())
 	if key != nil {
 		return key
@@ -122,7 +122,7 @@ func (user User) encryptKey() EncryptKey {
 //         so here should return the meta.key
 func (user User) verifyKeys() []VerifyKey {
 	// 0. get keys from data source
-	delegate := user.GetDataSource()
+	delegate := user.DataSource()
 	keys := delegate.GetPublicKeysForVerification(user.ID())
 	if keys != nil && len(keys) > 0 {
 		return keys
@@ -189,14 +189,14 @@ func (user User) Encrypt(plaintext []byte) []byte {
 // NOTICE: I suggest use the private key which paired to meta.key
 //         to sign message
 func (user User) signKey() SignKey {
-	delegate := user.GetDataSource()
+	delegate := user.DataSource()
 	return delegate.GetPrivateKeyForSignature(user.ID())
 }
 
 // NOTICE: if you provide a public key in profile for encryption
 //         here you should return the private key paired with profile.key
 func (user User) decryptKeys() []DecryptKey {
-	delegate := user.GetDataSource()
+	delegate := user.DataSource()
 	return delegate.GetPrivateKeysForDecryption(user.ID())
 }
 

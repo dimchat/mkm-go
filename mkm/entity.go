@@ -76,7 +76,7 @@ func (entity Entity) Equal(other interface{}) bool {
 	return entity.ID().Equal(identifier)
 }
 
-func (entity Entity) GetDataSource() EntityDataSource {
+func (entity Entity) DataSource() EntityDataSource {
 	return entity._delegate
 }
 
@@ -103,11 +103,11 @@ func (entity Entity) Type() NetworkType {
 }
 
 func (entity Entity) GetMeta() Meta {
-	delegate := entity.GetDataSource()
+	delegate := entity.DataSource()
 	return delegate.GetMeta(entity.ID())
 }
 
-func (entity Entity) GetProfile() TAI {
-	delegate := entity.GetDataSource()
+func (entity Entity) GetProfile() Profile {
+	delegate := entity.DataSource()
 	return delegate.GetProfile(entity.ID())
 }

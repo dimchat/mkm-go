@@ -85,6 +85,14 @@ type Meta interface {
 	 */
 	Fingerprint() []byte
 
+	/**
+	 *  Check meta valid
+	 *  (must call this when received a new meta from network)
+	 *
+	 * @return true on valid
+	 */
+	IsValid() bool
+
 	// comparing
 	MatchID(identifier ID) bool
 	MatchAddress(address Address) bool

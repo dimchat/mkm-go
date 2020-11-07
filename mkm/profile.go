@@ -37,9 +37,14 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-type Profile struct {
+//  virtual class, need to implement methods:
+//      ID() ID
+//      GetKey() EncryptKey
+//      SetKey(publicKey EncryptKey)
+//  before using it
+type BaseProfile struct {
 	Dictionary
-	TAI
+	Profile
 
 	_data []byte       // JsON.encode(properties)
 	_signature []byte  // LocalUser(identifier).sign(data)
@@ -49,7 +54,7 @@ type Profile struct {
 	_properties map[string]interface{}
 }
 
-func (tai *Profile) Init(dictionary map[string]interface{}) *Profile {
+func (tai *BaseProfile) Init(dictionary map[string]interface{}) *BaseProfile {
 	if tai.Dictionary.Init(dictionary) != nil {
 		// lazy load
 		tai._data = nil
@@ -65,7 +70,7 @@ func (tai *Profile) Init(dictionary map[string]interface{}) *Profile {
  *
  * @return JsON string
  */
-func (tai *Profile) Data() []byte {
+func (tai *BaseProfile) Data() []byte {
 	if tai._data == nil {
 		str, ok := tai.Get("data").(string)
 		if ok {
@@ -80,7 +85,7 @@ func (tai *Profile) Data() []byte {
  *
  * @return signature data
  */
-func (tai *Profile) Signature() []byte {
+func (tai *BaseProfile) Signature() []byte {
 	if tai._signature == nil {
 		str, ok := tai.Get("signature").(string)
 		if ok {
@@ -90,13 +95,13 @@ func (tai *Profile) Signature() []byte {
 	return tai._signature
 }
 
-func (tai Profile) IsValid() bool {
+func (tai BaseProfile) IsValid() bool {
 	return tai._status >= 0
 }
 
 //-------- signature
 
-func (tai *Profile) Verify(publicKey VerifyKey) bool {
+func (tai *BaseProfile) Verify(publicKey VerifyKey) bool {
 	if tai._status > 0 {
 		// already verify OK
 		return true
@@ -124,7 +129,7 @@ func (tai *Profile) Verify(publicKey VerifyKey) bool {
 	return tai._status == 1
 }
 
-func (tai *Profile) Sign(privateKey SignKey) []byte {
+func (tai *BaseProfile) Sign(privateKey SignKey) []byte {
 	if tai._status > 0 {
 		// already signed/verified
 		return tai._signature
@@ -139,7 +144,7 @@ func (tai *Profile) Sign(privateKey SignKey) []byte {
 
 //-------- properties
 
-func (tai *Profile) getProperties() map[string]interface{} {
+func (tai *BaseProfile) getProperties() map[string]interface{} {
 	if tai._status < 0 {
 		// invalid
 		return nil
@@ -162,7 +167,7 @@ func (tai *Profile) getProperties() map[string]interface{} {
 	return tai._properties
 }
 
-func (tai *Profile) PropertyNames() []string {
+func (tai *BaseProfile) PropertyNames() []string {
 	dict := tai.getProperties()
 	if dict == nil {
 		return nil
@@ -170,7 +175,7 @@ func (tai *Profile) PropertyNames() []string {
 	return MapKeys(dict)
 }
 
-func (tai *Profile) GetProperty(name string) interface{} {
+func (tai *BaseProfile) GetProperty(name string) interface{} {
 	dict := tai.getProperties()
 	if dict == nil {
 		return nil
@@ -178,7 +183,7 @@ func (tai *Profile) GetProperty(name string) interface{} {
 	return dict[name]
 }
 
-func (tai *Profile) SetProperty(name string, value interface{}) {
+func (tai *BaseProfile) SetProperty(name string, value interface{}) {
 	// 1. reset status
 	tai._status = 0
 	// 2. update property value with name
@@ -202,7 +207,7 @@ func (tai *Profile) SetProperty(name string, value interface{}) {
  *
  * @return name string
  */
-func (tai *Profile) GetName() string {
+func (tai *BaseProfile) GetName() string {
 	name := tai.GetProperty("name")
 	if name == nil {
 		return ""
@@ -215,6 +220,6 @@ func (tai *Profile) GetName() string {
 	}
 }
 
-func (tai *Profile) SetName(name string) {
+func (tai *BaseProfile) SetName(name string) {
 	tai.SetProperty("name", name)
 }

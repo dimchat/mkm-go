@@ -51,7 +51,7 @@ type EntityDataSource interface {
 	 * @param identifier - entity ID
 	 * @return profile object
 	 */
-	GetProfile(identifier ID) TAI
+	GetProfile(identifier ID) Profile
 }
 
 /**

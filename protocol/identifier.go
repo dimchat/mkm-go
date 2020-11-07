@@ -102,8 +102,17 @@ func (id *Identifier) Init(string string, name string, address Address, terminal
 }
 
 func (id Identifier) Equal(other interface{}) bool {
-	id2 := ObjectValue(other).(ID)
-	return IdentifiersEqual(id, id2)
+	other = ObjectValue(other)
+	switch other.(type) {
+	case ID:
+		return IdentifiersEqual(id, other.(ID))
+	case Stringer:
+		return id.String() == other.(Stringer).String()
+	case string:
+		return id.String() == other.(string)
+	default:
+		return false
+	}
 }
 
 func (id Identifier) String() string {
