@@ -91,13 +91,12 @@ var ANYWHERE = newBroadcastAddress(anywhere, MAIN)
 var EVERYWHERE = newBroadcastAddress(everywhere, GROUP)
 
 func newBroadcastAddress(string string, network NetworkType) Address {
-	address := new(broadcastAddress)
-	address.Init(string, network)
-	return address
+	return new(broadcastAddress).Init(string, network)
 }
 
 type broadcastAddress struct {
 	ConstantString
+	Address
 
 	_network NetworkType
 }
@@ -107,6 +106,22 @@ func (address *broadcastAddress) Init(string string, network NetworkType) *broad
 		address._network = network
 	}
 	return address
+}
+
+func (address broadcastAddress) Equal(other interface{}) bool {
+	other = ObjectValue(other)
+	switch other.(type) {
+	case Stringer:
+		return address.String() == other.(Stringer).String()
+	case string:
+		return address.String() == other.(string)
+	default:
+		return false
+	}
+}
+
+func (address broadcastAddress) String() string {
+	return address.ConstantString.String()
 }
 
 func (address broadcastAddress) Type() NetworkType {

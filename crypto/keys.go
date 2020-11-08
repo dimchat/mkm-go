@@ -46,6 +46,13 @@ var promise = UTF8BytesFromString(_promise)
  */
 type CryptographyKey interface {
 	Map
+
+	/**
+	 *  Get key data
+	 *
+	 * @return key data
+	 */
+	Data() []byte
 }
 
 func CryptographyKeysEqual(key1, key2 CryptographyKey) bool {
