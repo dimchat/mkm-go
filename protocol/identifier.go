@@ -69,7 +69,7 @@ type ID interface {
 	Type() NetworkType
 }
 
-func IdentifiersEqual(id1, id2 ID) bool {
+func IDsEqual(id1, id2 ID) bool {
 	if id1 == id2 {
 		return true
 	}
@@ -82,6 +82,28 @@ func IdentifiersEqual(id1, id2 ID) bool {
 	addr2 := id2.Address()
 	return AddressesEqual(addr1, addr2)
 }
+
+func IDType(id ID) NetworkType {
+	address := id.Address()
+	return address.Type()
+}
+
+func IDIsUser(id ID) bool {
+	address := id.Address()
+	return AddressIsUser(address)
+}
+
+func IDIsGroup(id ID) bool {
+	address := id.Address()
+	return AddressIsGroup(address)
+}
+
+func IDIsBroadcast(id ID) bool {
+	address := id.Address()
+	return AddressIsBroadcast(address)
+}
+
+//-------- ID implementation
 
 type Identifier struct {
 	ConstantString
@@ -105,7 +127,7 @@ func (id Identifier) Equal(other interface{}) bool {
 	other = ObjectValue(other)
 	switch other.(type) {
 	case ID:
-		return IdentifiersEqual(id, other.(ID))
+		return IDsEqual(id, other.(ID))
 	case Stringer:
 		return id.String() == other.(Stringer).String()
 	case string:
@@ -133,8 +155,7 @@ func (id Identifier) Address() Address {
  * @return address type
  */
 func (id Identifier) Type() NetworkType {
-	address := id.Address()
-	return address.Type()
+	return IDType(id)
 }
 
 /**
@@ -147,18 +168,15 @@ func (id Identifier) Terminal() string {
 }
 
 func (id Identifier) IsUser() bool {
-	address := id.Address()
-	return AddressIsUser(address)
+	return IDIsUser(id)
 }
 
 func (id Identifier) IsGroup() bool {
-	address := id.Address()
-	return AddressIsGroup(address)
+	return IDIsGroup(id)
 }
 
 func (id Identifier) IsBroadcast() bool {
-	address := id.Address()
-	return AddressIsBroadcast(address)
+	return IDIsBroadcast(id)
 }
 
 func NewID(name string, address Address, terminal string) ID {
