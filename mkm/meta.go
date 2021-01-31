@@ -37,17 +37,30 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-//  virtual class, need to implement methods:
-//      Key() PublicKey
-//      GenerateAddress()
-//  before using it
-type BaseMeta struct {
-	Dictionary
+type IMeta interface {
 	Meta
 
-	_version MetaType
+	/**
+	 *  Generate address
+	 *
+	 * @param network - ID.type
+	 * @return Address
+	 */
+	GenerateAddress(network uint8) Address
+}
 
-	_key PublicKey
+//
+//  virtual class, need to implement methods:
+//      GenerateAddress()
+//  before using it
+//
+type BaseMeta struct {
+	Dictionary
+	IMeta
+
+	_type uint8
+
+	_key VerifyKey
 
 	_seed string
 	_fingerprint []byte
@@ -55,34 +68,67 @@ type BaseMeta struct {
 	_status int8 // 1 for valid, -1 for invalid
 }
 
-func (meta *BaseMeta) Init(dictionary map[string]interface{}) *BaseMeta {
-	if meta.Dictionary.Init(dictionary) != nil {
-		// lazy load
-		meta._version = MetaType(0)
-		meta._key = nil
-		meta._seed = ""
-		meta._fingerprint = nil
+func (meta *BaseMeta) Init(dict map[string]interface{},
+	version uint8, key VerifyKey, seed string, fingerprint []byte) *BaseMeta {
+	if meta.Dictionary.Init(dict) != nil {
+		// set values
+		meta._type = version
+		meta._key = key
+		meta._seed = seed
+		meta._fingerprint = fingerprint
 		meta._status = 0
+		// set values to inner dictionary
+		if version > 0 {
+			meta.Set("type", version)
+		}
+		if key != nil {
+			info, ok := key.(Map)
+			if ok {
+				meta.Set("key", info.GetMap(false))
+			}
+		}
+		if seed != "" {
+			meta.Set("seed", seed)
+		}
+		if fingerprint != nil {
+			meta.Set("fingerprint", Base64Encode(fingerprint))
+		}
 	}
 	return meta
 }
 
-func (meta *BaseMeta) Equal(other interface{}) bool {
-	other = ObjectValue(other)
-	switch other.(type) {
-	case Meta:
-		return MetasEqual(meta, other.(Meta))
-	default:
-		return false
+func (meta *BaseMeta) Type() uint8 {
+	if meta._type == 0 {
+		meta._type = MetaGetType(meta.GetMap(false))
 	}
+	return meta._type
 }
 
-/**
- *  Check meta valid
- *  (must call this when received a new meta from network)
- *
- * @return true on valid
- */
+func (meta *BaseMeta) Key() VerifyKey {
+	if meta._key == nil {
+		meta._key = MetaGetKey(meta.GetMap(false))
+	}
+	return meta._key
+}
+
+func (meta *BaseMeta) Seed() string {
+	if meta._seed == "" {
+		if MetaTypeHasSeed(meta.Type()) {
+			meta._seed = MetaGetSeed(meta.GetMap(false))
+		}
+	}
+	return meta._seed
+}
+
+func (meta *BaseMeta) Fingerprint() []byte {
+	if meta._fingerprint == nil {
+		if MetaTypeHasSeed(meta.Type()) {
+			meta._fingerprint = MetaGetFingerprint(meta.GetMap(false))
+		}
+	}
+	return meta._fingerprint
+}
+
 func (meta *BaseMeta) IsValid() bool {
 	if meta._status == 0 {
 		key := meta.Key()
@@ -109,53 +155,40 @@ func (meta *BaseMeta) IsValid() bool {
 	return meta._status == 1
 }
 
-func (meta *BaseMeta) Type() MetaType {
-	if meta._version == 0 {
-		version := meta.Get("version")
-		meta._version = MetaType(version.(uint8))
+func (meta *BaseMeta) GenerateID(network uint8, terminal string) ID {
+	address := meta.GenerateAddress(network)
+	if address == nil {
+		return nil
 	}
-	return meta._version
-}
-
-func (meta *BaseMeta) Seed() string {
-	if meta._seed == "" {
-		if MetaTypeHasSeed(meta.Type()) {
-			seed := meta.Get("seed")
-			meta._seed = seed.(string)
-		}
-	}
-	return meta._seed
-}
-
-func (meta *BaseMeta) Fingerprint() []byte {
-	if meta._fingerprint == nil {
-		if MetaTypeHasSeed(meta.Type()) {
-			base64 := meta.Get("fingerprint")
-			meta._fingerprint = Base64Decode(base64.(string))
-		}
-	}
-	return meta._fingerprint
+	return IDCreate(meta.Seed(), address, terminal)
 }
 
 func (meta *BaseMeta) MatchID(identifier ID) bool {
-	return MetaMatchID(meta, identifier)
-}
-
-func (meta *BaseMeta) MatchAddress(address Address) bool {
-	return MetaMatchAddress(meta, address)
-}
-
-func (meta *BaseMeta) MatchKey(key PublicKey) bool {
-	return MetaMatchKey(meta, key)
-}
-
-func (meta *BaseMeta) GenerateID(network NetworkType) ID {
-	var name string
-	if MetaTypeHasSeed(meta.Type()) {
-		name = meta.Seed()
-	} else {
-		name = ""
+	if meta.IsValid() == false {
+		return false
 	}
-	address := meta.GenerateAddress(network)
-	return NewID(name, address, "")
+	// check ID.name
+	if identifier.Name() != meta.Seed() {
+		return false
+	}
+	// check ID.address
+	address := meta.GenerateAddress(identifier.Type())
+	return identifier.Address().Equal(address)
+}
+
+func (meta *BaseMeta) MatchKey(key VerifyKey) bool {
+	if meta.IsValid() == false {
+		return false
+	}
+	// check with seed & fingerprint
+	if MetaTypeHasSeed(meta.Type()) {
+		// check whether keys equal by verifying signature
+		seed := meta.Seed()
+		fingerprint := meta.Fingerprint()
+		return key.Verify(UTF8Encode(seed), fingerprint)
+	} else {
+		// ID with BTC/ETH address has no username
+		// so we can just compare the key.data to check matching
+		return false
+	}
 }

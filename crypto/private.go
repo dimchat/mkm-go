@@ -25,6 +25,8 @@
  */
 package crypto
 
+import . "github.com/dimchat/mkm-go/types"
+
 /**
  *  Asymmetric Cryptography Private Key
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,7 +47,7 @@ type PrivateKey interface {
 	 *
 	 * @return public key paired to this private key
 	 */
-	GetPublicKey() PublicKey
+	PublicKey() PublicKey
 }
 
 /**
@@ -91,14 +93,26 @@ func PrivateKeyGenerate(algorithm string) PrivateKey {
 	return factory.GeneratePrivateKey()
 }
 
-func PrivateKeyParse(key map[string]interface{}) PrivateKey {
+func PrivateKeyParse(key interface{}) PrivateKey {
 	if key == nil {
 		return nil
 	}
-	algorithm := CryptographyKeyAlgorithm(key)
+	var info map[string]interface{}
+	value := ObjectValue(key)
+	switch value.(type) {
+	case PrivateKey:
+		return value.(PrivateKey)
+	case Map:
+		info = value.(Map).GetMap(false)
+	case map[string]interface{}:
+		info = value.(map[string]interface{})
+	default:
+		panic(key)
+	}
+	algorithm := CryptographyKeyGetAlgorithm(info)
 	factory := PrivateKeyGetFactory(algorithm)
 	if factory == nil {
 		factory = PrivateKeyGetFactory("*")  // unknown
 	}
-	return factory.ParsePrivateKey(key)
+	return factory.ParsePrivateKey(info)
 }

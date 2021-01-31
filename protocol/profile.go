@@ -32,109 +32,60 @@ package protocol
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
- *  The Additional Information
- *
- *      'Meta' is the information for entity which never changed,
- *          which contains the key for verify signature;
- *      'TAI' is the variable part,
- *          which could contain a public key for asymmetric encryption.
+ *  User Document
+ *  ~~~~~~~~~~~~~
+ *  This interface is defined for authorizing other apps to login,
+ *  which can generate a temporary asymmetric key pair for messaging.
  */
-type TAI interface {
-	Map
-
-	/**
-	 *  Get entity ID
-	 *
-	 * @return entity ID
-	 */
-	ID() ID
-
-	/**
-	 *  Check if signature matched
-	 *
-	 * @return False on signature not matched
-	 */
-	IsValid() bool
-
-	//-------- signature
-
-	/**
-	 *  Verify 'data' and 'signature' with public key
-	 *
-	 * @param publicKey - public key in meta.key
-	 * @return true on signature matched
-	 */
-	Verify(publicKey VerifyKey) bool
-
-	/**
-	 *  Encode properties to 'data' and sign it to 'signature'
-	 *
-	 * @param privateKey - private key match meta.key
-	 * @return signature
-	 */
-	Sign(privateKey SignKey) []byte
-
-	//-------- properties
-
-	/**
-	 *  Get all names for properties
-	 *
-	 * @return profile properties key set
-	 */
-	PropertyNames() []string
-
-	/**
-	 *  Get profile property data with key
-	 *
-	 * @param name - property name
-	 * @return property data
-	 */
-	GetProperty(name string) interface{}
-
-	/**
-	 *  Update profile property with key and data
-	 *  (this will reset 'data' and 'signature')
-	 *
-	 * @param name - property name
-	 * @param value - property data
-	 */
-	SetProperty(name string, value interface{})
-}
-
-type Profile interface {
-	TAI
-
-	//---- properties getter/setter
-
-	/**
-	 *  Get entity name
-	 *
-	 * @return name string
-	 */
-	GetName() string
-
-	/**
-	 *  Set entity name
-	 *
-	 * @param name - nickname of user; title of group
-	 */
-	SetName(name string)
+type Visa interface {
+	Document
 
 	/**
 	 *  Get public key to encrypt message for user
 	 *
-	 * @return public key
+	 * @return public key as visa.key
 	 */
-	GetKey() EncryptKey
+	Key() EncryptKey
 
 	/**
 	 *  Set public key for other user to encrypt message
 	 *
-	 * @param publicKey - public key in profile.key
+	 * @param publicKey - public key as visa.key
 	 */
 	SetKey(publicKey EncryptKey)
+
+	/**
+	 *  Get avatar URL
+	 *
+	 * @return URL string
+	 */
+	Avatar() string
+
+	/**
+	 *  Set avatar URL
+	 *
+	 * @param url - URL string
+	 */
+	SetAvatar(url string)
+}
+
+type Bulletin interface {
+	Document
+
+	/**
+	 *  Get group assistants
+	 *
+	 * @return bot ID list
+	 */
+	Assistants() []ID
+
+	/**
+	 *  Set group assistants
+	 *
+	 * @param assistants - bot ID list
+	 */
+	SetAssistants(assistants []ID)
 }

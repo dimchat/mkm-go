@@ -28,9 +28,9 @@ package types
 import "fmt"
 
 type Stringer interface {
+	Object
 
 	fmt.Stringer
-	Object
 }
 
 func StringsEqual(str1, str2 Stringer) bool {
@@ -51,15 +51,17 @@ func (str *ConstantString) Init(string string) *ConstantString {
 	return str
 }
 
-func (str ConstantString) String() string {
+func (str *ConstantString) String() string {
 	return str._string
 }
 
-func (str ConstantString) Equal(other interface{}) bool {
+func (str *ConstantString) Equal(other interface{}) bool {
 	other = ObjectValue(other)
 	switch other.(type) {
 	case Stringer:
 		return StringsEqual(str, other.(Stringer))
+	case fmt.Stringer:
+		return str._string == other.(fmt.Stringer).String()
 	case string:
 		return str._string == other.(string)
 	default:

@@ -25,6 +25,8 @@
  */
 package crypto
 
+import . "github.com/dimchat/mkm-go/types"
+
 /**
  *  Asymmetric Cryptography Public Key
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,14 +70,26 @@ func PublicKeyGetFactory(algorithm string) PublicKeyFactory {
 //
 //  Factory method
 //
-func PublicKeyParse(key map[string]interface{}) PublicKey {
+func PublicKeyParse(key interface{}) PublicKey {
 	if key == nil {
 		return nil
 	}
-	algorithm := CryptographyKeyAlgorithm(key)
+	var info map[string]interface{}
+	value := ObjectValue(key)
+	switch value.(type) {
+	case PublicKey:
+		return value.(PublicKey)
+	case Map:
+		info = value.(Map).GetMap(false)
+	case map[string]interface{}:
+		info = value.(map[string]interface{})
+	default:
+		panic(key)
+	}
+	algorithm := CryptographyKeyGetAlgorithm(info)
 	factory := PublicKeyGetFactory(algorithm)
 	if factory == nil {
 		factory = PublicKeyGetFactory("*")  // unknown
 	}
-	return factory.ParsePublicKey(key)
+	return factory.ParsePublicKey(info)
 }

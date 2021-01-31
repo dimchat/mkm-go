@@ -57,16 +57,16 @@ package protocol
 type MetaType uint8
 
 const (
-	DEFAULT MetaType = 0x01
-	MKM     MetaType = 0x01  // 0000 0001
+	DEFAULT = 0x01
+	MKM     = 0x01  // 0000 0001
 
-	BTC     MetaType = 0x02  // 0000 0010
-	ExBTC   MetaType = 0x03  // 0000 0011
+	BTC     = 0x02  // 0000 0010
+	ExBTC   = 0x03  // 0000 0011
 
-	ETH     MetaType = 0x04  // 0000 0100
-	ExETH   MetaType = 0x05  // 0000 0101
+	ETH     = 0x04  // 0000 0100
+	ExETH   = 0x05  // 0000 0101
 )
 
-func MetaTypeHasSeed(metaType MetaType) bool {
+func MetaTypeHasSeed(metaType uint8) bool {
 	return (metaType & MKM) == MKM
 }

@@ -31,6 +31,7 @@
 package protocol
 
 import (
+	"fmt"
 	. "github.com/dimchat/mkm-go/types"
 )
 
@@ -47,156 +48,132 @@ import (
 type ID interface {
 	Stringer
 
-	/**
-	 *  Get ID name
-	 *
-	 * @return ID.name
-	 */
 	Name() string
-
-	/**
-	 *  Get ID address
-	 *
-	 * @return ID.address
-	 */
 	Address() Address
+	Terminal() string
 
 	/**
 	 *  get ID type
 	 *
 	 * @return network type
 	 */
-	Type() NetworkType
+	Type() uint8
+
+	IsUser() bool
+	IsGroup() bool
+	IsBroadcast() bool
 }
 
 func IDsEqual(id1, id2 ID) bool {
-	if id1 == id2 {
-		return true
-	}
-	// check ID.name
-	if id1.Name() != id2.Name() {
-		return false
-	}
 	// check ID.address
 	addr1 := id1.Address()
 	addr2 := id2.Address()
-	return AddressesEqual(addr1, addr2)
-}
-
-func IDType(id ID) NetworkType {
-	address := id.Address()
-	return address.Type()
-}
-
-func IDIsUser(id ID) bool {
-	address := id.Address()
-	return AddressIsUser(address)
-}
-
-func IDIsGroup(id ID) bool {
-	address := id.Address()
-	return AddressIsGroup(address)
-}
-
-func IDIsBroadcast(id ID) bool {
-	address := id.Address()
-	return AddressIsBroadcast(address)
-}
-
-//-------- ID implementation
-
-type Identifier struct {
-	ConstantString
-	ID
-
-	_name string
-	_address Address
-	_terminal string
-}
-
-func (id *Identifier) Init(string string, name string, address Address, terminal string) *Identifier {
-	if id.ConstantString.Init(string) != nil {
-		id._name = name
-		id._address = address
-		id._terminal = terminal
-	}
-	return id
-}
-
-func (id Identifier) Equal(other interface{}) bool {
-	other = ObjectValue(other)
-	switch other.(type) {
-	case ID:
-		return IDsEqual(id, other.(ID))
-	case Stringer:
-		return id.String() == other.(Stringer).String()
-	case string:
-		return id.String() == other.(string)
-	default:
+	if addr1.Equal(addr2) == false {
 		return false
 	}
-}
-
-func (id Identifier) String() string {
-	return id.ConstantString.String()
-}
-
-func (id Identifier) Name() string {
-	return id._name
-}
-
-func (id Identifier) Address() Address {
-	return id._address
+	// check ID.name
+	return id1.Name() == id2.Name()
 }
 
 /**
- *  Get ID network type
- *
- * @return address type
+ *  ID Factory
+ *  ~~~~~~~~~~
  */
-func (id Identifier) Type() NetworkType {
-	return IDType(id)
+type IDFactory interface {
+
+	/**
+	 *  Create ID
+	 *
+	 * @param name     - ID.name
+	 * @param address  - ID.address
+	 * @param terminal - ID.terminal
+	 * @return ID
+	 */
+	CreateID(name string, address Address, terminal string) ID
+
+	/**
+	 *  Parse string object to ID
+	 *
+	 * @param identifier - ID string
+	 * @return ID
+	 */
+	ParseID(identifier string) ID
 }
 
-/**
- *  Get ID login point
- *
- * @return ID.terminal
- */
-func (id Identifier) Terminal() string {
-	return id._terminal
+var idFactory IDFactory = nil
+
+func IDSetFactory(factory IDFactory) {
+	idFactory = factory
+	// create broadcast IDs
+	CreateBroadcastIdentifiers()
 }
 
-func (id Identifier) IsUser() bool {
-	return IDIsUser(id)
+func IDGetFactory() IDFactory {
+	return idFactory
 }
 
-func (id Identifier) IsGroup() bool {
-	return IDIsGroup(id)
+//
+//  Factory methods
+//
+func IDCreate(name string, address Address, terminal string) ID {
+	return idFactory.CreateID(name, address, terminal)
 }
 
-func (id Identifier) IsBroadcast() bool {
-	return IDIsBroadcast(id)
-}
-
-func NewID(name string, address Address, terminal string) ID {
-	identifier := address.String()
-	if name != "" {
-		identifier = name + "@" + identifier
+func IDParse(identifier interface{}) ID {
+	if identifier == nil {
+		return nil
 	}
-	if terminal != "" {
-		identifier = identifier + "/" + terminal
+	var str string
+	value := ObjectValue(identifier)
+	switch value.(type) {
+	case ID:
+		return value.(ID)
+	case fmt.Stringer:
+		str = value.(fmt.Stringer).String()
+	case string:
+		str = value.(string)
+	default:
+		panic(identifier)
 	}
-	return new(Identifier).Init(identifier, name, address, terminal)
+	factory := IDGetFactory()
+	return factory.ParseID(str)
+}
+
+func IDConvert(members []interface{}) []ID {
+	res := make([]ID, len(members))
+	for index, item := range members {
+		res[index] = IDParse(item)
+	}
+	return res
+}
+
+func IDRevert(members []ID) []string {
+	res := make([]string, len(members))
+	for index, item := range members {
+		res[index] = item.String()
+	}
+	return res
 }
 
 /**
  *  ID for broadcast
  */
 const (
-	anyone = "anyone"
-	everyone = "everyone"
+	Anyone = "anyone"
+	Everyone = "everyone"
 )
 
-var ANYONE = NewID(anyone, ANYWHERE, "")
-var EVERYONE = NewID(everyone, EVERYWHERE, "")
+var ANYONE ID    // "anyone@anywhere"
+var EVERYONE ID  // "everyone@everywhere"
+
+func CreateBroadcastIdentifiers() {
+	if IDGetFactory() == nil {
+		return
+	}
+	if ANYONE == nil {
+		ANYONE = IDCreate(Anyone, ANYWHERE, "")
+	}
+	if EVERYONE == nil {
+		EVERYONE = IDCreate(Everyone, EVERYWHERE, "")
+	}
+}

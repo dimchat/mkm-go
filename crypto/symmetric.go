@@ -25,6 +25,8 @@
  */
 package crypto
 
+import . "github.com/dimchat/mkm-go/types"
+
 const (
 	AES = "AES"  //-- "AES/CBC/PKCS7Padding"
 	DES = "DES"
@@ -90,14 +92,26 @@ func SymmetricKeyGenerate(algorithm string) SymmetricKey {
 	return factory.GenerateSymmetricKey()
 }
 
-func SymmetricKeyParse(key map[string]interface{}) SymmetricKey {
+func SymmetricKeyParse(key interface{}) SymmetricKey {
 	if key == nil {
 		return nil
 	}
-	algorithm := CryptographyKeyAlgorithm(key)
+	var info map[string]interface{}
+	value := ObjectValue(key)
+	switch value.(type) {
+	case SymmetricKey:
+		return value.(SymmetricKey)
+	case Map:
+		info = value.(Map).GetMap(false)
+	case map[string]interface{}:
+		info = value.(map[string]interface{})
+	default:
+		panic(key)
+	}
+	algorithm := CryptographyKeyGetAlgorithm(info)
 	factory := SymmetricKeyGetFactory(algorithm)
 	if factory == nil {
 		factory = SymmetricKeyGetFactory("*")  // unknown
 	}
-	return factory.ParseSymmetricKey(key)
+	return factory.ParseSymmetricKey(info)
 }

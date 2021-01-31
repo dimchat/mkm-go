@@ -86,51 +86,51 @@ package protocol
 type NetworkType uint8
 
 const (
-	BTCMain      NetworkType = 0x00  // 0000 0000
-	//BTCTest    NetworkType = 0x6F  // 0110 1111
+	BTCMain      = 0x00  // 0000 0000
+	//BTCTest    = 0x6F  // 0110 1111
 
 	/*
 	 *  Person Account
 	 */
-	MAIN         NetworkType = 0x08  // 0000 1000 (Person)
+	MAIN         = 0x08  // 0000 1000 (Person)
 
 	/*
 	 *  Virtual Groups
 	 */
-	GROUP        NetworkType = 0x10  // 0001 0000 (Multi-Persons)
+	GROUP        = 0x10  // 0001 0000 (Multi-Persons)
 
-	MOMENTS      NetworkType = 0x18  // 0001 1000 (Twitter)
-	POLYLOGUE    NetworkType = 0x10  // 0001 0000 (Multi-Persons Chat, N < 100)
-	CHATROOM     NetworkType = 0x30  // 0011 0000 (Multi-Persons Chat, N >= 100)
+	MOMENTS      = 0x18  // 0001 1000 (Twitter)
+	POLYLOGUE    = 0x10  // 0001 0000 (Multi-Persons Chat, N < 100)
+	CHATROOM     = 0x30  // 0011 0000 (Multi-Persons Chat, N >= 100)
 
 	/*
 	 *  Social Entities in Reality
 	 */
-	//SOCIAL       NetworkType = 0x50  // 0101 0000
+	//SOCIAL       = 0x50  // 0101 0000
 
-	//ORGANIZATION NetworkType = 0x74  // 0111 0100
-	//COMPANY      NetworkType = 0x76  // 0111 0110
-	//SCHOOL       NetworkType = 0x77  // 0111 0111
-	//GOVERNMENT   NetworkType = 0x73  // 0111 0011
-	//DEPARTMENT   NetworkType = 0x52  // 0101 0010
+	//ORGANIZATION = 0x74  // 0111 0100
+	//COMPANY      = 0x76  // 0111 0110
+	//SCHOOL       = 0x77  // 0111 0111
+	//GOVERNMENT   = 0x73  // 0111 0011
+	//DEPARTMENT   = 0x52  // 0101 0010
 
 	/*
 	 *  Network
 	 */
-	PROVIDER     NetworkType = 0x76  // 0111 0110 (Service Provider)
-	STATION      NetworkType = 0x88  // 1000 1000 (Server Node)
+	PROVIDER     = 0x76  // 0111 0110 (Service Provider)
+	STATION      = 0x88  // 1000 1000 (Server Node)
 
 	/*
 	 *  Internet of Things
 	 */
-	THING        NetworkType = 0x80  // 1000 0000 (IoT)
-	ROBOT        NetworkType = 0xC8  // 1100 1000
+	THING        = 0x80  // 1000 0000 (IoT)
+	ROBOT        = 0xC8  // 1100 1000
 )
 
-func NetworkTypeIsUser(networkType NetworkType) bool {
+func NetworkTypeIsUser(networkType uint8) bool {
 	return (networkType & MAIN) == MAIN || networkType == BTCMain
 }
 
-func NetworkTypeIsGroup(networkType NetworkType) bool {
+func NetworkTypeIsGroup(networkType uint8) bool {
 	return (networkType & GROUP) == GROUP
 }

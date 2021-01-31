@@ -31,6 +31,7 @@
 package protocol
 
 import (
+	"fmt"
 	. "github.com/dimchat/mkm-go/types"
 )
 
@@ -38,10 +39,6 @@ import (
  *  Address for MKM ID
  *  ~~~~~~~~~~~~~~~~~~
  *  This class is used to build address for ID
- *
- *      properties:
- *          network - address type
- *          number  - search number
  */
 type Address interface {
 	Stringer
@@ -51,79 +48,71 @@ type Address interface {
 	 *
 	 * @return network type
 	 */
-	Type() NetworkType
+	Network() uint8
+
+	IsUser() bool
+	IsGroup() bool
+	IsBroadcast() bool
 }
 
-func AddressesEqual(address1, address2 Address) bool {
-	return StringsEqual(address1, address2)
+/**
+ *  Address Factory
+ *  ~~~~~~~~~~~~~~~
+ */
+type AddressFactory interface {
+
+	/**
+	 *  Parse string object to address
+	 *
+	 * @param address - address string
+	 * @return Address
+	 */
+	ParseAddress(address string) Address
 }
 
-func AddressIsUser(address Address) bool {
-	network := address.Type()
-	return NetworkTypeIsUser(network)
+var addressFactory AddressFactory = nil
+
+func AddressSetFactory(factory AddressFactory) {
+	addressFactory = factory
 }
 
-func AddressIsGroup(address Address) bool {
-	network := address.Type()
-	return NetworkTypeIsGroup(network)
+func AddressGetFactory() AddressFactory {
+	return addressFactory
 }
 
-func AddressIsBroadcast(address Address) bool {
-	network := address.Type()
-	if network == MAIN {
-		return AddressesEqual(address, ANYWHERE)
-	} else if network == GROUP {
-		return AddressesEqual(address, EVERYWHERE)
-	} else {
-		return false
+//
+//  Factory method
+//
+func AddressParse(address interface{}) Address {
+	if address == nil {
+		return nil
 	}
+	var str string
+	value := ObjectValue(address)
+	switch value.(type) {
+	case Address:
+		return value.(Address)
+	case fmt.Stringer:
+		str = value.(fmt.Stringer).String()
+	case string:
+		str = value.(string)
+	default:
+		panic(address)
+	}
+	factory := AddressGetFactory()
+	return factory.ParseAddress(str)
 }
 
 /**
  *  Address for broadcast
  */
 const (
-	anywhere = "anywhere"
-	everywhere = "everywhere"
+	Anywhere = "anywhere"
+	Everywhere = "everywhere"
 )
 
-var ANYWHERE = newBroadcastAddress(anywhere, MAIN)
-var EVERYWHERE = newBroadcastAddress(everywhere, GROUP)
-
-func newBroadcastAddress(string string, network NetworkType) Address {
-	return new(broadcastAddress).Init(string, network)
-}
-
-type broadcastAddress struct {
-	ConstantString
-	Address
-
-	_network NetworkType
-}
-
-func (address *broadcastAddress) Init(string string, network NetworkType) *broadcastAddress {
-	if address.ConstantString.Init(string) != nil {
-		address._network = network
-	}
-	return address
-}
-
-func (address broadcastAddress) Equal(other interface{}) bool {
-	other = ObjectValue(other)
-	switch other.(type) {
-	case Stringer:
-		return address.String() == other.(Stringer).String()
-	case string:
-		return address.String() == other.(string)
-	default:
-		return false
-	}
-}
-
-func (address broadcastAddress) String() string {
-	return address.ConstantString.String()
-}
-
-func (address broadcastAddress) Type() NetworkType {
-	return address._network
-}
+//
+//  These addresses will be created when AddressFactory init
+//
+var ANYWHERE Address    // "anywhere"
+var EVERYWHERE Address  // "everywhere"

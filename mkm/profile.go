@@ -32,194 +32,92 @@ package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
-	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
 )
 
-//  virtual class, need to implement methods:
-//      ID() ID
-//      GetKey() EncryptKey
-//      SetKey(publicKey EncryptKey)
-//  before using it
-type BaseProfile struct {
-	Dictionary
-	Profile
+type BaseVisa struct {
+	BaseDocument
 
-	_data []byte       // JsON.encode(properties)
-	_signature []byte  // LocalUser(identifier).sign(data)
-
-	_status int8       // 1 for valid, -1 for invalid
-
-	_properties map[string]interface{}
+	_key EncryptKey
 }
 
-func (tai *BaseProfile) Init(dictionary map[string]interface{}) *BaseProfile {
-	if tai.Dictionary.Init(dictionary) != nil {
-		// lazy load
-		tai._data = nil
-		tai._signature = nil
-		tai._properties = nil
-		tai._status = 0
+func (visa *BaseVisa) Init(dict map[string]interface{},
+	identifier ID, data []byte, signature []byte) *BaseVisa {
+	if visa.BaseDocument.Init(dict, VISA, identifier, data, signature) != nil {
+		visa._key = nil
+	}
+	return visa
+}
+
+func (visa *BaseVisa) Key() EncryptKey {
+	if visa._key == nil {
+		info := visa.GetProperty("key")
+		pKey := PublicKeyParse(info)
+		if pKey != nil {
+			vKey, ok := pKey.(EncryptKey)
+			if ok {
+				visa._key = vKey
+			}
+		}
+	}
+	return visa._key
+}
+
+func (visa *BaseVisa) SetKey(key EncryptKey) {
+	if key == nil {
+		visa.SetProperty("key", nil)
+	} else {
+		info, ok := key.(Map)
+		if ok {
+			visa.SetProperty("key", info.GetMap(false))
+		}
+	}
+	visa._key = key
+}
+
+func (visa *BaseVisa) Avatar() string {
+	url := visa.GetProperty("avatar")
+	if url == nil {
+		return ""
+	}
+	return url.(string)
+}
+
+func (visa *BaseVisa) SetAvatar(url string) {
+	visa.SetProperty("avatar", url)
+}
+
+type BaseBulletin struct {
+	BaseDocument
+
+	_assistants []ID
+}
+
+func (tai *BaseBulletin) Init(dict map[string]interface{},
+	identifier ID, data []byte, signature []byte) *BaseBulletin {
+	if tai.BaseDocument.Init(dict, VISA, identifier, data, signature) != nil {
+		tai._assistants = nil
 	}
 	return tai
 }
 
-/**
- *  Get serialized properties
- *
- * @return JsON string
- */
-func (tai *BaseProfile) Data() []byte {
-	if tai._data == nil {
-		str, ok := tai.Get("data").(string)
-		if ok {
-			tai._data = UTF8Encode(str)
+func (tai *BaseBulletin) Assistants() []ID {
+	if tai._assistants == nil {
+		assistants := tai.GetProperty("assistants")
+		if assistants != nil {
+			tai._assistants = IDConvert(assistants.([]interface{}))
 		}
 	}
-	return tai._data
+	return tai._assistants
 }
 
-/**
- *  Get signature for serialized properties
- *
- * @return signature data
- */
-func (tai *BaseProfile) Signature() []byte {
-	if tai._signature == nil {
-		str, ok := tai.Get("signature").(string)
-		if ok {
-			tai._signature = Base64Decode(str)
-		}
-	}
-	return tai._signature
-}
-
-func (tai BaseProfile) IsValid() bool {
-	return tai._status >= 0
-}
-
-//-------- signature
-
-func (tai *BaseProfile) Verify(publicKey VerifyKey) bool {
-	if tai._status > 0 {
-		// already verify OK
-		return true
-	}
-	data := tai.Data()
-	signature := tai.Signature()
-	if data == nil {
-		// NOTICE: if data is empty, signature should be empty at the same time
-		//         this happen while profile not found
-		if signature == nil {
-			tai._status = 0
-		} else {
-			// data signature error
-			tai._status = -1
-		}
-	} else if tai._signature == nil {
-		// signature error
-		tai._status = -1
-	} else if publicKey.Verify(data, signature) {
-		// signature matched
-		tai._status = 1
-	}
-	// NOTICE: if status is 0, it doesn't mean the profile is invalid,
-	//         try another key
-	return tai._status == 1
-}
-
-func (tai *BaseProfile) Sign(privateKey SignKey) []byte {
-	if tai._status > 0 {
-		// already signed/verified
-		return tai._signature
-	}
-	tai._status = 1
-	tai._data = JSONEncode(tai.getProperties())
-	tai._signature = privateKey.Sign(tai._data)
-	tai.Set("data", UTF8Decode(tai._data))
-	tai.Set("signature", Base64Encode(tai._signature))
-	return tai._signature
-}
-
-//-------- properties
-
-func (tai *BaseProfile) getProperties() map[string]interface{} {
-	if tai._status < 0 {
-		// invalid
-		return nil
-	}
-	if tai._properties == nil {
-		data := tai.Get("data")
-		if data == nil {
-			// create new properties
-			tai._properties = make(map[string]interface{})
-		} else {
-			str, ok := data.(string)
-			if ok {
-				bytes := UTF8Encode(str)
-				tai._properties = JSONDecode(bytes)
-			} else {
-				panic("failed to convert string")
-			}
-		}
-	}
-	return tai._properties
-}
-
-func (tai *BaseProfile) PropertyNames() []string {
-	dict := tai.getProperties()
-	if dict == nil {
-		return nil
-	}
-	return MapKeys(dict)
-}
-
-func (tai *BaseProfile) GetProperty(name string) interface{} {
-	dict := tai.getProperties()
-	if dict == nil {
-		return nil
-	}
-	return dict[name]
-}
-
-func (tai *BaseProfile) SetProperty(name string, value interface{}) {
-	// 1. reset status
-	tai._status = 0
-	// 2. update property value with name
-	dict := tai.getProperties()
-	if value == nil {
-		delete(dict, name)
+func (tai *BaseBulletin) SetAssistants(bots []ID) {
+	if bots == nil {
+		tai.SetProperty("assistants", nil)
 	} else {
-		dict[name] = value
+		tai.SetProperty("assistants", IDRevert(bots))
 	}
-	// 3. clear data signature after properties changed
-	tai.Set("data", nil)
-	tai.Set("signature", nil)
-	tai._data = nil
-	tai._signature = nil
+	tai._assistants = bots
 }
 
-//---- properties getter/setter
-
-/**
- *  Get entity name
- *
- * @return name string
- */
-func (tai *BaseProfile) GetName() string {
-	name := tai.GetProperty("name")
-	if name == nil {
-		return ""
-	}
-	str, ok := name.(string)
-	if ok {
-		return str
-	} else {
-		return ""
-	}
-}
-
-func (tai *BaseProfile) SetName(name string) {
-	tai.SetProperty("name", name)
-}

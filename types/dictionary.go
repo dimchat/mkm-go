@@ -79,23 +79,21 @@ func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
 	return dict
 }
 
-func (dict Dictionary) Equal(other interface{}) bool {
-	map1 := dict._dictionary
-	var map2 map[string]interface{}
-	// get inner map
+func (dict *Dictionary) Equal(other interface{}) bool {
 	other = ObjectValue(other)
 	switch other.(type) {
 	case Map:
-		map2 = other.(Map).GetMap(false)
+		return MapsEqual(dict, other.(Map))
 	case map[string]interface{}:
-		map2 = other.(map[string]interface{})
+		map1 := dict._dictionary
+		map2 := other.(map[string]interface{})
+		return reflect.DeepEqual(map1, map2)
 	default:
 		return false
 	}
-	return reflect.DeepEqual(map1, map2)
 }
 
-func (dict Dictionary) Get(key string) interface{} {
+func (dict *Dictionary) Get(key string) interface{} {
 	return dict._dictionary[key]
 }
 
@@ -107,11 +105,11 @@ func (dict *Dictionary) Set(key string, value interface{}) {
 	}
 }
 
-func (dict Dictionary) Keys() []string {
+func (dict *Dictionary) Keys() []string {
 	return MapKeys(dict._dictionary)
 }
 
-func (dict Dictionary) GetMap(clone bool) map[string]interface{} {
+func (dict *Dictionary) GetMap(clone bool) map[string]interface{} {
 	if clone {
 		return CloneMap(dict._dictionary)
 	} else {

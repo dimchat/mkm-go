@@ -61,14 +61,14 @@ type Meta interface {
 	 *      0x02 - btc_address
 	 *      0x03 - username@btc_address
 	 */
-	Type() MetaType
+	Type() uint8
 
 	/**
 	 *  Public key (used for signature)
 	 *
 	 *      RSA / ECC
 	 */
-	Key() PublicKey
+	Key() VerifyKey
 
 	/**
 	 *  Seed to generate fingerprint
@@ -93,74 +93,149 @@ type Meta interface {
 	 */
 	IsValid() bool
 
-	// comparing
-	MatchID(identifier ID) bool
-	MatchAddress(address Address) bool
-	MatchKey(key PublicKey) bool
-
-	// call 'GenerateAddress'
-	GenerateID(network NetworkType) ID
+	/**
+	 *  Generate ID with terminal
+	 *
+	 * @param network - ID.type
+	 * @param terminal - ID.terminal
+	 * @return ID
+	 */
+	GenerateID(network uint8, terminal string) ID
 
 	/**
-	 *  Generate address with meta info and address type
+	 *  Check whether meta match with entity ID
+	 *  (must call this when received a new meta from network)
 	 *
-	 * @param network - address network type
-	 * @return Address object
+	 * @param identifier - entity ID
+	 * @return true on matched
 	 */
-	GenerateAddress(network NetworkType) Address
+	MatchID(identifier ID) bool
+
+	/**
+	 *  Check whether meta match with public key
+	 *
+	 * @param pk - public key
+	 * @return true on matched
+	 */
+	MatchKey(key VerifyKey) bool
 }
 
-func MetasEqual(meta1, meta2 Meta) bool {
-	if MapsEqual(meta1, meta2) {
-		return true
+func MetaGetType(meta map[string]interface{}) uint8 {
+	version := meta["type"]
+	if version == nil {
+		// compatible with v1.0
+		version = meta["version"]
 	}
-	// check by generating ID
-	id := meta1.GenerateID(MAIN)
-	return MetaMatchID(meta2, id)
+	return version.(uint8)
 }
 
-func MetaGenerateID(meta Meta, network NetworkType) ID {
-	name := meta.Seed()
-	address := meta.GenerateAddress(network)
-	return NewID(name, address, "")
-}
-
-func MetaMatchID(meta Meta, identifier ID) bool {
-	// check ID.name
-	name := identifier.Name()
-	if MetaTypeHasSeed(meta.Type()) {
-		// this meta has seed, it must be equal to ID.name
-		if meta.Seed() == name {
-			return false
-		}
-	} else if name != "" {
-		// this meta hasn't seed, so ID.name should be empty
-		return false
+func MetaGetKey(meta map[string]interface{}) VerifyKey {
+	key := meta["key"]
+	if key == nil {
+		panic("meta key not found: " + UTF8Decode(JSONEncode(meta)))
 	}
-	// check ID.address
-	return MetaMatchAddress(meta, identifier.Address())
+	return PublicKeyParse(key)
 }
 
-func MetaMatchAddress(meta Meta, address Address) bool {
-	network := address.Type()
-	addr := meta.GenerateAddress(network)
-	return addr.Equal(address)
+func MetaGetSeed(meta map[string]interface{}) string {
+	seed := meta["seed"]
+	if seed == nil {
+		return ""
+	}
+	return seed.(string)
 }
 
-func MetaMatchKey(meta Meta, key PublicKey) bool {
-	// check whether the public key equals to meta.key
-	if PublicKeysEqual(meta.Key(), key) {
-		return true
+func MetaGetFingerprint(meta map[string]interface{}) []byte {
+	base64 := meta["fingerprint"]
+	if base64 == nil {
+		return nil
 	}
-	// check with seed & fingerprint
-	if MetaTypeHasSeed(meta.Type()) {
-		// check whether keys equal by verifying signature
-		seed := meta.Seed()
-		fingerprint := meta.Fingerprint()
-		return key.Verify(UTF8Encode(seed), fingerprint)
-	} else {
-		// ID with BTC/ETH address has no username
-		// so we can just compare the key.data to check matching
-		return false
+	return Base64Decode(base64.(string))
+}
+
+/**
+ *  Meta Factory
+ *  ~~~~~~~~~~~~
+ */
+type MetaFactory interface {
+
+	/**
+	 *  Create meta
+	 *
+	 * @param key         - public key
+	 * @param seed        - ID.name
+	 * @param fingerprint - sKey.sign(seed)
+	 * @return Meta
+	 */
+	CreateMeta(key VerifyKey, seed string, fingerprint []byte) Meta
+
+	/**
+	 *  Generate meta
+	 *
+	 * @param sKey    - private key
+	 * @param seed    - ID.name
+	 * @return Meta
+	 */
+	GenerateMeta(sKey SignKey, seed string) Meta
+
+	/**
+	 *  Parse map object to meta
+	 *
+	 * @param meta - meta info
+	 * @return Meta
+	 */
+	ParseMeta(meta map[string]interface{}) Meta
+}
+
+var metaFactory = make(map[uint8]MetaFactory)
+
+func MetaRegister(version uint8, factory MetaFactory) {
+	metaFactory[version] = factory
+}
+
+func MetaGetFactory(version uint8) MetaFactory {
+	return metaFactory[version]
+}
+
+//
+//  Factory methods
+//
+func MetaCreate(version uint8, key VerifyKey, seed string, fingerprint []byte) Meta {
+	factory := MetaGetFactory(version)
+	if factory == nil {
+		panic("meta type not found: " + string(version))
 	}
+	return factory.CreateMeta(key, seed, fingerprint)
+}
+
+func MetaGenerate(version uint8, sKey SignKey, seed string) Meta {
+	factory := MetaGetFactory(version)
+	if factory == nil {
+		panic("meta type not found: " + string(version))
+	}
+	return factory.GenerateMeta(sKey, seed)
+}
+
+func MetaParse(meta interface{}) Meta {
+	if meta == nil {
+		return nil
+	}
+	var info map[string]interface{}
+	value := ObjectValue(meta)
+	switch value.(type) {
+	case Meta:
+		return value.(Meta)
+	case Map:
+		info = value.(Map).GetMap(false)
+	case map[string]interface{}:
+		info = value.(map[string]interface{})
+	default:
+		panic(meta)
+	}
+	version := MetaGetType(info)
+	factory := MetaGetFactory(version)
+	if factory == nil {
+		factory = MetaGetFactory(0)  // unknown
+	}
+	return factory.ParseMeta(info)
 }

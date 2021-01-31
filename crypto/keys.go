@@ -133,6 +133,6 @@ func CryptographyKeysMatch(pKey EncryptKey, sKey DecryptKey) bool {
 	return bytes.Equal(plaintext, promise)
 }
 
-func CryptographyKeyAlgorithm(key map[string]interface{}) string {
+func CryptographyKeyGetAlgorithm(key map[string]interface{}) string {
 	return key["algorithm"].(string)
 }
