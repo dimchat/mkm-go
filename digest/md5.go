@@ -2,7 +2,7 @@
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,23 +23,25 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package format
+package digest
 
-type DataCoder interface {
+import "crypto/md5"
 
-	/**
-	 *  Encode binary data to text string
-	 *
-	 * @param data - binary data
-	 * @return Base58/64 string
-	 */
-	Encode(data []byte) string
+type MD5Digester struct {
+	DataDigester
+}
 
-	/**
-	 *  Decode text string to binary data
-	 *
-	 * @param string - base58/64 string
-	 * @return binary data
-	 */
-	Decode(string string) []byte
+func (digester MD5Digester) Digest(data []byte) []byte {
+	hash := md5.Sum(data)
+	return hash[:]
+}
+
+var md5Digester DataDigester = new(MD5Digester)
+
+func SetMD5Digester(coder DataDigester) {
+	md5Digester = coder
+}
+
+func MD5(bytes []byte) []byte {
+	return md5Digester.Digest(bytes)
 }

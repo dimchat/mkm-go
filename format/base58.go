@@ -31,7 +31,7 @@ import (
 )
 
 type Base58Coder struct {
-	BaseCoder
+	DataCoder
 }
 
 var base58Alphabets = []byte("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
@@ -42,7 +42,7 @@ func ReverseBytes(data []byte) {
 	}
 }
 
-func (coder *Base58Coder) Encode(data []byte) string {
+func (coder Base58Coder) Encode(data []byte) string {
 	x := big.NewInt(0).SetBytes(data)
 	base := big.NewInt(58)
 	zero := big.NewInt(0)
@@ -56,7 +56,7 @@ func (coder *Base58Coder) Encode(data []byte) string {
 	return string(result)
 }
 
-func (coder *Base58Coder) Decode(string string) []byte {
+func (coder Base58Coder) Decode(string string) []byte {
 	result := big.NewInt(0)
 	input := []byte(string)
 	for _, b := range input {
@@ -71,9 +71,9 @@ func (coder *Base58Coder) Decode(string string) []byte {
 	return decoded
 }
 
-var base58Coder BaseCoder = new(Base58Coder)
+var base58Coder DataCoder = new(Base58Coder)
 
-func SetBase58Coder(coder BaseCoder) {
+func SetBase58Coder(coder DataCoder) {
 	base58Coder = coder
 }
 

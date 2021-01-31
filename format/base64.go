@@ -28,14 +28,14 @@ package format
 import "encoding/base64"
 
 type Base64Coder struct {
-	BaseCoder
+	DataCoder
 }
 
-func (coder *Base64Coder) Encode(data []byte) string {
+func (coder Base64Coder) Encode(data []byte) string {
 	return base64.StdEncoding.EncodeToString(data)
 }
 
-func (coder *Base64Coder) Decode(string string) []byte {
+func (coder Base64Coder) Decode(string string) []byte {
 	bytes, err := base64.StdEncoding.DecodeString(string)
 	if err == nil {
 		return bytes
@@ -45,9 +45,9 @@ func (coder *Base64Coder) Decode(string string) []byte {
 	}
 }
 
-var base64Coder BaseCoder = new(Base64Coder)
+var base64Coder DataCoder = new(Base64Coder)
 
-func SetBase64Coder(coder BaseCoder) {
+func SetBase64Coder(coder DataCoder) {
 	base64Coder = coder
 }
 

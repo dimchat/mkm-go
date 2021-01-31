@@ -2,7 +2,7 @@
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,23 +23,14 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package format
+package digest
 
-type DataCoder interface {
+var ripemd160Digester DataDigester = nil
 
-	/**
-	 *  Encode binary data to text string
-	 *
-	 * @param data - binary data
-	 * @return Base58/64 string
-	 */
-	Encode(data []byte) string
+func SetRIPEMD160Digester(coder DataDigester) {
+	ripemd160Digester = coder
+}
 
-	/**
-	 *  Decode text string to binary data
-	 *
-	 * @param string - base58/64 string
-	 * @return binary data
-	 */
-	Decode(string string) []byte
+func RIPEMD160(bytes []byte) []byte {
+	return ripemd160Digester.Digest(bytes)
 }

@@ -2,7 +2,7 @@
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,79 +25,80 @@
  */
 package crypto
 
-const (
-	AES = "AES"  //-- "AES/CBC/PKCS7Padding"
-	DES = "DES"
-)
-
 /**
- *  Symmetric Cryptography Key
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~
- *  This class is used to encrypt or decrypt message data
+ *  Asymmetric Cryptography Private Key
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *  This class is used to decrypt symmetric key or sign message data
  *
  *  key data format: {
- *      algorithm : "AES", // "DES", ...
+ *      algorithm : "RSA", // "ECC", ...
  *      data      : "{BASE64_ENCODE}",
  *      ...
  *  }
  */
-type SymmetricKey interface {
-	CryptographyKey
-	EncryptKey
-	DecryptKey
+type PrivateKey interface {
+	AsymmetricKey
+	SignKey
+
+	/**
+	 *  Get public key from private key
+	 *
+	 * @return public key paired to this private key
+	 */
+	GetPublicKey() PublicKey
 }
 
 /**
- *  Symmetric Key Factory
- *  ~~~~~~~~~~~~~~~~~~~~~
+ *  Private Key Factory
+ *  ~~~~~~~~~~~~~~~~~~~
  */
-type SymmetricKeyFactory interface {
+type PrivateKeyFactory interface {
 
 	/**
 	 *  Generate key
 	 *
-	 * @return SymmetricKey
+	 * @return PrivateKey
 	 */
-	GenerateSymmetricKey() SymmetricKey
+	GeneratePrivateKey() PrivateKey
 
 	/**
 	 *  Parse map object to key
 	 *
 	 * @param key - key info
-	 * @return SymmetricKey
+	 * @return PrivateKey
 	 */
-	ParseSymmetricKey(key map[string]interface{}) SymmetricKey
+	ParsePrivateKey(key map[string]interface{}) PrivateKey
 }
 
-var symmetricFactories = make(map[string]SymmetricKeyFactory)
+var privateFactories = make(map[string]PrivateKeyFactory)
 
-func SymmetricKeyRegister(algorithm string, factory SymmetricKeyFactory) {
-	symmetricFactories[algorithm] = factory
+func PrivateKeyRegister(algorithm string, factory PrivateKeyFactory) {
+	privateFactories[algorithm] = factory
 }
 
-func SymmetricKeyGetFactory(algorithm string) SymmetricKeyFactory {
-	return symmetricFactories[algorithm]
+func PrivateKeyGetFactory(algorithm string) PrivateKeyFactory {
+	return privateFactories[algorithm]
 }
 
 //
 //  Factory methods
 //
-func SymmetricKeyGenerate(algorithm string) SymmetricKey {
-	factory := SymmetricKeyGetFactory(algorithm)
+func PrivateKeyGenerate(algorithm string) PrivateKey {
+	factory := PrivateKeyGetFactory(algorithm)
 	if factory == nil {
 		panic("key algorithm not support: " + algorithm)
 	}
-	return factory.GenerateSymmetricKey()
+	return factory.GeneratePrivateKey()
 }
 
-func SymmetricKeyParse(key map[string]interface{}) SymmetricKey {
+func PrivateKeyParse(key map[string]interface{}) PrivateKey {
 	if key == nil {
 		return nil
 	}
 	algorithm := CryptographyKeyAlgorithm(key)
-	factory := SymmetricKeyGetFactory(algorithm)
+	factory := PrivateKeyGetFactory(algorithm)
 	if factory == nil {
-		factory = SymmetricKeyGetFactory("*")  // unknown
+		factory = PrivateKeyGetFactory("*")  // unknown
 	}
-	return factory.ParseSymmetricKey(key)
+	return factory.ParsePrivateKey(key)
 }

@@ -26,12 +26,10 @@
 package crypto
 
 import (
+	"bytes"
 	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/types"
 )
-
-const _promise = "Moky loves May Lee forever!"
-var promise = UTF8BytesFromString(_promise)
 
 /**
  *  Cryptography Key
@@ -48,15 +46,18 @@ type CryptographyKey interface {
 	Map
 
 	/**
+	 *  Get key algorithm name
+	 *
+	 * @return algorithm name
+	 */
+	Algorithm() string
+
+	/**
 	 *  Get key data
 	 *
 	 * @return key data
 	 */
 	Data() []byte
-}
-
-func CryptographyKeysEqual(key1, key2 CryptographyKey) bool {
-	return MapsEqual(key1, key2)
 }
 
 type EncryptKey interface {
@@ -81,6 +82,14 @@ type DecryptKey interface {
 	 * @return plaintext
 	 */
 	Decrypt(ciphertext []byte) []byte
+
+	/**
+	 *  OK = decrypt(encrypt(data, SK), PK) == data
+	 *
+	 * @param pKey - public key
+	 * @return true on signature matched
+	 */
+	Match(pKey EncryptKey) bool
 }
 
 type SignKey interface {
@@ -104,4 +113,26 @@ type VerifyKey interface {
 	 * @return true on signature matched
 	 */
 	Verify(data []byte, signature []byte) bool
+
+	/**
+	 *  OK = verify(data, sign(data, SK), PK)
+	 *
+	 * @param sKey - private key
+	 * @return true on signature matched
+	 */
+	Match(sKey SignKey) bool
+}
+
+const _promise = "Moky loves May Lee forever!"
+var promise = UTF8Encode(_promise)
+
+func CryptographyKeysMatch(pKey EncryptKey, sKey DecryptKey) bool {
+	// check by encryption
+	ciphertext := pKey.Encrypt(promise)
+	plaintext := sKey.Decrypt(ciphertext)
+	return bytes.Equal(plaintext, promise)
+}
+
+func CryptographyKeyAlgorithm(key map[string]interface{}) string {
+	return key["algorithm"].(string)
 }

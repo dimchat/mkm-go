@@ -2,7 +2,7 @@
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,23 +23,15 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package format
+package digest
 
-type DataCoder interface {
+type DataDigester interface {
 
 	/**
-	 *  Encode binary data to text string
+	 *  Get digest of binary data
 	 *
 	 * @param data - binary data
-	 * @return Base58/64 string
-	 */
-	Encode(data []byte) string
-
-	/**
-	 *  Decode text string to binary data
-	 *
-	 * @param string - base58/64 string
 	 * @return binary data
 	 */
-	Decode(string string) []byte
+	Digest(data []byte) []byte
 }

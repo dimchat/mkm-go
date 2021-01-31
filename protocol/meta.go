@@ -157,7 +157,7 @@ func MetaMatchKey(meta Meta, key PublicKey) bool {
 		// check whether keys equal by verifying signature
 		seed := meta.Seed()
 		fingerprint := meta.Fingerprint()
-		return key.Verify(UTF8BytesFromString(seed), fingerprint)
+		return key.Verify(UTF8Encode(seed), fingerprint)
 	} else {
 		// ID with BTC/ETH address has no username
 		// so we can just compare the key.data to check matching

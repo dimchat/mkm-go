@@ -95,7 +95,7 @@ func (meta *BaseMeta) IsValid() bool {
 			if seed == "" || fingerprint == nil {
 				// seed and fingerprint should not be empty
 				meta._status = -1
-			} else if key.Verify(UTF8BytesFromString(seed), fingerprint) {
+			} else if key.Verify(UTF8Encode(seed), fingerprint) {
 				// fingerprint matched
 				meta._status = 1
 			} else {

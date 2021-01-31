@@ -35,71 +35,14 @@ type AsymmetricKey interface {
 }
 
 /**
- *  Asymmetric Cryptography Public Key
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- *
- *  key data format: {
- *      algorithm : "RSA", // "ECC", ...
- *      data      : "{BASE64_ENCODE}",
- *      ...
- *  }
- */
-type PublicKey interface {
-	AsymmetricKey
-	VerifyKey
-
-	Match(privateKey PrivateKey) bool
-}
-
-func PublicKeysEqual(key1, key2 PublicKey) bool {
-	return CryptographyKeysEqual(key1, key2)
-}
-
-/**
  *  Check whether they are key pair
  *
- * @param privateKey - private key that can generate the same public key
+ * @param sKey - private key
+ * @param pKey - public key
  * @return true on keys matched
  */
-func AsymmetricKeysMatch(publicKey PublicKey, privateKey PrivateKey) bool {
-	// 1. if the SK has the same public key, return true
-	pKey := privateKey.GetPublicKey()
-	if publicKey.Equal(pKey) {
-		return true
-	}
-	// 2. check by signature
-	signature := privateKey.Sign(promise)
-	return publicKey.Verify(promise, signature)
-}
-
-/**
- *  Asymmetric Cryptography Private Key
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- *  This class is used to decrypt symmetric key or sign message data
- *
- *  key data format: {
- *      algorithm : "RSA", // "ECC", ...
- *      data      : "{BASE64_ENCODE}",
- *      ...
- *  }
- */
-type PrivateKey interface {
-	AsymmetricKey
-	SignKey
-
-	/**
-	 *  Get public key from private key
-	 *
-	 * @return public key paired to this private key
-	 */
-	GetPublicKey() PublicKey
-}
-
-func PrivateKeysEqual(key1, key2 PrivateKey) bool {
-	if CryptographyKeysEqual(key1, key2) {
-		return true
-	}
-	// check by public
-	publicKey := key1.GetPublicKey()
-	return AsymmetricKeysMatch(publicKey, key2)
+func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
+	// try to verify with signature
+	signature := sKey.Sign(promise)
+	return pKey.Verify(promise, signature)
 }

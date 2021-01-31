@@ -2,7 +2,7 @@
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,21 +25,36 @@
  */
 package format
 
-type DataCoder interface {
+import "encoding/hex"
 
-	/**
-	 *  Encode binary data to text string
-	 *
-	 * @param data - binary data
-	 * @return Base58/64 string
-	 */
-	Encode(data []byte) string
+type HexCoder struct {
+	DataCoder
+}
 
-	/**
-	 *  Decode text string to binary data
-	 *
-	 * @param string - base58/64 string
-	 * @return binary data
-	 */
-	Decode(string string) []byte
+func (coder HexCoder) Encode(data []byte) string {
+	return hex.EncodeToString(data)
+}
+
+func (coder HexCoder) Decode(string string) []byte {
+	bytes, err := hex.DecodeString(string)
+	if err == nil {
+		return bytes
+	} else {
+		//panic("failed to decode string for Hex")
+		return nil
+	}
+}
+
+var hexCoder DataCoder = new(HexCoder)
+
+func SetHexCoder(coder DataCoder) {
+	hexCoder = coder
+}
+
+func HexEncode(bytes []byte) string {
+	return hexCoder.Encode(bytes)
+}
+
+func HexDecode(b64 string) []byte {
+	return hexCoder.Decode(b64)
 }

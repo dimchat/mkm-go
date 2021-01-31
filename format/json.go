@@ -31,7 +31,7 @@ type JSONParser struct {
 	DataParser
 }
 
-func (parser *JSONParser) Encode(object interface{}) []byte {
+func (parser JSONParser) Encode(object interface{}) []byte {
 	bytes, err := json.Marshal(object)
 	if err == nil {
 		return bytes
@@ -41,7 +41,7 @@ func (parser *JSONParser) Encode(object interface{}) []byte {
 	}
 }
 
-func (parser *JSONParser) Decode(bytes []byte) interface{} {
+func (parser JSONParser) Decode(bytes []byte) interface{} {
 	var dict map[string]interface{}
 	err := json.Unmarshal(bytes, &dict)
 	if err == nil {
@@ -57,7 +57,11 @@ func SetJSONParser(parser DataParser) {
 	jsonParser = parser
 }
 
-func JSONMapFromBytes(bytes []byte) map[string]interface{} {
+func JSONEncode(dictionary map[string]interface{}) []byte {
+	return jsonParser.Encode(dictionary)
+}
+
+func JSONDecode(bytes []byte) map[string]interface{} {
 	dict := jsonParser.Decode(bytes)
 	res, ok := dict.(map[string]interface{})
 	if ok {
@@ -65,8 +69,4 @@ func JSONMapFromBytes(bytes []byte) map[string]interface{} {
 	} else {
 		return nil
 	}
-}
-
-func JSONBytesFromMap(dictionary map[string]interface{}) []byte {
-	return jsonParser.Encode(dictionary)
 }

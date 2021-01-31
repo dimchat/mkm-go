@@ -29,7 +29,7 @@ type UTF8Parser struct {
 	DataParser
 }
 
-func (parser *UTF8Parser) Encode(object interface{}) []byte {
+func (parser UTF8Parser) Encode(object interface{}) []byte {
 	str, ok := object.(string)
 	if ok {
 		return []byte(str)
@@ -38,7 +38,7 @@ func (parser *UTF8Parser) Encode(object interface{}) []byte {
 	}
 }
 
-func (parser *UTF8Parser) Decode(bytes []byte) interface{} {
+func (parser UTF8Parser) Decode(bytes []byte) interface{} {
 	return string(bytes)
 }
 
@@ -48,15 +48,15 @@ func SetUTF8Parser(parser DataParser)  {
 	utf8Parser = parser
 }
 
-func UTF8StringFromBytes(bytes []byte) string {
+func UTF8Encode(string string) []byte {
+	return utf8Parser.Encode(string)
+}
+
+func UTF8Decode(bytes []byte) string {
 	str, ok := utf8Parser.Decode(bytes).(string)
 	if ok {
 		return str
 	} else {
 		return ""
 	}
-}
-
-func UTF8BytesFromString(string string) []byte {
-	return utf8Parser.Encode(string)
 }

@@ -2,7 +2,7 @@
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2021 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,23 +23,59 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package format
+package crypto
 
-type DataCoder interface {
+/**
+ *  Asymmetric Cryptography Public Key
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ *  key data format: {
+ *      algorithm : "RSA", // "ECC", ...
+ *      data      : "{BASE64_ENCODE}",
+ *      ...
+ *  }
+ */
+type PublicKey interface {
+	AsymmetricKey
+	VerifyKey
+}
+
+/**
+ *  Public Key Factory
+ *  ~~~~~~~~~~~~~~~~~~
+ */
+type PublicKeyFactory interface {
 
 	/**
-	 *  Encode binary data to text string
+	 *  Parse map object to key
 	 *
-	 * @param data - binary data
-	 * @return Base58/64 string
+	 * @param key - key info
+	 * @return PublicKey
 	 */
-	Encode(data []byte) string
+	ParsePublicKey(key map[string]interface{}) PublicKey
+}
 
-	/**
-	 *  Decode text string to binary data
-	 *
-	 * @param string - base58/64 string
-	 * @return binary data
-	 */
-	Decode(string string) []byte
+var publicFactories = make(map[string]PublicKeyFactory)
+
+func PublicKeyRegister(algorithm string, factory PublicKeyFactory) {
+	publicFactories[algorithm] = factory
+}
+
+func PublicKeyGetFactory(algorithm string) PublicKeyFactory {
+	return publicFactories[algorithm]
+}
+
+//
+//  Factory method
+//
+func PublicKeyParse(key map[string]interface{}) PublicKey {
+	if key == nil {
+		return nil
+	}
+	algorithm := CryptographyKeyAlgorithm(key)
+	factory := PublicKeyGetFactory(algorithm)
+	if factory == nil {
+		factory = PublicKeyGetFactory("*")  // unknown
+	}
+	return factory.ParsePublicKey(key)
 }

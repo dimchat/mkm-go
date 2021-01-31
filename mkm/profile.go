@@ -74,7 +74,7 @@ func (tai *BaseProfile) Data() []byte {
 	if tai._data == nil {
 		str, ok := tai.Get("data").(string)
 		if ok {
-			tai._data = UTF8BytesFromString(str)
+			tai._data = UTF8Encode(str)
 		}
 	}
 	return tai._data
@@ -135,9 +135,9 @@ func (tai *BaseProfile) Sign(privateKey SignKey) []byte {
 		return tai._signature
 	}
 	tai._status = 1
-	tai._data = JSONBytesFromMap(tai.getProperties())
+	tai._data = JSONEncode(tai.getProperties())
 	tai._signature = privateKey.Sign(tai._data)
-	tai.Set("data", UTF8StringFromBytes(tai._data))
+	tai.Set("data", UTF8Decode(tai._data))
 	tai.Set("signature", Base64Encode(tai._signature))
 	return tai._signature
 }
@@ -157,8 +157,8 @@ func (tai *BaseProfile) getProperties() map[string]interface{} {
 		} else {
 			str, ok := data.(string)
 			if ok {
-				bytes := UTF8BytesFromString(str)
-				tai._properties = JSONMapFromBytes(bytes)
+				bytes := UTF8Encode(str)
+				tai._properties = JSONDecode(bytes)
 			} else {
 				panic("failed to convert string")
 			}
