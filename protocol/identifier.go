@@ -163,8 +163,8 @@ const (
 	Everyone = "everyone"
 )
 
-var ANYONE ID    // "anyone@anywhere"
-var EVERYONE ID  // "everyone@everywhere"
+var ANYONE ID = nil    // "anyone@anywhere"
+var EVERYONE ID = nil  // "everyone@everywhere"
 
 func CreateBroadcastIdentifiers() {
 	if IDGetFactory() == nil {

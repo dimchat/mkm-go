@@ -55,6 +55,10 @@ type Identifier struct {
 	_terminal string
 }
 
+func NewIdentifier(identifier string, name string, address Address, terminal string) *Identifier {
+	return new(Identifier).Init(identifier, name, address, terminal)
+}
+
 func (id *Identifier) Init(string string, name string, address Address, terminal string) *Identifier {
 	if id.ConstantString.Init(string) != nil {
 		id._name = name

@@ -42,9 +42,17 @@ type BaseVisa struct {
 	_key EncryptKey
 }
 
-func (visa *BaseVisa) Init(dict map[string]interface{},
-	identifier ID, data []byte, signature []byte) *BaseVisa {
-	if visa.BaseDocument.Init(dict, VISA, identifier, data, signature) != nil {
+func (visa *BaseVisa) Init(dict map[string]interface{}) *BaseVisa {
+	if visa.BaseDocument.Init(dict) != nil {
+		// lazy load
+		visa._key = nil
+	}
+	return visa
+}
+
+func (visa *BaseVisa) InitWithID(identifier ID, data []byte, signature []byte) *BaseVisa {
+	if visa.BaseDocument.InitWithType(VISA, identifier, data, signature) != nil {
+		// lazy load
 		visa._key = nil
 	}
 	return visa
@@ -94,9 +102,17 @@ type BaseBulletin struct {
 	_assistants []ID
 }
 
-func (tai *BaseBulletin) Init(dict map[string]interface{},
-	identifier ID, data []byte, signature []byte) *BaseBulletin {
-	if tai.BaseDocument.Init(dict, VISA, identifier, data, signature) != nil {
+func (tai *BaseBulletin) Init(dict map[string]interface{}) *BaseBulletin {
+	if tai.BaseDocument.Init(dict) != nil {
+		// lazy load
+		tai._assistants = nil
+	}
+	return tai
+}
+
+func (tai *BaseBulletin) InitWithID(identifier ID, data []byte, signature []byte) *BaseBulletin {
+	if tai.BaseDocument.InitWithType(BULLETIN, identifier, data, signature) != nil {
+		// lazy load
 		tai._assistants = nil
 	}
 	return tai

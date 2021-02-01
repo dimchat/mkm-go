@@ -114,5 +114,5 @@ const (
 //
 //  These addresses will be created when AddressFactory init
 //
-var ANYWHERE Address    // "anywhere"
-var EVERYWHERE Address  // "everywhere"
+var ANYWHERE Address = nil    // "anywhere"
+var EVERYWHERE Address = nil  // "everywhere"

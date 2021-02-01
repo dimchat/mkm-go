@@ -50,7 +50,7 @@ func (factory *GeneralIDFactory) CreateID(name string, address Address, terminal
 	identifier := concat(name, address, terminal)
 	id := factory._identifiers[identifier]
 	if id == nil {
-		id = new(Identifier).Init(identifier, name, address, terminal)
+		id = NewIdentifier(identifier, name, address, terminal)
 		factory._identifiers[identifier] = id
 	}
 	return id
@@ -105,7 +105,7 @@ func parse(identifier string) ID {
 	if address == nil {
 		return nil
 	}
-	return new(Identifier).Init(identifier, name, address, terminal)
+	return NewIdentifier(identifier, name, address, terminal)
 }
 
 func BuildIDFactory() IDFactory {

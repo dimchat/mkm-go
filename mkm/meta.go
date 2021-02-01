@@ -68,31 +68,44 @@ type BaseMeta struct {
 	_status int8 // 1 for valid, -1 for invalid
 }
 
-func (meta *BaseMeta) Init(dict map[string]interface{},
-	version uint8, key VerifyKey, seed string, fingerprint []byte) *BaseMeta {
+func (meta *BaseMeta) Init(dict map[string]interface{}) *BaseMeta {
 	if meta.Dictionary.Init(dict) != nil {
-		// set values
+		// lazy load
+		meta._type = 0
+		meta._key = nil
+		meta._seed = ""
+		meta._fingerprint = nil
+		meta._status = 0
+	}
+	return meta
+}
+
+func (meta *BaseMeta) InitWithType(version uint8, key VerifyKey, seed string, fingerprint []byte) *BaseMeta {
+	dict := make(map[string]interface{})
+	// meta type
+	dict["type"] = version
+	// meta key
+	switch key.(type) {
+	case Map:
+		dict["key"] = key.(Map).GetMap(false)
+	// TODO: map?
+	default:
+		panic(key)
+	}
+	// seed
+	if seed != "" {
+		dict["seed"] = seed
+	}
+	// fingerprint
+	if fingerprint != nil {
+		dict["fingerprint"] = Base64Encode(fingerprint)
+	}
+	if meta.Dictionary.Init(dict) != nil {
 		meta._type = version
 		meta._key = key
 		meta._seed = seed
 		meta._fingerprint = fingerprint
 		meta._status = 0
-		// set values to inner dictionary
-		if version > 0 {
-			meta.Set("type", version)
-		}
-		if key != nil {
-			info, ok := key.(Map)
-			if ok {
-				meta.Set("key", info.GetMap(false))
-			}
-		}
-		if seed != "" {
-			meta.Set("seed", seed)
-		}
-		if fingerprint != nil {
-			meta.Set("fingerprint", Base64Encode(fingerprint))
-		}
 	}
 	return meta
 }

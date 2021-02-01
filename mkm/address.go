@@ -46,6 +46,10 @@ type BroadcastAddress struct {
 	_network uint8
 }
 
+func NewBroadcastAddress(address string, network NetworkType) *BroadcastAddress {
+	return new(BroadcastAddress).Init(address, network)
+}
+
 func (address *BroadcastAddress) Init(string string, network NetworkType) *BroadcastAddress {
 	if address.ConstantString.Init(string) != nil {
 		address._network = uint8(network)
@@ -71,10 +75,10 @@ func (address *BroadcastAddress) IsBroadcast() bool {
 
 func CreateBroadcastAddresses() {
 	if ANYWHERE == nil {
-		ANYWHERE = new(BroadcastAddress).Init(Anywhere, MAIN)
+		ANYWHERE = NewBroadcastAddress(Anywhere, MAIN)
 	}
 	if EVERYWHERE == nil {
-		EVERYWHERE = new(BroadcastAddress).Init(Everywhere, GROUP)
+		EVERYWHERE = NewBroadcastAddress(Everywhere, GROUP)
 	}
 }
 

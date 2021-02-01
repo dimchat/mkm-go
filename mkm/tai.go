@@ -51,29 +51,53 @@ type BaseDocument struct {
 	_status int8       // 1 for valid, -1 for invalid
 }
 
-func (doc *BaseDocument) Init(dict map[string]interface{},
-	docType string, identifier ID, data []byte, signature []byte) *BaseDocument {
+func (doc *BaseDocument) Init(dict map[string]interface{}) *BaseDocument {
 	if doc.Dictionary.Init(dict) != nil {
-		// set values
+		// lazy load
+		doc._identifier = nil
+		doc._type = ""
+		doc._data = nil
+		doc._signature = nil
+		doc._properties = nil
+		doc._status = 0
+	}
+	return doc
+}
+
+func (doc *BaseDocument) InitWithType(docType string, identifier ID, data []byte, signature []byte) *BaseDocument {
+	if docType == "*" {
+		docType = ""
+	}
+	var status int8
+	dict := make(map[string]interface{})
+	// ID
+	dict["ID"] = identifier.String()
+	// document type
+	if docType != "" {
+		dict["type"] = docType
+	}
+	// data & signature
+	if data == nil || signature == nil {
+		// create a new empty document with ID and doc type
+		status = 0
+	} else {
+		// create entity document with ID, data and signature loaded from local storage
+		dict["data"] = UTF8Decode(data)
+		dict["signature"] = Base64Encode(signature)
+		status = 1  // all documents must be verified before saving into local storage
+	}
+	if doc.Dictionary.Init(dict) != nil {
 		doc._identifier = identifier
 		doc._type = docType
 		doc._data = data
 		doc._signature = signature
-		doc._properties = nil
-		doc._status = 0
-		// set values to inner dictionary
-		if identifier != nil {
-			doc.Set("ID", identifier.String())
-			if data == nil || signature == nil {
-				// create a new empty document with ID and doc type
-				doc._properties = make(map[string]interface{})
-				doc._properties["type"] = docType
-			} else {
-				// create entity document with ID, data and signature loaded from local storage
-				doc.Set("data", UTF8Decode(data))
-				doc.Set("signature", Base64Encode(signature))
-				doc._status = 1  // all documents must be verified before saving into local storage
-			}
+		doc._status = status
+		// set type for empty document
+		if status == 1 || docType == "" {
+			doc._properties = nil
+		} else {
+			doc._properties = make(map[string]interface{})
+			doc._properties["type"] = docType
 		}
 	}
 	return doc
@@ -159,7 +183,7 @@ func (doc *BaseDocument) Verify(publicKey VerifyKey) bool {
 	}
 	// NOTICE: if status is 0, it doesn't mean the profile is invalid,
 	//         try another key
-	return doc._status > 0
+	return doc._status == 1
 }
 
 func (doc *BaseDocument) Sign(privateKey SignKey) []byte {
