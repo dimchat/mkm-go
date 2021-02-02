@@ -159,16 +159,21 @@ func IDRevert(members []ID) []string {
  *  ID for broadcast
  */
 const (
+	Moky = "moky"
 	Anyone = "anyone"
 	Everyone = "everyone"
 )
 
+var FOUNDER ID = nil   // "moky@anywhere"
 var ANYONE ID = nil    // "anyone@anywhere"
 var EVERYONE ID = nil  // "everyone@everywhere"
 
 func CreateBroadcastIdentifiers() {
 	if IDGetFactory() == nil {
 		return
+	}
+	if FOUNDER == nil {
+		FOUNDER = IDCreate(Moky, ANYWHERE, "")
 	}
 	if ANYONE == nil {
 		ANYONE = IDCreate(Anyone, ANYWHERE, "")

@@ -57,8 +57,8 @@ func SetJSONParser(parser DataParser) {
 	jsonParser = parser
 }
 
-func JSONEncode(dictionary map[string]interface{}) []byte {
-	return jsonParser.Encode(dictionary)
+func JSONEncode(dict map[string]interface{}) []byte {
+	return jsonParser.Encode(dict)
 }
 
 func JSONDecode(bytes []byte) map[string]interface{} {
