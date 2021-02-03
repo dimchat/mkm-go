@@ -25,7 +25,21 @@
  */
 package digest
 
-var ripemd160Digester DataDigester = nil
+import (
+	"crypto"
+)
+
+type RIPEMD160Digester struct {
+	DataDigester
+}
+
+func (digester RIPEMD160Digester) Digest(data []byte) []byte {
+	hash := crypto.RIPEMD160.New()
+	hash.Write(data)
+	return hash.Sum(nil)
+}
+
+var ripemd160Digester DataDigester = new(RIPEMD160Digester)
 
 func SetRIPEMD160Digester(coder DataDigester) {
 	ripemd160Digester = coder
