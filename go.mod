@@ -1,1 +1,1 @@
-module "github.com/dimchat/mkm-go"
+module github.com/dimchat/mkm-go
