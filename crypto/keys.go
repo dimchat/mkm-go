@@ -27,8 +27,8 @@ package crypto
 
 import (
 	"bytes"
-	. "crypto/format"
-	. "crypto/types"
+	. "github.com/dimchat/mkm-go/crypto/format"
+	. "github.com/dimchat/mkm-go/crypto/types"
 )
 
 /**
