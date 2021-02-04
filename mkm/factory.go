@@ -31,7 +31,7 @@
 package mkm
 
 import (
-	. "github.com/dimchat/mkm-go/mkm/protocol"
+	. "github.com/dimchat/mkm-go/protocol"
 	"strings"
 )
 
@@ -115,4 +115,8 @@ func BuildIDFactory() IDFactory {
 		IDSetFactory(factory)
 	}
 	return factory
+}
+
+func init() {
+	BuildIDFactory()
 }

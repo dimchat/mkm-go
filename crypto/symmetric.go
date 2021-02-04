@@ -25,7 +25,7 @@
  */
 package crypto
 
-import . "github.com/dimchat/mkm-go/crypto/types"
+import . "github.com/dimchat/mkm-go/types"
 
 const (
 	AES = "AES"  //-- "AES/CBC/PKCS7Padding"

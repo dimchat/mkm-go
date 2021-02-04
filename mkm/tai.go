@@ -32,9 +32,9 @@ package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
-	. "github.com/dimchat/mkm-go/crypto/format"
-	. "github.com/dimchat/mkm-go/crypto/types"
-	. "github.com/dimchat/mkm-go/mkm/protocol"
+	. "github.com/dimchat/mkm-go/format"
+	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 type BaseDocument struct {
