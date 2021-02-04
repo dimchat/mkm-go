@@ -23,25 +23,41 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package digest
+package types
 
-import "crypto/sha256"
+import (
+	"math/rand"
+	"time"
+)
 
-type SHA256Digester struct {
-	DataDigester
+func ArraysEqual(array1, array2 []byte) bool {
+	len1 := len(array1)
+	len2 := len(array2)
+	if len1 != len2 {
+		return false
+	}
+	for index := 0; index < len1; index++ {
+		if array1[index] != array2[index] {
+			return false
+		}
+	}
+	return true
 }
 
-func (digester SHA256Digester) Digest(data []byte) []byte {
-	hash := sha256.Sum256(data)
-	return hash[:]
+func ArrayCopy(src []byte, srcPos uint8, dest []byte, destPos uint8, length uint8) {
+	var index uint8
+	for index = 0; index < length; index++ {
+		dest[destPos + index] = src[srcPos + index]
+	}
 }
 
-var sha256Digester DataDigester = new(SHA1Digester)
-
-func SetSHA256Digester(coder DataDigester) {
-	sha256Digester = coder
-}
-
-func SHA256(bytes []byte) []byte {
-	return sha256Digester.Digest(bytes)
+func RandomArray(size uint) []byte {
+	now := time.Now().UnixNano()
+	random := rand.New(rand.NewSource(now))
+	array := make([]byte, size)
+	var index uint
+	for index = 0; index < size; index++ {
+		array[index] = uint8(random.Intn(256))
+	}
+	return array
 }

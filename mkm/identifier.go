@@ -32,8 +32,8 @@ package mkm
 
 import (
 	"fmt"
-	. "github.com/dimchat/mkm-go/protocol"
-	. "github.com/dimchat/mkm-go/types"
+	. "github.com/dimchat/mkm-go/crypto/types"
+	. "mkm-go/protocol"
 )
 
 /**

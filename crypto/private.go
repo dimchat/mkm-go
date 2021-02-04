@@ -25,7 +25,7 @@
  */
 package crypto
 
-import . "github.com/dimchat/mkm-go/types"
+import . "crypto/types"
 
 /**
  *  Asymmetric Cryptography Private Key

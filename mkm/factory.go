@@ -31,7 +31,7 @@
 package mkm
 
 import (
-	. "github.com/dimchat/mkm-go/protocol"
+	. "mkm-go/protocol"
 	"strings"
 )
 
