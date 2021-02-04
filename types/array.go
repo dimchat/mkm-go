@@ -44,8 +44,8 @@ func ArraysEqual(array1, array2 []byte) bool {
 	return true
 }
 
-func ArrayCopy(src []byte, srcPos uint8, dest []byte, destPos uint8, length uint8) {
-	var index uint8
+func ArrayCopy(src []byte, srcPos uint, dest []byte, destPos uint, length uint) {
+	var index uint
 	for index = 0; index < length; index++ {
 		dest[destPos + index] = src[srcPos + index]
 	}
