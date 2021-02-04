@@ -36,7 +36,7 @@ func (digester SHA256Digester) Digest(data []byte) []byte {
 	return hash[:]
 }
 
-var sha256Digester DataDigester = new(SHA1Digester)
+var sha256Digester DataDigester = new(SHA256Digester)
 
 func SetSHA256Digester(coder DataDigester) {
 	sha256Digester = coder
