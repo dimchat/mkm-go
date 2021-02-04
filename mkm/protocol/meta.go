@@ -31,7 +31,7 @@
 package protocol
 
 import (
-	. "github.com/dimchat/mkm-go/crypto/crypto"
+	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/crypto/format"
 	. "github.com/dimchat/mkm-go/crypto/types"
 )
