@@ -57,27 +57,27 @@ func (address *BroadcastAddress) Init(string string, network NetworkType) *Broad
 	return address
 }
 
-func (address BroadcastAddress) String() string {
+func (address *BroadcastAddress) String() string {
 	return address.ConstantString.String()
 }
 
-func (address BroadcastAddress) Equal(other interface{}) bool {
+func (address *BroadcastAddress) Equal(other interface{}) bool {
 	return address.ConstantString.Equal(other)
 }
 
-func (address BroadcastAddress) Network() uint8 {
+func (address *BroadcastAddress) Network() uint8 {
 	return address._network
 }
 
-func (address BroadcastAddress) IsUser() bool {
+func (address *BroadcastAddress) IsUser() bool {
 	return NetworkTypeIsUser(address._network)
 }
 
-func (address BroadcastAddress) IsGroup() bool {
+func (address *BroadcastAddress) IsGroup() bool {
 	return NetworkTypeIsGroup(address._network)
 }
 
-func (address BroadcastAddress) IsBroadcast() bool {
+func (address *BroadcastAddress) IsBroadcast() bool {
 	return true
 }
 

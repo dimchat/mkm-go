@@ -27,6 +27,32 @@ package crypto
 
 import . "github.com/dimchat/mkm-go/types"
 
+const (
+	RSA = "RSA"  //-- "RSA/ECB/PKCS1Padding", "SHA256withRSA"
+	ECC = "ECC"
+)
+
+/**
+ *  Asymmetric Cryptography Key
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+type AsymmetricKey interface {
+	CryptographyKey
+}
+
+/**
+ *  Check asymmetric keys
+ *
+ * @param sKey - private key
+ * @param pKey - public key
+ * @return true on keys matched
+ */
+func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
+	// try to verify with signature
+	signature := sKey.Sign(promise)
+	return pKey.Verify(promise, signature)
+}
+
 /**
  *  Asymmetric Cryptography Public Key
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

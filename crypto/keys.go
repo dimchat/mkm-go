@@ -126,6 +126,13 @@ type VerifyKey interface {
 const _promise = "Moky loves May Lee forever!"
 var promise = UTF8Encode(_promise)
 
+/**
+ *  Check symmetric keys
+ *
+ * @param pKey - symmetric key1
+ * @param sKey - symmetric key2
+ * @return true on keys equal
+ */
 func CryptographyKeysMatch(pKey EncryptKey, sKey DecryptKey) bool {
 	// check by encryption
 	ciphertext := pKey.Encrypt(promise)

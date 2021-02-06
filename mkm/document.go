@@ -103,23 +103,24 @@ func (doc *BaseDocument) InitWithType(docType string, identifier ID, data []byte
 	return doc
 }
 
-func (doc *BaseDocument) Type() string {
-	if doc._type == "" {
-		docType := doc.GetProperty("type")
-		if docType != nil {
-			doc._type = docType.(string)
-		} else {
-			doc._type = DocumentGetType(doc.GetMap(false))
-		}
-	}
-	return doc._type
+func (doc *BaseDocument) Equal(other interface{}) bool {
+	return doc.Dictionary.Equal(other)
 }
 
-func (doc *BaseDocument) ID() ID {
-	if doc._identifier == nil {
-		doc._identifier = DocumentGetID(doc.GetMap(false))
-	}
-	return doc._identifier
+func (doc *BaseDocument) Get(name string) interface{} {
+	return doc.Dictionary.Get(name)
+}
+
+func (doc *BaseDocument) Set(name string, value interface{}) {
+	doc.Dictionary.Set(name, value)
+}
+
+func (doc *BaseDocument) Keys() []string {
+	return doc.Dictionary.Keys()
+}
+
+func (doc *BaseDocument) GetMap(clone bool) map[string]interface{} {
+	return doc.Dictionary.GetMap(clone)
 }
 
 /**
@@ -242,6 +243,25 @@ func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 	doc.Set("signature", nil)
 	doc._data = nil
 	doc._signature = nil
+}
+
+func (doc *BaseDocument) Type() string {
+	if doc._type == "" {
+		docType := doc.GetProperty("type")
+		if docType != nil {
+			doc._type = docType.(string)
+		} else {
+			doc._type = DocumentGetType(doc.GetMap(false))
+		}
+	}
+	return doc._type
+}
+
+func (doc *BaseDocument) ID() ID {
+	if doc._identifier == nil {
+		doc._identifier = DocumentGetID(doc.GetMap(false))
+	}
+	return doc._identifier
 }
 
 //---- properties getter/setter

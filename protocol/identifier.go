@@ -64,17 +64,6 @@ type ID interface {
 	IsBroadcast() bool
 }
 
-func IDsEqual(id1, id2 ID) bool {
-	// check ID.address
-	addr1 := id1.Address()
-	addr2 := id2.Address()
-	if addr1.Equal(addr2) == false {
-		return false
-	}
-	// check ID.name
-	return id1.Name() == id2.Name()
-}
-
 /**
  *  ID Factory
  *  ~~~~~~~~~~

@@ -163,6 +163,64 @@ func DocumentGetID(doc map[string]interface{}) ID {
 }
 
 /**
+ *  User Document
+ *  ~~~~~~~~~~~~~
+ *  This interface is defined for authorizing other apps to login,
+ *  which can generate a temporary asymmetric key pair for messaging.
+ */
+type Visa interface {
+
+	/**
+	 *  Get public key to encrypt message for user
+	 *
+	 * @return public key as visa.key
+	 */
+	Key() EncryptKey
+
+	/**
+	 *  Set public key for other user to encrypt message
+	 *
+	 * @param publicKey - public key as visa.key
+	 */
+	SetKey(publicKey EncryptKey)
+
+	/**
+	 *  Get avatar URL
+	 *
+	 * @return URL string
+	 */
+	Avatar() string
+
+	/**
+	 *  Set avatar URL
+	 *
+	 * @param url - URL string
+	 */
+	SetAvatar(url string)
+}
+
+/**
+ *  Group Document
+ *  ~~~~~~~~~~~~~~
+ */
+type Bulletin interface {
+
+	/**
+	 *  Get group assistants
+	 *
+	 * @return bot ID list
+	 */
+	Assistants() []ID
+
+	/**
+	 *  Set group assistants
+	 *
+	 * @param assistants - bot ID list
+	 */
+	SetAssistants(assistants []ID)
+}
+
+/**
  *  Document Factory
  *  ~~~~~~~~~~~~~~~~
  */

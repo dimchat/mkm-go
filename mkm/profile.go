@@ -36,8 +36,15 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
+/**
+ *  User Document
+ *  ~~~~~~~~~~~~~
+ *  This interface is defined for authorizing other apps to login,
+ *  which can generate a temporary asymmetric key pair for messaging.
+ */
 type BaseVisa struct {
 	BaseDocument
+	Visa
 
 	_key EncryptKey
 }
@@ -96,44 +103,48 @@ func (visa *BaseVisa) SetAvatar(url string) {
 	visa.SetProperty("avatar", url)
 }
 
+/**
+ *  Group Document
+ *  ~~~~~~~~~~~~~~
+ */
 type BaseBulletin struct {
 	BaseDocument
+	Bulletin
 
 	_assistants []ID
 }
 
-func (tai *BaseBulletin) Init(dict map[string]interface{}) *BaseBulletin {
-	if tai.BaseDocument.Init(dict) != nil {
+func (doc *BaseBulletin) Init(dict map[string]interface{}) *BaseBulletin {
+	if doc.BaseDocument.Init(dict) != nil {
 		// lazy load
-		tai._assistants = nil
+		doc._assistants = nil
 	}
-	return tai
+	return doc
 }
 
-func (tai *BaseBulletin) InitWithID(identifier ID, data []byte, signature []byte) *BaseBulletin {
-	if tai.BaseDocument.InitWithType(BULLETIN, identifier, data, signature) != nil {
+func (doc *BaseBulletin) InitWithID(identifier ID, data []byte, signature []byte) *BaseBulletin {
+	if doc.BaseDocument.InitWithType(BULLETIN, identifier, data, signature) != nil {
 		// lazy load
-		tai._assistants = nil
+		doc._assistants = nil
 	}
-	return tai
+	return doc
 }
 
-func (tai *BaseBulletin) Assistants() []ID {
-	if tai._assistants == nil {
-		assistants := tai.GetProperty("assistants")
+func (doc *BaseBulletin) Assistants() []ID {
+	if doc._assistants == nil {
+		assistants := doc.GetProperty("assistants")
 		if assistants != nil {
-			tai._assistants = IDConvert(assistants.([]interface{}))
+			doc._assistants = IDConvert(assistants.([]interface{}))
 		}
 	}
-	return tai._assistants
+	return doc._assistants
 }
 
-func (tai *BaseBulletin) SetAssistants(bots []ID) {
+func (doc *BaseBulletin) SetAssistants(bots []ID) {
 	if bots == nil {
-		tai.SetProperty("assistants", nil)
+		doc.SetProperty("assistants", nil)
 	} else {
-		tai.SetProperty("assistants", IDRevert(bots))
+		doc.SetProperty("assistants", IDRevert(bots))
 	}
-	tai._assistants = bots
+	doc._assistants = bots
 }
-

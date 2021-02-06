@@ -31,7 +31,6 @@
 package mkm
 
 import (
-	"fmt"
 	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
 )
@@ -68,58 +67,58 @@ func (id *Identifier) Init(string string, name string, address Address, terminal
 	return id
 }
 
-func (id Identifier) String() string {
+func (id *Identifier) String() string {
 	return id.ConstantString.String()
 }
 
-func (id Identifier) Equal(other interface{}) bool {
+func (id *Identifier) Equal(other interface{}) bool {
 	if other == nil {
 		return false
 	}
-	var str string
+	var identifier ID
 	other = ObjectValue(other)
 	switch other.(type) {
 	case ID:
-		return id == other || IDsEqual(id, other.(ID))
-	case fmt.Stringer:
-		str = other.(fmt.Stringer).String()
-	case string:
-		str = other.(string)
+		identifier = other.(ID)
 	default:
-		return false
+		identifier = IDParse(other)
+		if identifier == nil {
+			return false
+		}
 	}
-	// convert string to ID
-	identifier := IDParse(str)
-	if identifier == nil {
-		return false
+	if id == identifier {
+		return true
 	}
-	return id == identifier || IDsEqual(id, identifier)
+	// check ID.address & ID.name
+	addr1 := id.Address()
+	addr2 := identifier.Address()
+	return addr1.Equal(addr2) && id.Name() == identifier.Name()
 }
 
-func (id Identifier) Name() string {
+func (id *Identifier) Name() string {
 	return id._name
 }
 
-func (id Identifier) Address() Address {
+func (id *Identifier) Address() Address {
 	return id._address
 }
 
-func (id Identifier) Terminal() string {
+func (id *Identifier) Terminal() string {
 	return id._terminal
 }
 
-func (id Identifier) Type() uint8 {
+func (id *Identifier) Type() uint8 {
 	return id._address.Network()
 }
 
-func (id Identifier) IsUser() bool {
+func (id *Identifier) IsUser() bool {
 	return id._address.IsUser()
 }
 
-func (id Identifier) IsGroup() bool {
+func (id *Identifier) IsGroup() bool {
 	return id._address.IsGroup()
 }
 
-func (id Identifier) IsBroadcast() bool {
+func (id *Identifier) IsBroadcast() bool {
 	return id._address.IsBroadcast()
 }

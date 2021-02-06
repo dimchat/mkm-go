@@ -51,7 +51,7 @@ type IMeta interface {
 
 //
 //  virtual class, need to implement methods:
-//      GenerateAddress()
+//      GenerateAddress(network uint8) Address
 //  before using it
 //
 type BaseMeta struct {
@@ -108,6 +108,26 @@ func (meta *BaseMeta) InitWithType(version uint8, key VerifyKey, seed string, fi
 		meta._status = 0
 	}
 	return meta
+}
+
+func (meta *BaseMeta) Equal(other interface{}) bool {
+	return meta.Dictionary.Equal(other)
+}
+
+func (meta *BaseMeta) Get(name string) interface{} {
+	return meta.Dictionary.Get(name)
+}
+
+func (meta *BaseMeta) Set(name string, value interface{}) {
+	meta.Dictionary.Set(name, value)
+}
+
+func (meta *BaseMeta) Keys() []string {
+	return meta.Dictionary.Keys()
+}
+
+func (meta *BaseMeta) GetMap(clone bool) map[string]interface{} {
+	return meta.Dictionary.GetMap(clone)
 }
 
 func (meta *BaseMeta) Type() uint8 {
