@@ -116,7 +116,3 @@ func BuildIDFactory() IDFactory {
 	}
 	return factory
 }
-
-func init() {
-	BuildIDFactory()
-}
