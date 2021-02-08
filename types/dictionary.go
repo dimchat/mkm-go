@@ -80,6 +80,9 @@ func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
 }
 
 func (dict *Dictionary) Equal(other interface{}) bool {
+	if other == nil {
+		return len(dict._dictionary) == 0
+	}
 	value := reflect.ValueOf(other)
 	if value.Kind() == reflect.Ptr {
 		// compare pointers
