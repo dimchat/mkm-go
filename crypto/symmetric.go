@@ -96,18 +96,23 @@ func SymmetricKeyParse(key interface{}) SymmetricKey {
 	if key == nil {
 		return nil
 	}
-	var info map[string]interface{}
-	value := ObjectValue(key)
-	switch value.(type) {
-	case SymmetricKey:
-		return value.(SymmetricKey)
-	case Map:
-		info = value.(Map).GetMap(false)
-	case map[string]interface{}:
-		info = value.(map[string]interface{})
-	default:
-		panic(key)
+	value, ok := key.(SymmetricKey)
+	if ok {
+		return value
 	}
+	// get key info
+	var info map[string]interface{}
+	wrapper, ok := key.(Map)
+	if ok {
+		info = wrapper.GetMap(false)
+	} else {
+		info, ok = key.(map[string]interface{})
+		if !ok {
+			panic(key)
+			return nil
+		}
+	}
+	// get key factory by algorithm
 	algorithm := CryptographyKeyGetAlgorithm(info)
 	factory := SymmetricKeyGetFactory(algorithm)
 	if factory == nil {

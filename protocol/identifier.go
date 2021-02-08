@@ -33,6 +33,7 @@ package protocol
 import (
 	"fmt"
 	. "github.com/dimchat/mkm-go/types"
+	"reflect"
 )
 
 /**
@@ -112,26 +113,36 @@ func IDParse(identifier interface{}) ID {
 	if identifier == nil {
 		return nil
 	}
-	var str string
-	value := ObjectValue(identifier)
-	switch value.(type) {
-	case ID:
-		return value.(ID)
-	case fmt.Stringer:
-		str = value.(fmt.Stringer).String()
-	case string:
-		str = value.(string)
-	default:
-		panic(identifier)
+	id, ok := identifier.(ID)
+	if ok {
+		return id
 	}
-	factory := IDGetFactory()
-	return factory.ParseID(str)
+	wrapper, ok := identifier.(fmt.Stringer)
+	if ok {
+		return IDGetFactory().ParseID(wrapper.String())
+	}
+	text, ok := identifier.(string)
+	if ok {
+		return IDGetFactory().ParseID(text)
+	}
+	panic(identifier)
 }
 
-func IDConvert(members []interface{}) []ID {
-	res := make([]ID, len(members))
-	for index, item := range members {
-		res[index] = IDParse(item)
+func IDConvert(members interface{}) []ID {
+	if reflect.TypeOf(members).Kind() != reflect.Slice {
+		panic(members)
+		return []ID{}
+	}
+	values := reflect.ValueOf(members)
+	count := values.Len()
+	res := make([]ID, 0, count)
+	var item ID
+	for index := 0; index < count; index++ {
+		item = IDParse(values.Index(index).Interface())
+		if item == nil {
+			continue
+		}
+		res = append(res, item)
 	}
 	return res
 }

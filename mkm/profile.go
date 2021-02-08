@@ -134,7 +134,7 @@ func (doc *BaseBulletin) Assistants() []ID {
 	if doc._assistants == nil {
 		assistants := doc.GetProperty("assistants")
 		if assistants != nil {
-			doc._assistants = IDConvert(assistants.([]interface{}))
+			doc._assistants = IDConvert(assistants)
 		}
 	}
 	return doc._assistants

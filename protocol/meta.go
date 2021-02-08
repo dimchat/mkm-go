@@ -220,18 +220,23 @@ func MetaParse(meta interface{}) Meta {
 	if meta == nil {
 		return nil
 	}
-	var info map[string]interface{}
-	value := ObjectValue(meta)
-	switch value.(type) {
-	case Meta:
-		return value.(Meta)
-	case Map:
-		info = value.(Map).GetMap(false)
-	case map[string]interface{}:
-		info = value.(map[string]interface{})
-	default:
-		panic(meta)
+	value, ok := meta.(Meta)
+	if ok {
+		return value
 	}
+	// get meta info
+	var info map[string]interface{}
+	wrapper, ok := meta.(Map)
+	if ok {
+		info = wrapper.GetMap(false)
+	} else {
+		info, ok = meta.(map[string]interface{})
+		if !ok {
+			panic(meta)
+			return nil
+		}
+	}
+	// get meta factory by type
 	version := MetaGetType(info)
 	factory := MetaGetFactory(version)
 	if factory == nil {

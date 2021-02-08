@@ -25,7 +25,10 @@
  */
 package types
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 type Stringer interface {
 	Object
@@ -33,13 +36,10 @@ type Stringer interface {
 	fmt.Stringer
 }
 
-func StringsEqual(str1, str2 Stringer) bool {
-	if ObjectsEqual(str1, str2) {
-		return true
-	}
-	return str1.String() == str2.String()
-}
-
+/**
+ *  Constant String Wrapper
+ *  ~~~~~~~~~~~~~~~~~~~~~~~
+ */
 type ConstantString struct {
 	Stringer
 
@@ -56,15 +56,30 @@ func (str *ConstantString) String() string {
 }
 
 func (str *ConstantString) Equal(other interface{}) bool {
-	other = ObjectValue(other)
-	switch other.(type) {
-	case Stringer:
-		return StringsEqual(str, other.(Stringer))
-	case fmt.Stringer:
-		return str._string == other.(fmt.Stringer).String()
-	case string:
-		return str._string == other.(string)
-	default:
-		return false
+	if other == nil {
+		return str._string == ""
+	}
+	value := reflect.ValueOf(other)
+	if value.Kind() == reflect.Ptr {
+		// compare pointers
+		if str == other {
+			return true
+		}
+		other = value.Elem().Interface()
+	}
+	// compare values
+	if *str == other {
+		return true
+	}
+	// compare inner strings
+	wrapper, ok := other.(fmt.Stringer)
+	if ok {
+		return str._string == wrapper.String()
+	}
+	text, ok := other.(string)
+	if ok {
+		return str._string == text
+	} else {
+		return str._string == other
 	}
 }

@@ -72,21 +72,10 @@ func (id *Identifier) String() string {
 }
 
 func (id *Identifier) Equal(other interface{}) bool {
-	if other == nil {
+	var identifier = IDParse(other)
+	if identifier == nil {
 		return false
-	}
-	var identifier ID
-	other = ObjectValue(other)
-	switch other.(type) {
-	case ID:
-		identifier = other.(ID)
-	default:
-		identifier = IDParse(other)
-		if identifier == nil {
-			return false
-		}
-	}
-	if id == identifier {
+	} else if id == identifier {
 		return true
 	}
 	// check ID.address & ID.name

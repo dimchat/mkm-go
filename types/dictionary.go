@@ -40,13 +40,6 @@ type Map interface {
 	GetMap(clone bool) map[string]interface{}
 }
 
-func MapsEqual(map1, map2 Map) bool {
-	if ObjectsEqual(map1, map2) {
-		return true
-	}
-	return reflect.DeepEqual(map1.GetMap(false), map2.GetMap(false))
-}
-
 func MapKeys(dictionary map[string]interface{}) []string {
 	index := 0
 	keys := make([]string, len(dictionary))
@@ -65,6 +58,13 @@ func CloneMap(dictionary map[string]interface{}) map[string]interface{} {
 	return clone
 }
 
+/**
+ *  Mutable Dictionary Wrapper
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *
+ *  typedef:
+ *      Map<string, *>
+ */
 type Dictionary struct {
 	Map
 
@@ -80,15 +80,23 @@ func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
 }
 
 func (dict *Dictionary) Equal(other interface{}) bool {
-	other = ObjectValue(other)
-	switch other.(type) {
-	case Map:
-		return MapsEqual(dict, other.(Map))
-	case map[string]interface{}:
-		map1 := dict._dictionary
-		map2 := other.(map[string]interface{})
-		return reflect.DeepEqual(map1, map2)
-	default:
+	value := reflect.ValueOf(other)
+	if value.Kind() == reflect.Ptr {
+		// compare pointers
+		if dict == other {
+			return true
+		}
+		other = value.Elem().Interface()
+	}
+	// compare inner maps
+	wrapper, ok := other.(Map)
+	if ok {
+		return reflect.DeepEqual(dict._dictionary, wrapper.GetMap(false))
+	}
+	table, ok := other.(map[string]interface{})
+	if ok {
+		return reflect.DeepEqual(dict._dictionary, table)
+	} else {
 		return false
 	}
 }

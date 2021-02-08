@@ -87,20 +87,19 @@ func AddressParse(address interface{}) Address {
 	if address == nil {
 		return nil
 	}
-	var str string
-	value := ObjectValue(address)
-	switch value.(type) {
-	case Address:
-		return value.(Address)
-	case fmt.Stringer:
-		str = value.(fmt.Stringer).String()
-	case string:
-		str = value.(string)
-	default:
-		panic(address)
+	addr, ok := address.(Address)
+	if ok {
+		return addr
 	}
-	factory := AddressGetFactory()
-	return factory.ParseAddress(str)
+	wrapper, ok := address.(fmt.Stringer)
+	if ok {
+		return AddressGetFactory().ParseAddress(wrapper.String())
+	}
+	text, ok := address.(string)
+	if ok {
+		return AddressGetFactory().ParseAddress(text)
+	}
+	panic(address)
 }
 
 /**

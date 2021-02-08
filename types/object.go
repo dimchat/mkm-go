@@ -25,29 +25,54 @@
  */
 package types
 
-import "reflect"
+import (
+	"reflect"
+)
 
 type Object interface {
 
 	Equal(other interface{}) bool
 }
 
-func ObjectsEqual(obj1, obj2 Object) bool {
-	return obj1 == obj2
+func ObjectsEqual(i1, i2 interface{}) bool {
+	v1 := reflect.ValueOf(i1)
+	v2 := reflect.ValueOf(i2)
+	if v1.Kind() == reflect.Ptr {
+		if v2.Kind() == reflect.Ptr {
+			// both i1, i2 are pointers
+			return i1 == i2 || v1.Elem().Interface() == v2.Elem().Interface()
+		} else {
+			// i1 is pointer
+			return v1.Elem().Interface() == i2
+		}
+	} else if v2.Kind() == reflect.Ptr {
+		// i2 is pointer
+		return i1 == v2.Elem().Interface()
+	} else {
+		// both i1, i2 are values
+		return i1 == i2
+	}
 }
 
 func ObjectValue(i interface{}) interface{} {
 	value := reflect.ValueOf(i)
 	if value.Kind() == reflect.Ptr {
-		i = value.Elem().Interface()
+		return value.Elem().Interface()
+	} else {
+		return i
 	}
-	return i
+}
+
+func ObjectIsPointer(i interface{}) bool {
+	value := reflect.ValueOf(i)
+	return value.Kind() == reflect.Ptr
 }
 
 func ObjectPointer(i interface{}) interface{} {
 	value := reflect.ValueOf(i)
 	if value.Kind() == reflect.Ptr {
 		return i
+	} else {
+		return &i
 	}
-	return &i
 }
