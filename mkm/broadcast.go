@@ -32,48 +32,65 @@ package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
- *  Function for creating address from string
- *
- * @param address - address string
- * @return Address
+ *  Broadcast Address
  */
-type AddressCreator func(address string) Address
+type BroadcastAddress struct {
+	ConstantString
+	Address
 
-/**
- *  General Address Factory
- */
-type GeneralAddressFactory struct {
-	AddressFactory
-
-	CreateAddress AddressCreator
-
-	_addresses map[string]Address
+	_network uint8
 }
 
-func NewGeneralAddressFactory(fn AddressCreator) *GeneralAddressFactory {
-	return new(GeneralAddressFactory).Init(fn)
+func NewBroadcastAddress(address string, network NetworkType) *BroadcastAddress {
+	return new(BroadcastAddress).Init(address, network)
 }
 
-func (factory *GeneralAddressFactory) Init(fn AddressCreator) *GeneralAddressFactory {
-	addresses := make(map[string]Address)
-	// cache broadcast addresses
-	addresses[ANYWHERE.String()] = ANYWHERE
-	addresses[EVERYWHERE.String()] = EVERYWHERE
-	factory._addresses = addresses
-	factory.CreateAddress = fn
-	return factory
-}
-
-func (factory *GeneralAddressFactory) ParseAddress(address string) Address {
-	add := factory._addresses[address]
-	if add == nil {
-		add = factory.CreateAddress(address)
-		if add != nil {
-			factory._addresses[address] = add
-		}
+func (address *BroadcastAddress) Init(string string, network NetworkType) *BroadcastAddress {
+	if address.ConstantString.Init(string) != nil {
+		address._network = uint8(network)
 	}
-	return add
+	return address
+}
+
+func (address *BroadcastAddress) String() string {
+	return address.ConstantString.String()
+}
+
+func (address *BroadcastAddress) Equal(other interface{}) bool {
+	return address.ConstantString.Equal(other)
+}
+
+func (address *BroadcastAddress) Network() uint8 {
+	return address._network
+}
+
+func (address *BroadcastAddress) IsUser() bool {
+	return NetworkTypeIsUser(address._network)
+}
+
+func (address *BroadcastAddress) IsGroup() bool {
+	return NetworkTypeIsGroup(address._network)
+}
+
+func (address *BroadcastAddress) IsBroadcast() bool {
+	return true
+}
+
+func CreateBroadcastAddresses() {
+	if ANYWHERE == nil {
+		ANYWHERE = NewBroadcastAddress(Anywhere, MAIN)
+	}
+	if EVERYWHERE == nil {
+		EVERYWHERE = NewBroadcastAddress(Everywhere, GROUP)
+	}
+}
+
+func init() {
+	BuildGeneralIDFactory()
+	CreateBroadcastAddresses()
+	CreateBroadcastIdentifiers()
 }

@@ -108,7 +108,7 @@ func parse(identifier string) ID {
 	return NewIdentifier(identifier, name, address, terminal)
 }
 
-func BuildIDFactory() IDFactory {
+func BuildGeneralIDFactory() IDFactory {
 	factory := IDGetFactory()
 	if factory == nil {
 		factory = new(GeneralIDFactory).Init()

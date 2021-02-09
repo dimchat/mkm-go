@@ -37,26 +37,23 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-type IMeta interface {
-	Meta
+/**
+ *  Function for generating address with network(type)
+ *
+ * @param meta    - meta info
+ * @param network - ID.type
+ * @return Address
+ */
+type MetaAddressGenerator func(meta Meta, network uint8) Address
 
-	/**
-	 *  Generate address
-	 *
-	 * @param network - ID.type
-	 * @return Address
-	 */
-	GenerateAddress(network uint8) Address
-}
-
-//
-//  virtual class, need to implement methods:
-//      GenerateAddress(network uint8) Address
-//  before using it
-//
+/**
+ *  Base Meta
+ *  ~~~~~~~~~
+ */
 type BaseMeta struct {
 	Dictionary
-	IMeta
+
+	GenerateAddress MetaAddressGenerator
 
 	_type uint8
 
@@ -189,7 +186,7 @@ func (meta *BaseMeta) IsValid() bool {
 }
 
 func (meta *BaseMeta) GenerateID(network uint8, terminal string) ID {
-	address := meta.GenerateAddress(network)
+	address := meta.GenerateAddress(meta, network)
 	if address == nil {
 		return nil
 	}
@@ -205,7 +202,7 @@ func (meta *BaseMeta) MatchID(identifier ID) bool {
 		return false
 	}
 	// check ID.address
-	address := meta.GenerateAddress(identifier.Type())
+	address := meta.GenerateAddress(meta, identifier.Type())
 	return identifier.Address().Equal(address)
 }
 

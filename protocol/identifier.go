@@ -94,8 +94,6 @@ var idFactory IDFactory = nil
 
 func IDSetFactory(factory IDFactory) {
 	idFactory = factory
-	// create broadcast IDs
-	CreateBroadcastIdentifiers()
 }
 
 func IDGetFactory() IDFactory {
