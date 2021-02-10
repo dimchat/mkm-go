@@ -44,6 +44,7 @@ type AddressCreator func(address string) Address
 
 /**
  *  General Address Factory
+ *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 type GeneralAddressFactory struct {
 	AddressFactory
