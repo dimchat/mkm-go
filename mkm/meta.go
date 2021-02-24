@@ -37,11 +37,13 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-type IMeta interface {
-	Meta
+type IMetaExt interface {
+	IMeta
 
-	/**
-	 *  Generate address with network(type)
+	// Check valid status
+	status() int8
+
+	/* Generate address with network(type)
 	 *
 	 * @param network - ID.type
 	 * @return Address
@@ -53,12 +55,13 @@ type IMeta interface {
  *  Base Meta
  *  ~~~~~~~~~
  *
- *  Abstract method:
- *      GenerateAddress(network uint8) Address
+ *  inheritable by BaseMetaShadow
  */
 type BaseMeta struct {
 	Dictionary
-	IMeta
+	IMetaExt
+
+	_shadow IMetaExt
 
 	_type uint8
 	_key VerifyKey
@@ -67,19 +70,17 @@ type BaseMeta struct {
 	_fingerprint []byte
 
 	_status int8  // 1 for valid, -1 for invalid
-
-	_delegate IMetaDelegate
 }
 
 func (meta *BaseMeta) Init(dict map[string]interface{}) *BaseMeta {
 	if meta.Dictionary.Init(dict) != nil {
+		meta._shadow = nil
 		// lazy load
 		meta._type = 0
 		meta._key = nil
 		meta._seed = ""
 		meta._fingerprint = nil
 		meta._status = 0
-		meta._delegate = nil
 	}
 	return meta
 }
@@ -105,97 +106,78 @@ func (meta *BaseMeta) InitWithType(version uint8, key VerifyKey, seed string, fi
 		dict["fingerprint"] = Base64Encode(fingerprint)
 	}
 	if meta.Dictionary.Init(dict) != nil {
+		meta._shadow = nil
 		// set values
 		meta._type = version
 		meta._key = key
 		meta._seed = seed
 		meta._fingerprint = fingerprint
-		meta._status = 0
-		meta._delegate = nil
 	}
 	return meta
 }
 
-func (meta *BaseMeta) Equal(other interface{}) bool {
-	return meta.Dictionary.Equal(other)
+func (meta *BaseMeta) SetShadow(shadow IMetaExt) {
+	meta._shadow = shadow
+}
+func (meta *BaseMeta) Shadow() IMetaExt {
+	return meta._shadow
 }
 
-//-------- Map
-
-func (meta *BaseMeta) Get(name string) interface{} {
-	return meta.Dictionary.Get(name)
-}
-
-func (meta *BaseMeta) Set(name string, value interface{}) {
-	meta.Dictionary.Set(name, value)
-}
-
-func (meta *BaseMeta) Keys() []string {
-	return meta.Dictionary.Keys()
-}
-
-func (meta *BaseMeta) GetMap(clone bool) map[string]interface{} {
-	return meta.Dictionary.GetMap(clone)
-}
-
-//-------- Meta
+//-------- IMeta
 
 func (meta *BaseMeta) Type() uint8 {
 	if meta._type == 0 {
-		meta._type = MetaGetType(meta.GetMap(false))
+		meta._type = meta.Shadow().Type()
 	}
 	return meta._type
 }
 
 func (meta *BaseMeta) Key() VerifyKey {
 	if meta._key == nil {
-		meta._key = MetaGetKey(meta.GetMap(false))
+		meta._key = meta.Shadow().Key()
 	}
 	return meta._key
 }
 
 func (meta *BaseMeta) Seed() string {
 	if meta._seed == "" {
-		if MetaTypeHasSeed(meta.Type()) {
-			meta._seed = MetaGetSeed(meta.GetMap(false))
-		}
+		meta._seed = meta.Shadow().Seed()
 	}
 	return meta._seed
 }
 
 func (meta *BaseMeta) Fingerprint() []byte {
 	if meta._fingerprint == nil {
-		if MetaTypeHasSeed(meta.Type()) {
-			meta._fingerprint = MetaGetFingerprint(meta.GetMap(false))
-		}
+		meta._fingerprint = meta.Shadow().Fingerprint()
 	}
 	return meta._fingerprint
 }
 
-//-------- IMetaDelegate
-
-func (meta *BaseMeta) SetDelegate(delegate IMetaDelegate) {
-	meta._delegate = delegate
-}
-func (meta *BaseMeta) Delegate() IMetaDelegate {
-	return meta._delegate
-}
-
 func (meta *BaseMeta) IsValid() bool {
-	if meta._status == 0 {
-		meta._status = meta.Delegate().Status()
-	}
-	return meta._status == 1
+	return meta.Shadow().IsValid()
 }
 
 func (meta *BaseMeta) GenerateID(network uint8, terminal string) ID {
-	return meta.Delegate().GenerateID(network, terminal)
+	return meta.Shadow().GenerateID(network, terminal)
 }
 
 func (meta *BaseMeta) MatchID(identifier ID) bool {
-	return meta.Delegate().MatchID(identifier)
+	return meta.Shadow().MatchID(identifier)
 }
 
 func (meta *BaseMeta) MatchKey(key VerifyKey) bool {
-	return meta.Delegate().MatchKey(key)
+	return meta.Shadow().MatchKey(key)
+}
+
+//-------- IMetaExt
+
+func (meta *BaseMeta) status() int8 {
+	if meta._status == 0 {
+		meta._status = meta.Shadow().status()
+	}
+	return meta._status
+}
+
+func (meta *BaseMeta) GenerateAddress(network uint8) Address {
+	return meta.Shadow().GenerateAddress(network)
 }

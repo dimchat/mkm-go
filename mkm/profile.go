@@ -44,7 +44,7 @@ import (
  */
 type BaseVisa struct {
 	BaseDocument
-	Visa
+	IVisa
 
 	_key EncryptKey
 }
@@ -64,6 +64,8 @@ func (visa *BaseVisa) InitWithID(identifier ID, data []byte, signature []byte) *
 	}
 	return visa
 }
+
+//-------- IVisa
 
 func (visa *BaseVisa) Key() EncryptKey {
 	if visa._key == nil {
@@ -109,7 +111,7 @@ func (visa *BaseVisa) SetAvatar(url string) {
  */
 type BaseBulletin struct {
 	BaseDocument
-	Bulletin
+	IBulletin
 
 	_assistants []ID
 }
@@ -129,6 +131,8 @@ func (doc *BaseBulletin) InitWithID(identifier ID, data []byte, signature []byte
 	}
 	return doc
 }
+
+//-------- IBulletin
 
 func (doc *BaseBulletin) Assistants() []ID {
 	if doc._assistants == nil {

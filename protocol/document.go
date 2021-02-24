@@ -66,9 +66,9 @@ type TAI interface {
 	 *  Encode properties to 'data' and sign it to 'signature'
 	 *
 	 * @param privateKey - private key match meta.key
-	 * @return signature
+	 * @return (data, signature)
 	 */
-	Sign(privateKey SignKey) []byte
+	Sign(privateKey SignKey) (data, signature []byte)
 
 	//-------- properties
 
@@ -117,6 +117,9 @@ const (
  */
 type Document interface {
 	Map
+	IDocument
+}
+type IDocument interface {
 	TAI
 
 	/**
@@ -169,6 +172,10 @@ func DocumentGetID(doc map[string]interface{}) ID {
  *  which can generate a temporary asymmetric key pair for messaging.
  */
 type Visa interface {
+	Document
+	IVisa
+}
+type IVisa interface {
 
 	/**
 	 *  Get public key to encrypt message for user
@@ -204,6 +211,10 @@ type Visa interface {
  *  ~~~~~~~~~~~~~~
  */
 type Bulletin interface {
+	Document
+	IBulletin
+}
+type IBulletin interface {
 
 	/**
 	 *  Get group assistants

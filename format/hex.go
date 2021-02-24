@@ -55,6 +55,6 @@ func HexEncode(bytes []byte) string {
 	return hexCoder.Encode(bytes)
 }
 
-func HexDecode(b64 string) []byte {
-	return hexCoder.Decode(b64)
+func HexDecode(h string) []byte {
+	return hexCoder.Decode(h)
 }

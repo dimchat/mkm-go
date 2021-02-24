@@ -37,55 +37,85 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-type IMetaDelegate interface {
-
-	Status() int8
-
-	GenerateID(network uint8, terminal string) ID
-
-	MatchID(identifier ID) bool
-
-	MatchKey(key VerifyKey) bool
-}
-
 /**
  *  Meta Shadow
  *  ~~~~~~~~~~~
  *
- *  Delegate for handling meta info
+ * @abstract:
+ *      GenerateAddress(network uint8) Address
  */
 type BaseMetaShadow struct {
-	IMetaDelegate
+	IMetaExt
 
-	_meta IMeta
+	_meta IMetaExt
 }
 
-func (shadow *BaseMetaShadow) Init(meta IMeta) *BaseMetaShadow {
+func (shadow *BaseMetaShadow) Init(meta IMetaExt) *BaseMetaShadow {
 	shadow._meta = meta
 	return shadow
 }
 
-func (shadow *BaseMetaShadow) Status() int8 {
-	return MetaStatus(shadow._meta)
+func (shadow *BaseMetaShadow) Meta() IMetaExt {
+	return shadow._meta
+}
+
+func (shadow *BaseMetaShadow) getMap() map[string]interface{} {
+	return shadow.Meta().(Map).GetMap(false)
+}
+
+//-------- IMeta
+
+func (shadow *BaseMetaShadow) Type() uint8 {
+	return MetaGetType(shadow.getMap())
+}
+
+func (shadow *BaseMetaShadow) Key() VerifyKey {
+	return MetaGetKey(shadow.getMap())
+}
+
+func (shadow *BaseMetaShadow) Seed() string {
+	if MetaTypeHasSeed(shadow.Meta().Type()) {
+		return MetaGetSeed(shadow.getMap())
+	} else {
+		return ""
+	}
+}
+
+func (shadow *BaseMetaShadow) Fingerprint() []byte {
+	if MetaTypeHasSeed(shadow.Meta().Type()) {
+		return MetaGetFingerprint(shadow.getMap())
+	} else {
+		return nil
+	}
+}
+
+func (shadow *BaseMetaShadow) IsValid() bool {
+	return shadow.Meta().status() == 1
 }
 
 func (shadow *BaseMetaShadow) GenerateID(network uint8, terminal string) ID {
-	return MetaGenerateID(shadow._meta, network, terminal)
+	return MetaGenerateID(shadow.Meta(), network, terminal)
 }
 
 func (shadow *BaseMetaShadow) MatchID(identifier ID) bool {
-	return MetaMatchID(shadow._meta, identifier)
+	return MetaMatchID(shadow.Meta(), identifier)
 }
 
 func (shadow *BaseMetaShadow) MatchKey(key VerifyKey) bool {
-	return MetaMatchKey(shadow._meta, key)
+	return MetaMatchKey(shadow.Meta(), key)
+}
+
+//-------- IMetaExt
+
+func (shadow *BaseMetaShadow) status() int8 {
+	return MetaStatus(shadow.Meta())
 }
 
 //
 //  Functions for handling meta info
 //
 
-func MetaStatus(meta IMeta) int8 {
+func MetaStatus(meta IMetaExt) int8 {
 	key := meta.Key()
 	if key == nil {
 		// meta.key should not be empty
@@ -108,7 +138,7 @@ func MetaStatus(meta IMeta) int8 {
 	}
 }
 
-func MetaGenerateID(meta IMeta, network uint8, terminal string) ID {
+func MetaGenerateID(meta IMetaExt, network uint8, terminal string) ID {
 	address := meta.GenerateAddress(network)
 	if address == nil {
 		return nil
@@ -117,7 +147,7 @@ func MetaGenerateID(meta IMeta, network uint8, terminal string) ID {
 	}
 }
 
-func MetaMatchID(meta IMeta, identifier ID) bool {
+func MetaMatchID(meta IMetaExt, identifier ID) bool {
 	if meta.IsValid() == false {
 		return false
 	}
@@ -130,7 +160,7 @@ func MetaMatchID(meta IMeta, identifier ID) bool {
 	return identifier.Address().Equal(address)
 }
 
-func MetaMatchKey(meta IMeta, key VerifyKey) bool {
+func MetaMatchKey(meta IMetaExt, key VerifyKey) bool {
 	if meta.IsValid() == false {
 		return false
 	}

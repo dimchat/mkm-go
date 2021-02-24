@@ -27,48 +27,47 @@ package crypto
 
 import . "github.com/dimchat/mkm-go/types"
 
+
 /**
- *  Base Symmetric Key
- *  ~~~~~~~~~~~~~~~~~~
+ *  Base Crypto Key
+ *  ~~~~~~~~~~~~~~~
  *
- *  Abstract methods:
+ * @abstract:
  *      Data() []byte
- *      Encrypt(plaintext []byte) []byte
- *      Decrypt(ciphertext []byte) []byte
  */
-type BaseSymmetricKey struct {
+type BaseKey struct {
 	Dictionary
-	SymmetricKey
+	ICryptographyKey
 }
 
-func (key *BaseSymmetricKey) Init(dict map[string]interface{}) *BaseSymmetricKey {
+func (key *BaseKey) Init(dict map[string]interface{}) *BaseKey {
 	if key.Dictionary.Init(dict) != nil {
 	}
 	return key
 }
 
-func (key *BaseSymmetricKey) Equal(other interface{}) bool {
-	return key.Dictionary.Equal(other)
-}
-
-func (key *BaseSymmetricKey) Get(name string) interface{} {
-	return key.Dictionary.Get(name)
-}
-
-func (key *BaseSymmetricKey) Set(name string, value interface{}) {
-	key.Dictionary.Set(name, value)
-}
-
-func (key *BaseSymmetricKey) Keys() []string {
-	return key.Dictionary.Keys()
-}
-
-func (key *BaseSymmetricKey) GetMap(clone bool) map[string]interface{} {
-	return key.Dictionary.GetMap(clone)
-}
-
-func (key *BaseSymmetricKey) Algorithm() string {
+func (key *BaseKey) Algorithm() string {
 	return CryptographyKeyGetAlgorithm(key.GetMap(false))
+}
+
+/**
+ *  Base Symmetric Key
+ *  ~~~~~~~~~~~~~~~~~~
+ *
+ * @abstract:
+ *      Data() []byte
+ *      Encrypt(plaintext []byte) []byte
+ *      Decrypt(ciphertext []byte) []byte
+ */
+type BaseSymmetricKey struct {
+	BaseKey
+	ISymmetricKey
+}
+
+func (key *BaseSymmetricKey) Init(dict map[string]interface{}) *BaseSymmetricKey {
+	if key.BaseKey.Init(dict) != nil {
+	}
+	return key
 }
 
 func (key *BaseSymmetricKey) Match(pKey EncryptKey) bool {
@@ -79,43 +78,19 @@ func (key *BaseSymmetricKey) Match(pKey EncryptKey) bool {
  *  Base Public Key
  *  ~~~~~~~~~~~~~~~
  *
- *  Abstract methods:
+ * @abstract:
  *      Data() []byte
  *      Verify(data []byte, signature []byte) bool
  */
 type BasePublicKey struct {
-	Dictionary
-	PublicKey
+	BaseKey
+	IPublicKey
 }
 
 func (key *BasePublicKey) Init(dict map[string]interface{}) *BasePublicKey {
-	if key.Dictionary.Init(dict) != nil {
+	if key.BaseKey.Init(dict) != nil {
 	}
 	return key
-}
-
-func (key *BasePublicKey) Equal(other interface{}) bool {
-	return key.Dictionary.Equal(other)
-}
-
-func (key *BasePublicKey) Get(name string) interface{} {
-	return key.Dictionary.Get(name)
-}
-
-func (key *BasePublicKey) Set(name string, value interface{}) {
-	key.Dictionary.Set(name, value)
-}
-
-func (key *BasePublicKey) Keys() []string {
-	return key.Dictionary.Keys()
-}
-
-func (key *BasePublicKey) GetMap(clone bool) map[string]interface{} {
-	return key.Dictionary.GetMap(clone)
-}
-
-func (key *BasePublicKey) Algorithm() string {
-	return CryptographyKeyGetAlgorithm(key.GetMap(false))
 }
 
 func (key *BasePublicKey) Match(sKey SignKey) bool {
@@ -126,42 +101,18 @@ func (key *BasePublicKey) Match(sKey SignKey) bool {
  *  Base Private Key
  *  ~~~~~~~~~~~~~~~~
  *
- *  Abstract methods:
+ * @abstract:
  *      Data() []byte
  *      Sign(data []byte) []byte
  *      PublicKey() PublicKey
  */
 type BasePrivateKey struct {
-	Dictionary
-	PrivateKey
+	BaseKey
+	IPrivateKey
 }
 
 func (key *BasePrivateKey) Init(dict map[string]interface{}) *BasePrivateKey {
-	if key.Dictionary.Init(dict) != nil {
+	if key.BaseKey.Init(dict) != nil {
 	}
 	return key
-}
-
-func (key *BasePrivateKey) Equal(other interface{}) bool {
-	return key.Dictionary.Equal(other)
-}
-
-func (key *BasePrivateKey) Get(name string) interface{} {
-	return key.Dictionary.Get(name)
-}
-
-func (key *BasePrivateKey) Set(name string, value interface{}) {
-	key.Dictionary.Set(name, value)
-}
-
-func (key *BasePrivateKey) Keys() []string {
-	return key.Dictionary.Keys()
-}
-
-func (key *BasePrivateKey) GetMap(clone bool) map[string]interface{} {
-	return key.Dictionary.GetMap(clone)
-}
-
-func (key *BasePrivateKey) Algorithm() string {
-	return CryptographyKeyGetAlgorithm(key.GetMap(false))
 }

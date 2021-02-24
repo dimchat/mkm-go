@@ -53,6 +53,9 @@ import (
  */
 type Meta interface {
 	Map
+	IMeta
+}
+type IMeta interface {
 
 	/**
 	 *  Meta algorithm version

@@ -33,7 +33,7 @@ package protocol
 /*
  *  enum MKMMetaVersion
  *
- *  abstract Defined for algorithm that generating address.
+ *  @abstract Defined for algorithm that generating address.
  *
  *  discussion Generate and check ID/Address
  *

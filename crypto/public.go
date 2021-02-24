@@ -65,7 +65,10 @@ func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
  */
 type PublicKey interface {
 	AsymmetricKey
-	VerifyKey
+	IPublicKey
+}
+type IPublicKey interface {
+	IVerifyKey
 }
 
 /**
