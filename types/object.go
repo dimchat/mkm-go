@@ -27,12 +27,74 @@ package types
 
 import (
 	"reflect"
+	"sync"
 )
 
+type OOP interface {
+
+	Self() Object
+	//Super() Object
+}
+type MRC interface {
+
+	Retain() Object
+	Release()
+	AutoRelease() Object
+}
+
 type Object interface {
+	OOP
+	MRC
 
 	Equal(other interface{}) bool
 }
+
+type BaseObject struct {
+	Object
+
+	_this Object
+	_retainCount int
+}
+
+func (obj *BaseObject) Init(this Object) *BaseObject {
+	obj._this = this
+	obj._retainCount = 1
+	return obj
+}
+
+func (obj *BaseObject) Retain() Object {
+	obj._retainCount++
+	return obj
+}
+func (obj *BaseObject) Release() {
+	obj._retainCount--
+	if obj._retainCount == 0 {
+		obj._this = nil
+	} else if obj._retainCount < 0 {
+		panic(obj)
+	}
+}
+func (obj *BaseObject) AutoRelease() Object {
+	return ReleasePoolAppend(obj)
+}
+
+func (obj *BaseObject) Self() Object {
+	return obj._this
+}
+//func (obj *BaseObject) Super() Object {
+//	panic("super empty")
+//}
+
+func (obj *BaseObject) Equal(other interface{}) bool {
+	value := reflect.ValueOf(other)
+	if value.Kind() == reflect.Ptr {
+		return obj == other
+	} else {
+		return *obj == value.Elem().Interface()
+	}
+}
+
+//--------
 
 func ObjectsEqual(i1, i2 interface{}) bool {
 	v1 := reflect.ValueOf(i1)
@@ -75,4 +137,26 @@ func ObjectPointer(i interface{}) interface{} {
 	} else {
 		return &i
 	}
+}
+
+//-------- Auto Release Pool
+
+var autoreleasePool = make([]Object, 0, 128)
+
+var autoreleaseLock sync.Mutex
+
+func ReleasePoolAppend(obj Object) Object {
+	autoreleaseLock.Lock()
+	autoreleasePool = append(autoreleasePool, obj)
+	autoreleaseLock.Unlock()
+	return obj
+}
+
+func ReleasePoolPurge() {
+	autoreleaseLock.Lock()
+	for _, item := range autoreleasePool {
+		item.Release()
+	}
+	autoreleasePool = make([]Object, 0, 128)
+	autoreleaseLock.Unlock()
 }

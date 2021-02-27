@@ -42,6 +42,9 @@ import (
  */
 type Address interface {
 	Stringer
+	IAddress
+}
+type IAddress interface {
 
 	/**
 	 *  get address type

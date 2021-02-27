@@ -41,13 +41,16 @@ type Stringer interface {
  *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 type ConstantString struct {
-	Stringer
+	BaseObject
+	fmt.Stringer
 
 	_string string
 }
 
-func (str *ConstantString) Init(string string) *ConstantString {
-	str._string = string
+func (str *ConstantString) Init(this Stringer, string string) *ConstantString {
+	if str.BaseObject.Init(this) != nil {
+		str._string = string
+	}
 	return str
 }
 

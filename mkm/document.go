@@ -37,23 +37,13 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-type IDocumentExt interface {
-	IDocument
-
-	// Check valid status
-	checkStatus(publicKey VerifyKey) int8
-	status() int8
-}
-
 /**
  *  Base Document
  *  ~~~~~~~~~~~~~
  */
 type BaseDocument struct {
 	Dictionary
-	IDocumentExt
-
-	_shadow IDocumentExt
+	IDocument
 
 	_identifier ID
 	_type string       // "visa", "bulletin", ...
@@ -62,8 +52,8 @@ type BaseDocument struct {
 	_status int8       // 1 for valid, -1 for invalid
 }
 
-func (doc *BaseDocument) Init(dict map[string]interface{}) *BaseDocument {
-	if doc.Dictionary.Init(dict) != nil {
+func (doc *BaseDocument) Init(this Document, dict map[string]interface{}) *BaseDocument {
+	if doc.Dictionary.Init(this, dict) != nil {
 		// lazy load
 		doc._identifier = nil
 		doc._type = ""
@@ -73,7 +63,7 @@ func (doc *BaseDocument) Init(dict map[string]interface{}) *BaseDocument {
 	return doc
 }
 
-func (doc *BaseDocument) InitWithType(docType string, identifier ID, data []byte, signature []byte) *BaseDocument {
+func (doc *BaseDocument) InitWithType(this Document, docType string, identifier ID, data []byte, signature []byte) *BaseDocument {
 	if docType == "*" {
 		docType = ""
 	}
@@ -95,7 +85,7 @@ func (doc *BaseDocument) InitWithType(docType string, identifier ID, data []byte
 		dict["signature"] = Base64Encode(signature)
 		status = 1  // all documents must be verified before saving into local storage
 	}
-	if doc.Dictionary.Init(dict) != nil {
+	if doc.Dictionary.Init(this, dict) != nil {
 		doc._identifier = identifier
 		doc._type = docType
 		doc._status = status
@@ -110,25 +100,81 @@ func (doc *BaseDocument) InitWithType(docType string, identifier ID, data []byte
 	return doc
 }
 
-func (doc *BaseDocument) SetShadow(shadow IDocumentExt) {
-	doc._shadow = shadow
+func (doc *BaseDocument) data() []byte {
+	return DocumentGetData(doc.GetMap(false))
 }
-func (doc *BaseDocument) Shadow() IDocumentExt {
-	return doc._shadow
+func (doc *BaseDocument) signature() []byte {
+	return DocumentGetSignature(doc.GetMap(false))
+}
+
+/**
+ *  Get serialized properties
+ *
+ * @return JsON string
+ */
+func DocumentGetData(dict map[string]interface{}) []byte {
+	utf8 := dict["data"]
+	if utf8 == nil {
+		return nil
+	} else {
+		return UTF8Encode(utf8.(string))
+	}
+}
+
+/**
+ *  Get signature for serialized properties
+ *
+ * @return signature data
+ */
+func DocumentGetSignature(dict map[string]interface{}) []byte {
+	base64 := dict["signature"]
+	if base64 == nil {
+		return nil
+	} else {
+		return Base64Decode(base64.(string))
+	}
 }
 
 //-------- TAI
 
 func (doc *BaseDocument) IsValid() bool {
-	return doc.Shadow().IsValid()
+	return doc._status == 1
 }
 
 func (doc *BaseDocument) Verify(publicKey VerifyKey) bool {
-	return doc.Shadow().Verify(publicKey)
+	if doc._status > 0 {
+		// already verify OK
+		return true
+	}
+	data := doc.data()
+	signature := doc.signature()
+	if data == nil {
+		// NOTICE: if data is empty, signature should be empty at the same time
+		//         this happen while profile not found
+		if signature == nil {
+			doc._status = 0
+		} else {
+			// data signature error
+			doc._status = -1
+		}
+	} else if signature == nil {
+		// signature error
+		doc._status = -1
+	} else if publicKey.Verify(data, signature) {
+		// signature matched
+		doc._status = 1
+	}
+	// NOTICE: if status is 0, it doesn't mean the document is invalid,
+	//         try another key
+	return doc._status == 1
 }
 
 func (doc *BaseDocument) Sign(privateKey SignKey) (data, signature []byte) {
-	return doc.Shadow().Sign(privateKey)
+	data = JSONEncode(doc.Self().(TAI).Properties())
+	signature = privateKey.Sign(data)
+	doc.Set("data", UTF8Decode(data))
+	doc.Set("signature", Base64Encode(signature))
+	return data, signature
 }
 
 func (doc *BaseDocument) Properties() map[string]interface{} {
@@ -137,55 +183,72 @@ func (doc *BaseDocument) Properties() map[string]interface{} {
 		return nil
 	}
 	if doc._properties == nil {
-		doc._properties = doc.Shadow().Properties()
+		data := doc.data()
+		if data == nil {
+			// create new properties
+			doc._properties = make(map[string]interface{})
+		} else {
+			// get properties from data
+			doc._properties = JSONDecode(data)
+		}
 	}
 	return doc._properties
 }
 
 func (doc *BaseDocument) GetProperty(name string) interface{} {
-	return doc.Shadow().GetProperty(name)
+	dict := doc.Self().(TAI).Properties()
+	if dict == nil {
+		return nil
+	} else {
+		return dict[name]
+	}
 }
 
 func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 	// reset status
 	doc._status = 0
 	// update property value with name
-	doc.Shadow().SetProperty(name, value)
+	properties := doc.Self().(TAI).Properties()
+	if value == nil {
+		delete(properties, name)
+	} else {
+		properties[name] = value
+	}
+	// clear data signature after properties changed
+	doc.Remove("data")
+	doc.Remove("signature")
 }
 
 //-------- IDocument
 
 func (doc *BaseDocument) Type() string {
 	if doc._type == "" {
-		doc._type = doc.Shadow().Type()
+		docType := doc.Self().(TAI).GetProperty("type")
+		if docType != nil {
+			doc._type = docType.(string)
+		} else {
+			doc._type = DocumentGetType(doc.GetMap(false))
+		}
 	}
 	return doc._type
 }
 
 func (doc *BaseDocument) ID() ID {
 	if doc._identifier == nil {
-		doc._identifier = doc.Shadow().ID()
+		doc._identifier = DocumentGetID(doc.GetMap(false))
 	}
 	return doc._identifier
 }
 
 func (doc *BaseDocument) Name() string {
-	return doc.Shadow().Name()
+	name := doc.Self().(TAI).GetProperty("name")
+	if name == nil {
+		return ""
+	} else {
+		return name.(string)
+	}
 }
 
 func (doc *BaseDocument) SetName(name string) {
-	doc.Shadow().SetName(name)
-}
-
-//-------- IDocumentExt
-
-func (doc *BaseDocument) checkStatus(publicKey VerifyKey) int8 {
-	if doc._status < 1 {
-		doc._status = doc.Shadow().checkStatus(publicKey)
-	}
-	return doc._status
-}
-
-func (doc *BaseDocument) status() int8 {
-	return doc._status
+	doc.Self().(TAI).SetProperty("name", name)
 }

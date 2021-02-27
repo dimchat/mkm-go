@@ -48,6 +48,9 @@ import (
  */
 type ID interface {
 	Stringer
+	IIdentifier
+}
+type IIdentifier interface {
 
 	Name() string
 	Address() Address

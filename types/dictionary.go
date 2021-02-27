@@ -31,9 +31,13 @@ import (
 
 type Map interface {
 	Object
+	IMap
+}
+type IMap interface {
 
 	Get(key string) interface{}
 	Set(key string, value interface{})
+	Remove(key string)
 
 	Keys() []string
 
@@ -66,16 +70,19 @@ func CloneMap(dictionary map[string]interface{}) map[string]interface{} {
  *      Map<string, *>
  */
 type Dictionary struct {
-	Map
+	BaseObject
+	IMap
 
 	_dictionary map[string]interface{}
 }
 
-func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
-	if dictionary == nil {
-		dictionary = make(map[string]interface{})
+func (dict *Dictionary) Init(this Map, dictionary map[string]interface{}) *Dictionary {
+	if dict.BaseObject.Init(this) != nil {
+		if dictionary == nil {
+			dictionary = make(map[string]interface{})
+		}
+		dict._dictionary = dictionary
 	}
-	dict._dictionary = dictionary
 	return dict
 }
 
@@ -97,11 +104,7 @@ func (dict *Dictionary) Equal(other interface{}) bool {
 		return reflect.DeepEqual(dict._dictionary, wrapper.GetMap(false))
 	}
 	table, ok := other.(map[string]interface{})
-	if ok {
-		return reflect.DeepEqual(dict._dictionary, table)
-	} else {
-		return false
-	}
+	return ok && reflect.DeepEqual(dict._dictionary, table)
 }
 
 func (dict *Dictionary) Get(key string) interface{} {
@@ -114,6 +117,10 @@ func (dict *Dictionary) Set(key string, value interface{}) {
 	} else {
 		dict._dictionary[key] = value
 	}
+}
+
+func (dict *Dictionary) Remove(key string) {
+	delete(dict._dictionary, key)
 }
 
 func (dict *Dictionary) Keys() []string {

@@ -47,7 +47,7 @@ import (
  */
 type Identifier struct {
 	ConstantString
-	ID
+	IIdentifier
 
 	_name string
 	_address Address
@@ -55,20 +55,17 @@ type Identifier struct {
 }
 
 func NewIdentifier(identifier string, name string, address Address, terminal string) *Identifier {
-	return new(Identifier).Init(identifier, name, address, terminal)
+	id := new(Identifier)
+	return id.Init(id, identifier, name, address, terminal)
 }
 
-func (id *Identifier) Init(string string, name string, address Address, terminal string) *Identifier {
-	if id.ConstantString.Init(string) != nil {
+func (id *Identifier) Init(this ID, string string, name string, address Address, terminal string) *Identifier {
+	if id.ConstantString.Init(this, string) != nil {
 		id._name = name
 		id._address = address
 		id._terminal = terminal
 	}
 	return id
-}
-
-func (id *Identifier) String() string {
-	return id.ConstantString.String()
 }
 
 func (id *Identifier) Equal(other interface{}) bool {
@@ -83,6 +80,8 @@ func (id *Identifier) Equal(other interface{}) bool {
 	addr2 := identifier.Address()
 	return addr1.Equal(addr2) && id.Name() == identifier.Name()
 }
+
+//-------- IIdentifier
 
 func (id *Identifier) Name() string {
 	return id._name

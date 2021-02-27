@@ -36,44 +36,57 @@ import (
 )
 
 /**
- *  Broadcast Address
+ *  Base Address
+ *  ~~~~~~~~~~~~
  */
-type BroadcastAddress struct {
+type BaseAddress struct {
 	ConstantString
-	Address
+	IAddress
 
 	_network uint8
 }
 
-func NewBroadcastAddress(address string, network NetworkType) *BroadcastAddress {
-	return new(BroadcastAddress).Init(address, network)
-}
-
-func (address *BroadcastAddress) Init(string string, network NetworkType) *BroadcastAddress {
-	if address.ConstantString.Init(string) != nil {
+func (address *BaseAddress) Init(this Address, string string, network NetworkType) *BaseAddress {
+	if address.ConstantString.Init(this, string) != nil {
 		address._network = uint8(network)
 	}
 	return address
 }
 
-func (address *BroadcastAddress) String() string {
-	return address.ConstantString.String()
-}
+//-------- IAddress
 
-func (address *BroadcastAddress) Equal(other interface{}) bool {
-	return address.ConstantString.Equal(other)
-}
-
-func (address *BroadcastAddress) Network() uint8 {
+func (address *BaseAddress) Network() uint8 {
 	return address._network
 }
 
-func (address *BroadcastAddress) IsUser() bool {
-	return NetworkTypeIsUser(address._network)
+func (address *BaseAddress) IsUser() bool {
+	return NetworkTypeIsUser(address.Self().(Address).Network())
 }
 
-func (address *BroadcastAddress) IsGroup() bool {
-	return NetworkTypeIsGroup(address._network)
+func (address *BaseAddress) IsGroup() bool {
+	return NetworkTypeIsGroup(address.Self().(Address).Network())
+}
+
+func (address *BaseAddress) IsBroadcast() bool {
+	return false
+}
+
+/**
+ *  Broadcast Address
+ */
+type BroadcastAddress struct {
+	BaseAddress
+}
+
+func NewBroadcastAddress(address string, network NetworkType) *BroadcastAddress {
+	broadcast := new(BroadcastAddress)
+	return broadcast.Init(broadcast, address, network)
+}
+
+func (address *BroadcastAddress) Init(this Address, string string, network NetworkType) *BroadcastAddress {
+	if address.BaseAddress.Init(this, string, network) != nil {
+	}
+	return address
 }
 
 func (address *BroadcastAddress) IsBroadcast() bool {

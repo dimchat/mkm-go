@@ -40,8 +40,8 @@ type BaseKey struct {
 	ICryptographyKey
 }
 
-func (key *BaseKey) Init(dict map[string]interface{}) *BaseKey {
-	if key.Dictionary.Init(dict) != nil {
+func (key *BaseKey) Init(this CryptographyKey, dict map[string]interface{}) *BaseKey {
+	if key.Dictionary.Init(this, dict) != nil {
 	}
 	return key
 }
@@ -64,8 +64,8 @@ type BaseSymmetricKey struct {
 	ISymmetricKey
 }
 
-func (key *BaseSymmetricKey) Init(dict map[string]interface{}) *BaseSymmetricKey {
-	if key.BaseKey.Init(dict) != nil {
+func (key *BaseSymmetricKey) Init(this SymmetricKey, dict map[string]interface{}) *BaseSymmetricKey {
+	if key.BaseKey.Init(this, dict) != nil {
 	}
 	return key
 }
@@ -87,8 +87,8 @@ type BasePublicKey struct {
 	IPublicKey
 }
 
-func (key *BasePublicKey) Init(dict map[string]interface{}) *BasePublicKey {
-	if key.BaseKey.Init(dict) != nil {
+func (key *BasePublicKey) Init(this PublicKey, dict map[string]interface{}) *BasePublicKey {
+	if key.BaseKey.Init(this, dict) != nil {
 	}
 	return key
 }
@@ -111,8 +111,8 @@ type BasePrivateKey struct {
 	IPrivateKey
 }
 
-func (key *BasePrivateKey) Init(dict map[string]interface{}) *BasePrivateKey {
-	if key.BaseKey.Init(dict) != nil {
+func (key *BasePrivateKey) Init(this PrivateKey, dict map[string]interface{}) *BasePrivateKey {
+	if key.BaseKey.Init(this, dict) != nil {
 	}
 	return key
 }
