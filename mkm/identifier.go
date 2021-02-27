@@ -62,7 +62,7 @@ func NewIdentifier(identifier string, name string, address Address, terminal str
 func (id *Identifier) Init(this ID, string string, name string, address Address, terminal string) *Identifier {
 	if id.ConstantString.Init(this, string) != nil {
 		id._name = name
-		id._address = address
+		id.setAddress(address)
 		id._terminal = terminal
 	}
 	return id
@@ -79,6 +79,26 @@ func (id *Identifier) Equal(other interface{}) bool {
 	addr1 := id.Address()
 	addr2 := identifier.Address()
 	return addr1.Equal(addr2) && id.Name() == identifier.Name()
+}
+
+func (id *Identifier) Release() int {
+	cnt := id.ConstantString.Release()
+	if cnt == 0 {
+		// this object is going to be destroyed,
+		// release children
+		id.setAddress(nil)
+	}
+	return cnt
+}
+
+func (id *Identifier) setAddress(address Address) {
+	if address != nil {
+		address.Retain()
+	}
+	if id._address != nil {
+		id._address.Release()
+	}
+	id._address = address
 }
 
 //-------- IIdentifier

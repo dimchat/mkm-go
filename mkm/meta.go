@@ -97,12 +97,32 @@ func (meta *BaseMeta) InitWithType(this Map, version uint8, key VerifyKey, seed 
 	if meta.Dictionary.Init(this, dict) != nil {
 		// set values
 		meta._type = version
-		meta._key = key
+		meta.setKey(key)
 		meta._seed = seed
 		meta._fingerprint = fingerprint
 		meta._status = 0
 	}
 	return meta
+}
+
+func (meta *BaseMeta) Release() int {
+	cnt := meta.Dictionary.Release()
+	if cnt == 0 {
+		// this object is going to be destroyed,
+		// release children
+		meta.setKey(nil)
+	}
+	return cnt
+}
+
+func (meta *BaseMeta) setKey(key VerifyKey) {
+	if key != nil {
+		key.Retain()
+	}
+	if meta._key != nil {
+		meta._key.Release()
+	}
+	meta._key = key
 }
 
 //-------- IMeta
@@ -116,7 +136,7 @@ func (meta *BaseMeta) Type() uint8 {
 
 func (meta *BaseMeta) Key() VerifyKey {
 	if meta._key == nil {
-		meta._key = MetaGetKey(meta.GetMap(false))
+		meta.setKey(MetaGetKey(meta.GetMap(false)))
 	}
 	return meta._key
 }

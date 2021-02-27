@@ -52,7 +52,7 @@ type BaseVisa struct {
 func (doc *BaseVisa) Init(this Visa, dict map[string]interface{}) *BaseVisa {
 	if doc.BaseDocument.Init(this, dict) != nil {
 		// lazy load
-		doc._key = nil
+		doc.setKey(nil)
 	}
 	return doc
 }
@@ -60,9 +60,29 @@ func (doc *BaseVisa) Init(this Visa, dict map[string]interface{}) *BaseVisa {
 func (doc *BaseVisa) InitWithID(this Visa, identifier ID, data []byte, signature []byte) *BaseVisa {
 	if doc.BaseDocument.InitWithType(this, VISA, identifier, data, signature) != nil {
 		// lazy load
-		doc._key = nil
+		doc.setKey(nil)
 	}
 	return doc
+}
+
+func (doc *BaseVisa) Release() int {
+	cnt := doc.BaseDocument.Release()
+	if cnt == 0 {
+		// this object is going to be destroyed,
+		// release children
+		doc.setKey(nil)
+	}
+	return cnt
+}
+
+func (doc *BaseVisa) setKey(key EncryptKey) {
+	if key != nil {
+		key.Retain()
+	}
+	if doc._key != nil {
+		doc._key.Release()
+	}
+	doc._key = key
 }
 
 //-------- IVisa
@@ -72,9 +92,9 @@ func (doc *BaseVisa) Key() EncryptKey {
 		info := doc.Self().(TAI).GetProperty("key")
 		pKey := PublicKeyParse(info)
 		if pKey != nil {
-			vKey, ok := pKey.(EncryptKey)
+			key, ok := pKey.(EncryptKey)
 			if ok {
-				doc._key = vKey
+				doc.setKey(key)
 			}
 		}
 	}
@@ -90,7 +110,7 @@ func (doc *BaseVisa) SetKey(key EncryptKey) {
 			doc.Self().(TAI).SetProperty("key", info.GetMap(false))
 		}
 	}
-	doc._key = key
+	doc.setKey(key)
 }
 
 func (doc *BaseVisa) Avatar() string {
@@ -119,7 +139,7 @@ type BaseBulletin struct {
 func (doc *BaseBulletin) Init(this Bulletin, dict map[string]interface{}) *BaseBulletin {
 	if doc.BaseDocument.Init(this, dict) != nil {
 		// lazy load
-		doc._assistants = nil
+		doc.setAssistants(nil)
 	}
 	return doc
 }
@@ -127,9 +147,33 @@ func (doc *BaseBulletin) Init(this Bulletin, dict map[string]interface{}) *BaseB
 func (doc *BaseBulletin) InitWithID(this Bulletin, identifier ID, data []byte, signature []byte) *BaseBulletin {
 	if doc.BaseDocument.InitWithType(this, BULLETIN, identifier, data, signature) != nil {
 		// lazy load
-		doc._assistants = nil
+		doc.setAssistants(nil)
 	}
 	return doc
+}
+
+func (doc *BaseBulletin) Release() int {
+	cnt := doc.BaseDocument.Release()
+	if cnt == 0 {
+		// this object is going to be destroyed,
+		// release children
+		doc.setAssistants(nil)
+	}
+	return cnt
+}
+
+func (doc *BaseBulletin) setAssistants(bots []ID) {
+	if bots != nil {
+		for _, item := range bots {
+			item.Retain()
+		}
+	}
+	if doc._assistants != nil {
+		for _, item := range doc._assistants {
+			item.Release()
+		}
+	}
+	doc._assistants = bots
 }
 
 //-------- IBulletin
@@ -138,7 +182,7 @@ func (doc *BaseBulletin) Assistants() []ID {
 	if doc._assistants == nil {
 		assistants := doc.Self().(TAI).GetProperty("assistants")
 		if assistants != nil {
-			doc._assistants = IDConvert(assistants)
+			doc.setAssistants(IDConvert(assistants))
 		}
 	}
 	return doc._assistants
@@ -150,5 +194,5 @@ func (doc *BaseBulletin) SetAssistants(bots []ID) {
 	} else {
 		doc.Self().(TAI).SetProperty("assistants", IDRevert(bots))
 	}
-	doc._assistants = bots
+	doc.setAssistants(bots)
 }

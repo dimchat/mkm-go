@@ -38,7 +38,7 @@ type OOP interface {
 type MRC interface {
 
 	Retain() Object
-	Release()
+	Release() int
 	AutoRelease() Object
 }
 
@@ -66,13 +66,14 @@ func (obj *BaseObject) Retain() Object {
 	obj._retainCount++
 	return obj
 }
-func (obj *BaseObject) Release() {
+func (obj *BaseObject) Release() int {
 	obj._retainCount--
 	if obj._retainCount == 0 {
 		obj._this = nil
 	} else if obj._retainCount < 0 {
 		panic(obj)
 	}
+	return obj._retainCount
 }
 func (obj *BaseObject) AutoRelease() Object {
 	return ReleasePoolAppend(obj)

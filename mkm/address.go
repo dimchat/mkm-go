@@ -69,12 +69,14 @@ func (factory *GeneralAddressFactory) Init(fn AddressCreator) *GeneralAddressFac
 }
 
 func (factory *GeneralAddressFactory) ParseAddress(address string) Address {
-	add := factory._addresses[address]
-	if add == nil {
-		add = factory.CreateAddress(address)
-		if add != nil {
-			factory._addresses[address] = add
+	addr := factory._addresses[address]
+	if addr == nil {
+		addr = factory.CreateAddress(address)
+		if addr != nil {
+			factory._addresses[address] = addr
+			addr.Retain()
+			//ReleasePoolPurge()
 		}
 	}
-	return add
+	return addr
 }
