@@ -96,7 +96,11 @@ type IDFactory interface {
 var idFactory IDFactory = nil
 
 func IDSetFactory(factory IDFactory) {
-	idFactory = factory
+	if factory != idFactory {
+		ObjectRetain(factory)
+		ObjectRelease(idFactory)
+		idFactory = factory
+	}
 }
 
 func IDGetFactory() IDFactory {

@@ -116,13 +116,11 @@ func (meta *BaseMeta) Release() int {
 }
 
 func (meta *BaseMeta) setKey(key VerifyKey) {
-	if key != nil {
-		key.Retain()
+	if key != meta._key {
+		ObjectRetain(key)
+		ObjectRelease(meta._key)
+		meta._key = key
 	}
-	if meta._key != nil {
-		meta._key.Release()
-	}
-	meta._key = key
 }
 
 //-------- IMeta

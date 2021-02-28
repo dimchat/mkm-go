@@ -25,6 +25,8 @@
  */
 package format
 
+import . "github.com/dimchat/mkm-go/types"
+
 type UTF8Parser struct {
 	DataParser
 }
@@ -44,8 +46,12 @@ func (parser UTF8Parser) Decode(bytes []byte) interface{} {
 
 var utf8Parser DataParser = new(UTF8Parser)
 
-func SetUTF8Parser(parser DataParser)  {
-	utf8Parser = parser
+func SetUTF8Parser(parser DataParser) {
+	if parser != utf8Parser {
+		ObjectRetain(parser)
+		ObjectRelease(utf8Parser)
+		utf8Parser = parser
+	}
 }
 
 func UTF8Encode(string string) []byte {

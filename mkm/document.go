@@ -111,13 +111,11 @@ func (doc *BaseDocument) Release() int {
 }
 
 func (doc *BaseDocument) setID(identifier ID) {
-	if identifier != nil {
-		identifier.Retain()
+	if identifier != doc._identifier {
+		ObjectRetain(identifier)
+		ObjectRelease(doc._identifier)
+		doc._identifier = identifier
 	}
-	if doc._identifier != nil {
-		doc._identifier.Release()
-	}
-	doc._identifier = identifier
 }
 
 func (doc *BaseDocument) data() []byte {

@@ -92,13 +92,11 @@ func (id *Identifier) Release() int {
 }
 
 func (id *Identifier) setAddress(address Address) {
-	if address != nil {
-		address.Retain()
+	if address != id._address {
+		ObjectRetain(address)
+		ObjectRelease(id._address)
+		id._address = address
 	}
-	if id._address != nil {
-		id._address.Release()
-	}
-	id._address = address
 }
 
 //-------- IIdentifier

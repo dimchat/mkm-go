@@ -25,7 +25,10 @@
  */
 package format
 
-import "encoding/base64"
+import (
+	"encoding/base64"
+	. "github.com/dimchat/mkm-go/types"
+)
 
 type Base64Coder struct {
 	DataCoder
@@ -48,7 +51,11 @@ func (coder Base64Coder) Decode(string string) []byte {
 var base64Coder DataCoder = new(Base64Coder)
 
 func SetBase64Coder(coder DataCoder) {
-	base64Coder = coder
+	if coder != base64Coder {
+		ObjectRetain(coder)
+		ObjectRelease(base64Coder)
+		base64Coder = coder
+	}
 }
 
 func Base64Encode(bytes []byte) string {

@@ -25,7 +25,10 @@
  */
 package digest
 
-import "crypto/sha1"
+import (
+	"crypto/sha1"
+	. "github.com/dimchat/mkm-go/types"
+)
 
 type SHA1Digester struct {
 	DataDigester
@@ -38,8 +41,12 @@ func (digester SHA1Digester) Digest(data []byte) []byte {
 
 var sha1Digester DataDigester = new(SHA1Digester)
 
-func SetSHA1Digester(coder DataDigester) {
-	sha1Digester = coder
+func SetSHA1Digester(digester DataDigester) {
+	if digester != sha1Digester {
+		ObjectRetain(digester)
+		ObjectRelease(sha1Digester)
+		sha1Digester = digester
+	}
 }
 
 func SHA1(bytes []byte) []byte {

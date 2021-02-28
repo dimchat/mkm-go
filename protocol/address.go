@@ -76,7 +76,11 @@ type AddressFactory interface {
 var addressFactory AddressFactory = nil
 
 func AddressSetFactory(factory AddressFactory) {
-	addressFactory = factory
+	if factory != addressFactory {
+		ObjectRetain(factory)
+		ObjectRelease(addressFactory)
+		addressFactory = factory
+	}
 }
 
 func AddressGetFactory() AddressFactory {

@@ -89,7 +89,12 @@ type PublicKeyFactory interface {
 var publicFactories = make(map[string]PublicKeyFactory)
 
 func PublicKeyRegister(algorithm string, factory PublicKeyFactory) {
-	publicFactories[algorithm] = factory
+	old := publicFactories[algorithm]
+	if old != factory {
+		ObjectRetain(factory)
+		ObjectRelease(old)
+		publicFactories[algorithm] = factory
+	}
 }
 
 func PublicKeyGetFactory(algorithm string) PublicKeyFactory {

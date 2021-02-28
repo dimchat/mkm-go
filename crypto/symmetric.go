@@ -77,7 +77,12 @@ type SymmetricKeyFactory interface {
 var symmetricFactories = make(map[string]SymmetricKeyFactory)
 
 func SymmetricKeyRegister(algorithm string, factory SymmetricKeyFactory) {
-	symmetricFactories[algorithm] = factory
+	old := symmetricFactories[algorithm]
+	if old != factory {
+		ObjectRetain(factory)
+		ObjectRelease(old)
+		symmetricFactories[algorithm] = factory
+	}
 }
 
 func SymmetricKeyGetFactory(algorithm string) SymmetricKeyFactory {

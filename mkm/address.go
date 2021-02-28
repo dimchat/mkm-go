@@ -75,7 +75,7 @@ func (factory *GeneralAddressFactory) ParseAddress(address string) Address {
 		if addr != nil {
 			factory._addresses[address] = addr
 			addr.Retain()
-			//ReleasePoolPurge()
+			//AutoreleasePoolPurge()
 		}
 	}
 	return addr

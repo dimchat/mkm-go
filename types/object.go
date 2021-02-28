@@ -27,10 +27,9 @@ package types
 
 import (
 	"reflect"
-	"sync"
 )
 
-type OOP interface {
+type OO interface {
 
 	Self() Object
 	//Super() Object
@@ -43,7 +42,7 @@ type MRC interface {
 }
 
 type Object interface {
-	OOP
+	OO
 	MRC
 
 	Equal(other interface{}) bool
@@ -69,6 +68,7 @@ func (obj *BaseObject) Retain() Object {
 func (obj *BaseObject) Release() int {
 	obj._retainCount--
 	if obj._retainCount == 0 {
+		// break circular reference
 		obj._this = nil
 	} else if obj._retainCount < 0 {
 		panic(obj)
@@ -76,7 +76,7 @@ func (obj *BaseObject) Release() int {
 	return obj._retainCount
 }
 func (obj *BaseObject) AutoRelease() Object {
-	return ReleasePoolAppend(obj)
+	return AutoreleasePoolAppend(obj)
 }
 
 func (obj *BaseObject) Self() Object {
@@ -96,6 +96,33 @@ func (obj *BaseObject) Equal(other interface{}) bool {
 }
 
 //--------
+
+func ObjectRetain(o interface{}) Object {
+	obj, ok := o.(Object)
+	if ok {
+		return obj.Retain()
+	} else {
+		return obj
+	}
+}
+
+func ObjectRelease(o interface{}) int {
+	obj, ok := o.(Object)
+	if ok {
+		return obj.Release()
+	} else {
+		return 0
+	}
+}
+
+func ObjectAutorelease(o interface{}) Object {
+	obj, ok := o.(Object)
+	if ok {
+		return obj.AutoRelease()
+	} else {
+		return obj
+	}
+}
 
 func ObjectsEqual(i1, i2 interface{}) bool {
 	v1 := reflect.ValueOf(i1)
@@ -138,26 +165,4 @@ func ObjectPointer(i interface{}) interface{} {
 	} else {
 		return &i
 	}
-}
-
-//-------- Auto Release Pool
-
-var autoreleasePool = make([]Object, 0, 128)
-
-var autoreleaseLock sync.Mutex
-
-func ReleasePoolAppend(obj Object) Object {
-	autoreleaseLock.Lock()
-	autoreleasePool = append(autoreleasePool, obj)
-	autoreleaseLock.Unlock()
-	return obj
-}
-
-func ReleasePoolPurge() {
-	autoreleaseLock.Lock()
-	for _, item := range autoreleasePool {
-		item.Release()
-	}
-	autoreleasePool = make([]Object, 0, 128)
-	autoreleaseLock.Unlock()
 }

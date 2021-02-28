@@ -76,13 +76,11 @@ func (doc *BaseVisa) Release() int {
 }
 
 func (doc *BaseVisa) setKey(key EncryptKey) {
-	if key != nil {
-		key.Retain()
+	if key != doc._key {
+		ObjectRetain(key)
+		ObjectRelease(doc._key)
+		doc._key = key
 	}
-	if doc._key != nil {
-		doc._key.Release()
-	}
-	doc._key = key
 }
 
 //-------- IVisa
