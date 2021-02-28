@@ -46,11 +46,15 @@ type BaseAddress struct {
 	_network uint8
 }
 
-func (address *BaseAddress) Init(this Address, string string, network NetworkType) *BaseAddress {
-	if address.ConstantString.Init(this, string) != nil {
+func (address *BaseAddress) Init(string string, network NetworkType) *BaseAddress {
+	if address.ConstantString.Init(string) != nil {
 		address._network = uint8(network)
 	}
 	return address
+}
+
+func (address *BaseAddress) self() Address {
+	return address.Self().(Address)
 }
 
 //-------- IAddress
@@ -60,11 +64,11 @@ func (address *BaseAddress) Network() uint8 {
 }
 
 func (address *BaseAddress) IsUser() bool {
-	return NetworkTypeIsUser(address.Self().(Address).Network())
+	return NetworkTypeIsUser(address.self().Network())
 }
 
 func (address *BaseAddress) IsGroup() bool {
-	return NetworkTypeIsGroup(address.Self().(Address).Network())
+	return NetworkTypeIsGroup(address.self().Network())
 }
 
 func (address *BaseAddress) IsBroadcast() bool {
@@ -79,12 +83,13 @@ type BroadcastAddress struct {
 }
 
 func NewBroadcastAddress(address string, network NetworkType) *BroadcastAddress {
-	broadcast := new(BroadcastAddress)
-	return broadcast.Init(broadcast, address, network)
+	broadcast := new(BroadcastAddress).Init(address, network)
+	ObjectRetain(broadcast)
+	return broadcast
 }
 
-func (address *BroadcastAddress) Init(this Address, string string, network NetworkType) *BroadcastAddress {
-	if address.BaseAddress.Init(this, string, network) != nil {
+func (address *BroadcastAddress) Init(string string, network NetworkType) *BroadcastAddress {
+	if address.BaseAddress.Init(string, network) != nil {
 	}
 	return address
 }

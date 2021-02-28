@@ -47,8 +47,8 @@ type ConstantString struct {
 	_string string
 }
 
-func (str *ConstantString) Init(this Stringer, string string) *ConstantString {
-	if str.BaseObject.Init(this) != nil {
+func (str *ConstantString) Init(string string) *ConstantString {
+	if str.BaseObject.Init() != nil {
 		str._string = string
 	}
 	return str

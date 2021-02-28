@@ -76,8 +76,8 @@ type Dictionary struct {
 	_dictionary map[string]interface{}
 }
 
-func (dict *Dictionary) Init(this Map, dictionary map[string]interface{}) *Dictionary {
-	if dict.BaseObject.Init(this) != nil {
+func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
+	if dict.BaseObject.Init() != nil {
 		if dictionary == nil {
 			dictionary = make(map[string]interface{})
 		}

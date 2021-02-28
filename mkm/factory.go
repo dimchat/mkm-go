@@ -32,6 +32,7 @@ package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 	"strings"
 )
 
@@ -46,12 +47,21 @@ func (factory *GeneralIDFactory) Init() *GeneralIDFactory {
 	return factory
 }
 
+func (factory *GeneralIDFactory) cacheID(str string, id ID) {
+	old := factory._identifiers[str]
+	if old != id {
+		ObjectRetain(id)
+		ObjectRelease(old)
+		factory._identifiers[str] = id
+	}
+}
+
 func (factory *GeneralIDFactory) CreateID(name string, address Address, terminal string) ID {
 	identifier := concat(name, address, terminal)
 	id := factory._identifiers[identifier]
 	if id == nil {
 		id = NewIdentifier(identifier, name, address, terminal)
-		factory._identifiers[identifier] = id
+		factory.cacheID(identifier, id)
 	}
 	return id
 }
@@ -61,7 +71,7 @@ func (factory *GeneralIDFactory) ParseID(identifier string) ID {
 	if id == nil {
 		id = parse(identifier)
 		if id != nil {
-			factory._identifiers[identifier] = id
+			factory.cacheID(identifier, id)
 		}
 	}
 	return id

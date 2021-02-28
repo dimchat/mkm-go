@@ -55,17 +55,22 @@ type Identifier struct {
 }
 
 func NewIdentifier(identifier string, name string, address Address, terminal string) *Identifier {
-	id := new(Identifier)
-	return id.Init(id, identifier, name, address, terminal)
+	id := new(Identifier).Init(identifier, name, address, terminal)
+	ObjectRetain(id)
+	return id
 }
 
-func (id *Identifier) Init(this ID, string string, name string, address Address, terminal string) *Identifier {
-	if id.ConstantString.Init(this, string) != nil {
+func (id *Identifier) Init(string string, name string, address Address, terminal string) *Identifier {
+	if id.ConstantString.Init(string) != nil {
 		id._name = name
 		id.setAddress(address)
 		id._terminal = terminal
 	}
 	return id
+}
+
+func (id *Identifier) self() ID {
+	return id.Self().(ID)
 }
 
 func (id *Identifier) Equal(other interface{}) bool {
@@ -76,9 +81,9 @@ func (id *Identifier) Equal(other interface{}) bool {
 		return true
 	}
 	// check ID.address & ID.name
-	addr1 := id.Address()
+	addr1 := id.self().Address()
 	addr2 := identifier.Address()
-	return addr1.Equal(addr2) && id.Name() == identifier.Name()
+	return addr1.Equal(addr2) && id.self().Name() == identifier.Name()
 }
 
 func (id *Identifier) Release() int {
@@ -114,17 +119,17 @@ func (id *Identifier) Terminal() string {
 }
 
 func (id *Identifier) Type() uint8 {
-	return id._address.Network()
+	return id.self().Address().Network()
 }
 
 func (id *Identifier) IsUser() bool {
-	return id._address.IsUser()
+	return id.self().Address().IsUser()
 }
 
 func (id *Identifier) IsGroup() bool {
-	return id._address.IsGroup()
+	return id.self().Address().IsGroup()
 }
 
 func (id *Identifier) IsBroadcast() bool {
-	return id._address.IsBroadcast()
+	return id.self().Address().IsBroadcast()
 }

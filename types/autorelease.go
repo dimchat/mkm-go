@@ -53,8 +53,8 @@ type BasePool struct {
 	_objects []Object
 }
 
-func (pool *BasePool) Init(this AutoreleasePool) *BasePool {
-	if pool.BaseObject.Init(this) != nil {
+func (pool *BasePool) Init() *BasePool {
+	if pool.BaseObject.Init() != nil {
 		pool.Purge()
 	}
 	return pool
@@ -81,7 +81,7 @@ func (pool *BasePool) Purge() {
 func (pool *BasePool) setObjects(objects []Object) {
 	if pool._objects != nil {
 		for _, item := range pool._objects {
-			item.Release()
+			ObjectRelease(item)
 		}
 	}
 	pool._objects = objects
@@ -93,19 +93,26 @@ func (pool *BasePool) setObjects(objects []Object) {
 
 var poolStack = make([]AutoreleasePool, 0, 16)
 
-var autoreleaseLock sync.Mutex
+var mutexLock sync.Mutex
+
+func AutoreleasePoolLock() {
+	mutexLock.Lock()
+}
+func AutoreleasePoolUnLock() {
+	mutexLock.Unlock()
+}
 
 // Append an AutoreleasePool on the stack top
 func AutoreleasePoolPush(pool AutoreleasePool) {
-	autoreleaseLock.Lock()
+	AutoreleasePoolLock()
 	poolStack = append(poolStack, pool)
-	autoreleaseLock.Unlock()
+	AutoreleasePoolUnLock()
 }
 
 // Remove the AutoreleasePool from stack
 // if pool is nil, pop the top one
 func AutoreleasePoolPop(pool AutoreleasePool) AutoreleasePool {
-	autoreleaseLock.Lock()
+	AutoreleasePoolLock()
 	index := len(poolStack) - 1
 	if index < 0 {
 		panic("AutoreleasePool stack empty")
@@ -129,15 +136,15 @@ func AutoreleasePoolPop(pool AutoreleasePool) AutoreleasePool {
 			}
 		}
 	}
-	autoreleaseLock.Unlock()
+	AutoreleasePoolUnLock()
 	return pool
 }
 
 // Get an AutoreleasePool on the stack top
 func AutoreleasePoolTop() AutoreleasePool {
-	autoreleaseLock.Lock()
+	AutoreleasePoolLock()
 	pool := autoreleasePoolTop()
-	autoreleaseLock.Unlock()
+	AutoreleasePoolUnLock()
 	return pool
 }
 func autoreleasePoolTop() AutoreleasePool {
@@ -146,34 +153,34 @@ func autoreleasePoolTop() AutoreleasePool {
 
 // Append an Object to a AutoreleasePool on the stack top synchronously
 func AutoreleasePoolAppend(obj Object) Object {
-	autoreleaseLock.Lock()
+	AutoreleasePoolLock()
 	autoreleasePoolTop().Append(obj)
-	autoreleaseLock.Unlock()
+	AutoreleasePoolUnLock()
 	return obj
 }
 
 // Purge the AutoreleasePool on the stack top synchronously
 func AutoreleasePoolPurge() {
-	autoreleaseLock.Lock()
+	AutoreleasePoolLock()
 	autoreleasePoolTop().Purge()
-	autoreleaseLock.Unlock()
+	AutoreleasePoolUnLock()
 }
 
 // Purge all AutoreleasePool in the stack synchronously
 func AutoreleasePoolPurgeAll() {
-	autoreleaseLock.Lock()
+	AutoreleasePoolLock()
 	index := len(poolStack) - 1
 	for ; index >= 0; index-- {
 		poolStack[index].Purge()
 	}
-	autoreleaseLock.Unlock()
+	AutoreleasePoolUnLock()
 }
 
 // Create a new AutoreleasePool and push to the stack top
 // the caller should release it manually
 func NewAutoreleasePool() AutoreleasePool {
-	pool := new(BasePool)
-	pool.Init(pool)
+	pool := new(BasePool).Init()
+	ObjectRetain(pool)
 	AutoreleasePoolPush(pool)
 	return pool
 }
@@ -181,8 +188,8 @@ func NewAutoreleasePool() AutoreleasePool {
 // Remove the AutoreleasePool from stack and purge it
 func DeleteAutoreleasePool(pool AutoreleasePool) {
 	AutoreleasePoolPop(pool)
-	pool.Purge()
-	pool.Release()
+	//pool.Purge()
+	ObjectRelease(pool)
 }
 
 func init() {

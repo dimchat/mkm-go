@@ -68,8 +68,8 @@ type BaseMeta struct {
 	_status int8  // 1 for valid, -1 for invalid
 }
 
-func (meta *BaseMeta) Init(this Meta, dict map[string]interface{}) *BaseMeta {
-	if meta.Dictionary.Init(this, dict) != nil {
+func (meta *BaseMeta) Init(dict map[string]interface{}) *BaseMeta {
+	if meta.Dictionary.Init(dict) != nil {
 		// lazy load
 		meta._type = 0
 		meta._key = nil
@@ -80,7 +80,7 @@ func (meta *BaseMeta) Init(this Meta, dict map[string]interface{}) *BaseMeta {
 	return meta
 }
 
-func (meta *BaseMeta) InitWithType(this Map, version uint8, key VerifyKey, seed string, fingerprint []byte) *BaseMeta {
+func (meta *BaseMeta) InitWithType(version uint8, key VerifyKey, seed string, fingerprint []byte) *BaseMeta {
 	dict := make(map[string]interface{})
 	// meta type
 	dict["type"] = version
@@ -94,7 +94,7 @@ func (meta *BaseMeta) InitWithType(this Map, version uint8, key VerifyKey, seed 
 	if fingerprint != nil {
 		dict["fingerprint"] = Base64Encode(fingerprint)
 	}
-	if meta.Dictionary.Init(this, dict) != nil {
+	if meta.Dictionary.Init(dict) != nil {
 		// set values
 		meta._type = version
 		meta.setKey(key)
@@ -103,6 +103,10 @@ func (meta *BaseMeta) InitWithType(this Map, version uint8, key VerifyKey, seed 
 		meta._status = 0
 	}
 	return meta
+}
+
+func (meta *BaseMeta) self() IMetaExt {
+	return meta.Self().(IMetaExt)
 }
 
 func (meta *BaseMeta) Release() int {
@@ -141,7 +145,7 @@ func (meta *BaseMeta) Key() VerifyKey {
 
 func (meta *BaseMeta) Seed() string {
 	if meta._seed == "" {
-		if MetaTypeHasSeed(meta.Self().(IMeta).Type()) {
+		if MetaTypeHasSeed(meta.self().Type()) {
 			meta._seed = MetaGetSeed(meta.GetMap(false))
 		}
 	}
@@ -150,7 +154,7 @@ func (meta *BaseMeta) Seed() string {
 
 func (meta *BaseMeta) Fingerprint() []byte {
 	if meta._fingerprint == nil {
-		if MetaTypeHasSeed(meta.Self().(IMeta).Type()) {
+		if MetaTypeHasSeed(meta.self().Type()) {
 			meta._fingerprint = MetaGetFingerprint(meta.GetMap(false))
 		}
 	}
@@ -159,21 +163,21 @@ func (meta *BaseMeta) Fingerprint() []byte {
 
 func (meta *BaseMeta) IsValid() bool {
 	if meta._status == 0 {
-		meta._status = MetaStatus(meta.Self().(IMeta))
+		meta._status = MetaStatus(meta.self())
 	}
 	return meta._status == 1
 }
 
 func (meta *BaseMeta) GenerateID(network uint8, terminal string) ID {
-	return MetaGenerateID(meta.Self().(IMetaExt), network, terminal)
+	return MetaGenerateID(meta.self(), network, terminal)
 }
 
 func (meta *BaseMeta) MatchID(identifier ID) bool {
-	return MetaMatchID(meta.Self().(IMetaExt), identifier)
+	return MetaMatchID(meta.self(), identifier)
 }
 
 func (meta *BaseMeta) MatchKey(key VerifyKey) bool {
-	return MetaMatchKey(meta.Self().(IMeta), key)
+	return MetaMatchKey(meta.self(), key)
 }
 
 //

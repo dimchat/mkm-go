@@ -49,16 +49,16 @@ type BaseVisa struct {
 	_key EncryptKey
 }
 
-func (doc *BaseVisa) Init(this Visa, dict map[string]interface{}) *BaseVisa {
-	if doc.BaseDocument.Init(this, dict) != nil {
+func (doc *BaseVisa) Init(dict map[string]interface{}) *BaseVisa {
+	if doc.BaseDocument.Init(dict) != nil {
 		// lazy load
 		doc.setKey(nil)
 	}
 	return doc
 }
 
-func (doc *BaseVisa) InitWithID(this Visa, identifier ID, data []byte, signature []byte) *BaseVisa {
-	if doc.BaseDocument.InitWithType(this, VISA, identifier, data, signature) != nil {
+func (doc *BaseVisa) InitWithID(identifier ID, data []byte, signature []byte) *BaseVisa {
+	if doc.BaseDocument.InitWithType(VISA, identifier, data, signature) != nil {
 		// lazy load
 		doc.setKey(nil)
 	}
@@ -87,7 +87,7 @@ func (doc *BaseVisa) setKey(key EncryptKey) {
 
 func (doc *BaseVisa) Key() EncryptKey {
 	if doc._key == nil {
-		info := doc.Self().(TAI).GetProperty("key")
+		info := doc.self().GetProperty("key")
 		pKey := PublicKeyParse(info)
 		if pKey != nil {
 			key, ok := pKey.(EncryptKey)
@@ -101,18 +101,18 @@ func (doc *BaseVisa) Key() EncryptKey {
 
 func (doc *BaseVisa) SetKey(key EncryptKey) {
 	if key == nil {
-		doc.Self().(TAI).SetProperty("key", nil)
+		doc.self().SetProperty("key", nil)
 	} else {
 		info, ok := key.(Map)
 		if ok {
-			doc.Self().(TAI).SetProperty("key", info.GetMap(false))
+			doc.self().SetProperty("key", info.GetMap(false))
 		}
 	}
 	doc.setKey(key)
 }
 
 func (doc *BaseVisa) Avatar() string {
-	url := doc.Self().(TAI).GetProperty("avatar")
+	url := doc.self().GetProperty("avatar")
 	if url == nil {
 		return ""
 	}
@@ -120,7 +120,7 @@ func (doc *BaseVisa) Avatar() string {
 }
 
 func (doc *BaseVisa) SetAvatar(url string) {
-	doc.Self().(TAI).SetProperty("avatar", url)
+	doc.self().SetProperty("avatar", url)
 }
 
 /**
@@ -134,16 +134,16 @@ type BaseBulletin struct {
 	_assistants []ID
 }
 
-func (doc *BaseBulletin) Init(this Bulletin, dict map[string]interface{}) *BaseBulletin {
-	if doc.BaseDocument.Init(this, dict) != nil {
+func (doc *BaseBulletin) Init(dict map[string]interface{}) *BaseBulletin {
+	if doc.BaseDocument.Init(dict) != nil {
 		// lazy load
 		doc.setAssistants(nil)
 	}
 	return doc
 }
 
-func (doc *BaseBulletin) InitWithID(this Bulletin, identifier ID, data []byte, signature []byte) *BaseBulletin {
-	if doc.BaseDocument.InitWithType(this, BULLETIN, identifier, data, signature) != nil {
+func (doc *BaseBulletin) InitWithID(identifier ID, data []byte, signature []byte) *BaseBulletin {
+	if doc.BaseDocument.InitWithType(BULLETIN, identifier, data, signature) != nil {
 		// lazy load
 		doc.setAssistants(nil)
 	}
@@ -163,12 +163,12 @@ func (doc *BaseBulletin) Release() int {
 func (doc *BaseBulletin) setAssistants(bots []ID) {
 	if bots != nil {
 		for _, item := range bots {
-			item.Retain()
+			ObjectRetain(item)
 		}
 	}
 	if doc._assistants != nil {
 		for _, item := range doc._assistants {
-			item.Release()
+			ObjectRelease(item)
 		}
 	}
 	doc._assistants = bots
@@ -178,7 +178,7 @@ func (doc *BaseBulletin) setAssistants(bots []ID) {
 
 func (doc *BaseBulletin) Assistants() []ID {
 	if doc._assistants == nil {
-		assistants := doc.Self().(TAI).GetProperty("assistants")
+		assistants := doc.self().GetProperty("assistants")
 		if assistants != nil {
 			doc.setAssistants(IDConvert(assistants))
 		}
@@ -188,9 +188,9 @@ func (doc *BaseBulletin) Assistants() []ID {
 
 func (doc *BaseBulletin) SetAssistants(bots []ID) {
 	if bots == nil {
-		doc.Self().(TAI).SetProperty("assistants", nil)
+		doc.self().SetProperty("assistants", nil)
 	} else {
-		doc.Self().(TAI).SetProperty("assistants", IDRevert(bots))
+		doc.self().SetProperty("assistants", IDRevert(bots))
 	}
 	doc.setAssistants(bots)
 }

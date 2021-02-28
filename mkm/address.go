@@ -32,6 +32,7 @@ package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -59,13 +60,21 @@ func NewGeneralAddressFactory(fn AddressCreator) *GeneralAddressFactory {
 }
 
 func (factory *GeneralAddressFactory) Init(fn AddressCreator) *GeneralAddressFactory {
-	addresses := make(map[string]Address)
-	// cache broadcast addresses
-	addresses[ANYWHERE.String()] = ANYWHERE
-	addresses[EVERYWHERE.String()] = EVERYWHERE
-	factory._addresses = addresses
 	factory.CreateAddress = fn
+	factory._addresses = make(map[string]Address)
+	// cache broadcast addresses
+	factory.cacheAddress(ANYWHERE.String(), ANYWHERE)
+	factory.cacheAddress(EVERYWHERE.String(), EVERYWHERE)
 	return factory
+}
+
+func (factory *GeneralAddressFactory) cacheAddress(str string, address Address) {
+	old := factory._addresses[str]
+	if old != address {
+		ObjectRetain(address)
+		ObjectRelease(old)
+		factory._addresses[str] = address
+	}
 }
 
 func (factory *GeneralAddressFactory) ParseAddress(address string) Address {
@@ -73,9 +82,7 @@ func (factory *GeneralAddressFactory) ParseAddress(address string) Address {
 	if addr == nil {
 		addr = factory.CreateAddress(address)
 		if addr != nil {
-			factory._addresses[address] = addr
-			addr.Retain()
-			//AutoreleasePoolPurge()
+			factory.cacheAddress(address, addr)
 		}
 	}
 	return addr

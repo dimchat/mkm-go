@@ -31,14 +31,22 @@ import (
 
 type OO interface {
 
+	// Get this pointer
 	Self() Object
+
 	//Super() Object
 }
 type MRC interface {
 
-	Retain() Object
+	// Set this pointer and increase retain count
+	Retain(this Object) Object
+
+	// Decrease retain count and return it,
+	// if equals 0, erase this pointer
 	Release() int
-	AutoRelease() Object
+
+	// Append this object to AutoreleasePool
+	Autorelease() Object
 }
 
 type Object interface {
@@ -55,13 +63,16 @@ type BaseObject struct {
 	_retainCount int
 }
 
-func (obj *BaseObject) Init(this Object) *BaseObject {
-	obj._this = this
+func (obj *BaseObject) Init() *BaseObject {
+	obj._this = nil
 	obj._retainCount = 1
 	return obj
 }
 
-func (obj *BaseObject) Retain() Object {
+func (obj *BaseObject) Retain(this Object) Object {
+	if this != nil {
+		obj._this = this
+	}
 	obj._retainCount++
 	return obj
 }
@@ -75,7 +86,7 @@ func (obj *BaseObject) Release() int {
 	}
 	return obj._retainCount
 }
-func (obj *BaseObject) AutoRelease() Object {
+func (obj *BaseObject) Autorelease() Object {
 	return AutoreleasePoolAppend(obj)
 }
 
@@ -97,30 +108,58 @@ func (obj *BaseObject) Equal(other interface{}) bool {
 
 //--------
 
-func ObjectRetain(o interface{}) Object {
-	obj, ok := o.(Object)
+/**
+ *  Set this pointer and increase retain count
+ */
+func ObjectRetain(obj interface{}) Object {
+	o, ok := obj.(Object)
 	if ok {
-		return obj.Retain()
+		// call 'Retain()' from child class
+		s := o.Self()
+		if s == nil {
+			return o.Retain(o)
+		} else {
+			return s.Retain(s)
+		}
 	} else {
-		return obj
+		return o
 	}
 }
 
-func ObjectRelease(o interface{}) int {
-	obj, ok := o.(Object)
+/**
+ *  Decrease retain count,
+ *  if equals 0, erase this pointer
+ */
+func ObjectRelease(obj interface{}) int {
+	o, ok := obj.(Object)
 	if ok {
-		return obj.Release()
+		// call 'Release()' from child class
+		s := o.Self()
+		if s == nil {
+			return o.Release()
+		} else {
+			return s.Release()
+		}
 	} else {
 		return 0
 	}
 }
 
-func ObjectAutorelease(o interface{}) Object {
-	obj, ok := o.(Object)
+/**
+ *  Append the object to AutoreleasePool
+ */
+func ObjectAutorelease(obj interface{}) Object {
+	o, ok := obj.(Object)
 	if ok {
-		return obj.AutoRelease()
+		// call 'Autorelease()' from child class
+		s := o.Self()
+		if s == nil {
+			return o.Autorelease()
+		} else {
+			return s.Autorelease()
+		}
 	} else {
-		return obj
+		return o
 	}
 }
 

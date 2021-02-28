@@ -52,8 +52,8 @@ type BaseDocument struct {
 	_status int8       // 1 for valid, -1 for invalid
 }
 
-func (doc *BaseDocument) Init(this Document, dict map[string]interface{}) *BaseDocument {
-	if doc.Dictionary.Init(this, dict) != nil {
+func (doc *BaseDocument) Init(dict map[string]interface{}) *BaseDocument {
+	if doc.Dictionary.Init(dict) != nil {
 		// lazy load
 		doc.setID(nil)
 		doc._type = ""
@@ -63,7 +63,7 @@ func (doc *BaseDocument) Init(this Document, dict map[string]interface{}) *BaseD
 	return doc
 }
 
-func (doc *BaseDocument) InitWithType(this Document, docType string, identifier ID, data []byte, signature []byte) *BaseDocument {
+func (doc *BaseDocument) InitWithType(docType string, identifier ID, data []byte, signature []byte) *BaseDocument {
 	if docType == "*" {
 		docType = ""
 	}
@@ -85,7 +85,7 @@ func (doc *BaseDocument) InitWithType(this Document, docType string, identifier 
 		dict["signature"] = Base64Encode(signature)
 		status = 1  // all documents must be verified before saving into local storage
 	}
-	if doc.Dictionary.Init(this, dict) != nil {
+	if doc.Dictionary.Init(dict) != nil {
 		doc.setID(identifier)
 		doc._type = docType
 		doc._status = status
@@ -98,6 +98,10 @@ func (doc *BaseDocument) InitWithType(this Document, docType string, identifier 
 		}
 	}
 	return doc
+}
+
+func (doc *BaseDocument) self() Document {
+	return doc.Self().(Document)
 }
 
 func (doc *BaseDocument) Release() int {
@@ -188,7 +192,7 @@ func (doc *BaseDocument) Verify(publicKey VerifyKey) bool {
 }
 
 func (doc *BaseDocument) Sign(privateKey SignKey) (data, signature []byte) {
-	data = JSONEncode(doc.Self().(TAI).Properties())
+	data = JSONEncode(doc.self().Properties())
 	signature = privateKey.Sign(data)
 	doc.Set("data", UTF8Decode(data))
 	doc.Set("signature", Base64Encode(signature))
@@ -214,7 +218,7 @@ func (doc *BaseDocument) Properties() map[string]interface{} {
 }
 
 func (doc *BaseDocument) GetProperty(name string) interface{} {
-	dict := doc.Self().(TAI).Properties()
+	dict := doc.self().Properties()
 	if dict == nil {
 		return nil
 	} else {
@@ -226,7 +230,7 @@ func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 	// reset status
 	doc._status = 0
 	// update property value with name
-	properties := doc.Self().(TAI).Properties()
+	properties := doc.self().Properties()
 	if value == nil {
 		delete(properties, name)
 	} else {
@@ -241,7 +245,7 @@ func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 
 func (doc *BaseDocument) Type() string {
 	if doc._type == "" {
-		docType := doc.Self().(TAI).GetProperty("type")
+		docType := doc.self().GetProperty("type")
 		if docType != nil {
 			doc._type = docType.(string)
 		} else {
@@ -259,7 +263,7 @@ func (doc *BaseDocument) ID() ID {
 }
 
 func (doc *BaseDocument) Name() string {
-	name := doc.Self().(TAI).GetProperty("name")
+	name := doc.self().GetProperty("name")
 	if name == nil {
 		return ""
 	} else {
@@ -268,5 +272,5 @@ func (doc *BaseDocument) Name() string {
 }
 
 func (doc *BaseDocument) SetName(name string) {
-	doc.Self().(TAI).SetProperty("name", name)
+	doc.self().SetProperty("name", name)
 }
