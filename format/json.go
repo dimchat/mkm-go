@@ -45,13 +45,32 @@ func (parser JSONParser) Encode(object interface{}) []byte {
 }
 
 func (parser JSONParser) Decode(bytes []byte) interface{} {
-	var dict map[string]interface{}
-	err := json.Unmarshal(bytes, &dict)
-	if err == nil {
-		return dict
-	} else {
-		return nil
+	for ch := range bytes {
+		if ch == '{' {
+			// decode to map
+			var dict map[string]interface{}
+			err := json.Unmarshal(bytes, &dict)
+			if err == nil {
+				return dict
+			} else {
+				return nil
+			}
+		} else if ch == '[' {
+			// decode to array
+			var array []interface{}
+			err := json.Unmarshal(bytes, &array)
+			if err == nil {
+				return array
+			} else {
+				return nil
+			}
+		} else if ch != ' ' && ch != '\t' {
+			// error
+			break
+		}
 	}
+	//panic(bytes)
+	return nil
 }
 
 var jsonParser DataParser = new(JSONParser)
@@ -64,13 +83,43 @@ func SetJSONParser(parser DataParser) {
 	}
 }
 
-func JSONEncode(dict map[string]interface{}) []byte {
+func JSONEncode(object interface{}) []byte {
+	return jsonParser.Encode(object)
+}
+
+func JSONDecode(bytes []byte) interface{} {
+	return jsonParser.Decode(bytes)
+}
+
+//
+//  JsON <-> Map
+//
+
+func JSONEncodeMap(dict map[string]interface{}) []byte {
 	return jsonParser.Encode(dict)
 }
 
-func JSONDecode(bytes []byte) map[string]interface{} {
-	dict := jsonParser.Decode(bytes)
-	res, ok := dict.(map[string]interface{})
+func JSONDecodeMap(bytes []byte) map[string]interface{} {
+	obj := jsonParser.Decode(bytes)
+	res, ok := obj.(map[string]interface{})
+	if ok {
+		return res
+	} else {
+		return nil
+	}
+}
+
+//
+//  JsON <-> List
+//
+
+func JSONEncodeList(array []interface{}) []byte {
+	return jsonParser.Encode(array)
+}
+
+func JSONDecodeList(bytes []byte) []interface{} {
+	obj := jsonParser.Decode(bytes)
+	res, ok := obj.([]interface{})
 	if ok {
 		return res
 	} else {

@@ -105,24 +105,20 @@ func (meta *BaseMeta) InitWithType(version uint8, key VerifyKey, seed string, fi
 	return meta
 }
 
-func (meta *BaseMeta) self() IMetaExt {
-	return meta.Self().(IMetaExt)
-}
-
-func (meta *BaseMeta) Release() int {
-	cnt := meta.Dictionary.Release()
-	if cnt == 0 {
-		// this object is going to be destroyed,
-		// release children
-		meta.setKey(nil)
-	}
-	return cnt
-}
+//func (meta *BaseMeta) Release() int {
+//	cnt := meta.Dictionary.Release()
+//	if cnt == 0 {
+//		// this object is going to be destroyed,
+//		// release children
+//		meta.setKey(nil)
+//	}
+//	return cnt
+//}
 
 func (meta *BaseMeta) setKey(key VerifyKey) {
 	if key != meta._key {
-		ObjectRetain(key)
-		ObjectRelease(meta._key)
+		//ObjectRetain(key)
+		//ObjectRelease(meta._key)
 		meta._key = key
 	}
 }
@@ -145,7 +141,7 @@ func (meta *BaseMeta) Key() VerifyKey {
 
 func (meta *BaseMeta) Seed() string {
 	if meta._seed == "" {
-		if MetaTypeHasSeed(meta.self().Type()) {
+		if MetaTypeHasSeed(meta.Type()) {
 			meta._seed = MetaGetSeed(meta.GetMap(false))
 		}
 	}
@@ -154,7 +150,7 @@ func (meta *BaseMeta) Seed() string {
 
 func (meta *BaseMeta) Fingerprint() []byte {
 	if meta._fingerprint == nil {
-		if MetaTypeHasSeed(meta.self().Type()) {
+		if MetaTypeHasSeed(meta.Type()) {
 			meta._fingerprint = MetaGetFingerprint(meta.GetMap(false))
 		}
 	}
@@ -163,21 +159,21 @@ func (meta *BaseMeta) Fingerprint() []byte {
 
 func (meta *BaseMeta) IsValid() bool {
 	if meta._status == 0 {
-		meta._status = MetaStatus(meta.self())
+		meta._status = MetaStatus(meta)
 	}
 	return meta._status == 1
 }
 
 func (meta *BaseMeta) GenerateID(network uint8, terminal string) ID {
-	return MetaGenerateID(meta.self(), network, terminal)
+	return MetaGenerateID(meta, network, terminal)
 }
 
 func (meta *BaseMeta) MatchID(identifier ID) bool {
-	return MetaMatchID(meta.self(), identifier)
+	return MetaMatchID(meta, identifier)
 }
 
 func (meta *BaseMeta) MatchKey(key VerifyKey) bool {
-	return MetaMatchKey(meta.self(), key)
+	return MetaMatchKey(meta, key)
 }
 
 //

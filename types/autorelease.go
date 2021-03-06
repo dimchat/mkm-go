@@ -28,7 +28,7 @@ package types
 import "sync"
 
 type AutoreleasePool interface {
-	Object
+	SelfReference
 	IAutoreleasePool
 }
 type IAutoreleasePool interface {
@@ -38,7 +38,7 @@ type IAutoreleasePool interface {
 	 *
 	 * @param obj - MRC object
 	 */
-	Append(obj Object)
+	Append(obj SelfReference)
 
 	/**
 	 *  Release all objects in the AutoreleasePool
@@ -47,21 +47,23 @@ type IAutoreleasePool interface {
 }
 
 type BasePool struct {
-	BaseObject
+	InheritableObject
 	IAutoreleasePool
 
-	_objects []Object
+	_objects []SelfReference
 }
 
 func (pool *BasePool) Init() *BasePool {
-	if pool.BaseObject.Init() != nil {
+	if pool.InheritableObject.Init() != nil {
 		pool.Purge()
 	}
 	return pool
 }
 
+//-------- MRC
+
 func (pool *BasePool) Release() int {
-	cnt := pool.BaseObject.Release()
+	cnt := pool.InheritableObject.Release()
 	if cnt == 0 {
 		// this object is going to be destroyed,
 		// release children
@@ -70,15 +72,17 @@ func (pool *BasePool) Release() int {
 	return cnt
 }
 
-func (pool *BasePool) Append(obj Object) {
+//-------- IAutoreleasePool
+
+func (pool *BasePool) Append(obj SelfReference) {
 	pool._objects = append(pool._objects, obj)
 }
 
 func (pool *BasePool) Purge() {
-	pool.setObjects(make([]Object, 0, 128))
+	pool.setObjects(make([]SelfReference, 0, 128))
 }
 
-func (pool *BasePool) setObjects(objects []Object) {
+func (pool *BasePool) setObjects(objects []SelfReference) {
 	if pool._objects != nil {
 		for _, item := range pool._objects {
 			ObjectRelease(item)
@@ -104,6 +108,9 @@ func AutoreleasePoolUnLock() {
 
 // Append an AutoreleasePool on the stack top
 func AutoreleasePoolPush(pool AutoreleasePool) {
+	// increase retain count
+	ObjectRetain(pool)
+	// lock and append to stack
 	AutoreleasePoolLock()
 	poolStack = append(poolStack, pool)
 	AutoreleasePoolUnLock()
@@ -112,6 +119,7 @@ func AutoreleasePoolPush(pool AutoreleasePool) {
 // Remove the AutoreleasePool from stack
 // if pool is nil, pop the top one
 func AutoreleasePoolPop(pool AutoreleasePool) AutoreleasePool {
+	// lock and remove from stack
 	AutoreleasePoolLock()
 	index := len(poolStack) - 1
 	if index < 0 {
@@ -135,8 +143,14 @@ func AutoreleasePoolPop(pool AutoreleasePool) AutoreleasePool {
 				break
 			}
 		}
+		if index <= 0 {
+			// not found
+			pool = nil
+		}
 	}
 	AutoreleasePoolUnLock()
+	// decrease retain count
+	ObjectRelease(pool)
 	return pool
 }
 
@@ -148,11 +162,16 @@ func AutoreleasePoolTop() AutoreleasePool {
 	return pool
 }
 func autoreleasePoolTop() AutoreleasePool {
-	return poolStack[len(poolStack)-1]
+	count := len(poolStack)
+	if count > 0 {
+		return poolStack[count-1]
+	} else {
+		return nil
+	}
 }
 
 // Append an Object to a AutoreleasePool on the stack top synchronously
-func AutoreleasePoolAppend(obj Object) Object {
+func AutoreleasePoolAppend(obj SelfReference) SelfReference {
 	AutoreleasePoolLock()
 	autoreleasePoolTop().Append(obj)
 	AutoreleasePoolUnLock()
@@ -180,7 +199,6 @@ func AutoreleasePoolPurgeAll() {
 // the caller should release it manually
 func NewAutoreleasePool() AutoreleasePool {
 	pool := new(BasePool).Init()
-	ObjectRetain(pool)
 	AutoreleasePoolPush(pool)
 	return pool
 }
@@ -189,7 +207,6 @@ func NewAutoreleasePool() AutoreleasePool {
 func DeleteAutoreleasePool(pool AutoreleasePool) {
 	AutoreleasePoolPop(pool)
 	//pool.Purge()
-	ObjectRelease(pool)
 }
 
 func init() {

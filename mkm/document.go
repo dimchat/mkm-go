@@ -100,24 +100,20 @@ func (doc *BaseDocument) InitWithType(docType string, identifier ID, data []byte
 	return doc
 }
 
-func (doc *BaseDocument) self() Document {
-	return doc.Self().(Document)
-}
-
-func (doc *BaseDocument) Release() int {
-	cnt := doc.Dictionary.Release()
-	if cnt == 0 {
-		// this object is going to be destroyed,
-		// release children
-		doc.setID(nil)
-	}
-	return cnt
-}
+//func (doc *BaseDocument) Release() int {
+//	cnt := doc.Dictionary.Release()
+//	if cnt == 0 {
+//		// this object is going to be destroyed,
+//		// release children
+//		doc.setID(nil)
+//	}
+//	return cnt
+//}
 
 func (doc *BaseDocument) setID(identifier ID) {
 	if identifier != doc._identifier {
-		ObjectRetain(identifier)
-		ObjectRelease(doc._identifier)
+		//ObjectRetain(identifier)
+		//ObjectRelease(doc._identifier)
 		doc._identifier = identifier
 	}
 }
@@ -192,7 +188,7 @@ func (doc *BaseDocument) Verify(publicKey VerifyKey) bool {
 }
 
 func (doc *BaseDocument) Sign(privateKey SignKey) (data, signature []byte) {
-	data = JSONEncode(doc.self().Properties())
+	data = JSONEncodeMap(doc.Properties())
 	signature = privateKey.Sign(data)
 	doc.Set("data", UTF8Decode(data))
 	doc.Set("signature", Base64Encode(signature))
@@ -211,14 +207,14 @@ func (doc *BaseDocument) Properties() map[string]interface{} {
 			doc._properties = make(map[string]interface{})
 		} else {
 			// get properties from data
-			doc._properties = JSONDecode(data)
+			doc._properties = JSONDecodeMap(data)
 		}
 	}
 	return doc._properties
 }
 
 func (doc *BaseDocument) GetProperty(name string) interface{} {
-	dict := doc.self().Properties()
+	dict := doc.Properties()
 	if dict == nil {
 		return nil
 	} else {
@@ -230,7 +226,7 @@ func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 	// reset status
 	doc._status = 0
 	// update property value with name
-	properties := doc.self().Properties()
+	properties := doc.Properties()
 	if value == nil {
 		delete(properties, name)
 	} else {
@@ -245,7 +241,7 @@ func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 
 func (doc *BaseDocument) Type() string {
 	if doc._type == "" {
-		docType := doc.self().GetProperty("type")
+		docType := doc.GetProperty("type")
 		if docType != nil {
 			doc._type = docType.(string)
 		} else {
@@ -263,7 +259,7 @@ func (doc *BaseDocument) ID() ID {
 }
 
 func (doc *BaseDocument) Name() string {
-	name := doc.self().GetProperty("name")
+	name := doc.GetProperty("name")
 	if name == nil {
 		return ""
 	} else {
@@ -272,5 +268,5 @@ func (doc *BaseDocument) Name() string {
 }
 
 func (doc *BaseDocument) SetName(name string) {
-	doc.self().SetProperty("name", name)
+	doc.SetProperty("name", name)
 }

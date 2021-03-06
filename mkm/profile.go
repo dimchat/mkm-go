@@ -65,20 +65,20 @@ func (doc *BaseVisa) InitWithID(identifier ID, data []byte, signature []byte) *B
 	return doc
 }
 
-func (doc *BaseVisa) Release() int {
-	cnt := doc.BaseDocument.Release()
-	if cnt == 0 {
-		// this object is going to be destroyed,
-		// release children
-		doc.setKey(nil)
-	}
-	return cnt
-}
+//func (doc *BaseVisa) Release() int {
+//	cnt := doc.BaseDocument.Release()
+//	if cnt == 0 {
+//		// this object is going to be destroyed,
+//		// release children
+//		doc.setKey(nil)
+//	}
+//	return cnt
+//}
 
 func (doc *BaseVisa) setKey(key EncryptKey) {
 	if key != doc._key {
-		ObjectRetain(key)
-		ObjectRelease(doc._key)
+		//ObjectRetain(key)
+		//ObjectRelease(doc._key)
 		doc._key = key
 	}
 }
@@ -87,7 +87,7 @@ func (doc *BaseVisa) setKey(key EncryptKey) {
 
 func (doc *BaseVisa) Key() EncryptKey {
 	if doc._key == nil {
-		info := doc.self().GetProperty("key")
+		info := doc.GetProperty("key")
 		pKey := PublicKeyParse(info)
 		if pKey != nil {
 			key, ok := pKey.(EncryptKey)
@@ -101,18 +101,18 @@ func (doc *BaseVisa) Key() EncryptKey {
 
 func (doc *BaseVisa) SetKey(key EncryptKey) {
 	if key == nil {
-		doc.self().SetProperty("key", nil)
+		doc.SetProperty("key", nil)
 	} else {
 		info, ok := key.(Map)
 		if ok {
-			doc.self().SetProperty("key", info.GetMap(false))
+			doc.SetProperty("key", info.GetMap(false))
 		}
 	}
 	doc.setKey(key)
 }
 
 func (doc *BaseVisa) Avatar() string {
-	url := doc.self().GetProperty("avatar")
+	url := doc.GetProperty("avatar")
 	if url == nil {
 		return ""
 	}
@@ -120,7 +120,7 @@ func (doc *BaseVisa) Avatar() string {
 }
 
 func (doc *BaseVisa) SetAvatar(url string) {
-	doc.self().SetProperty("avatar", url)
+	doc.SetProperty("avatar", url)
 }
 
 /**
@@ -150,27 +150,27 @@ func (doc *BaseBulletin) InitWithID(identifier ID, data []byte, signature []byte
 	return doc
 }
 
-func (doc *BaseBulletin) Release() int {
-	cnt := doc.BaseDocument.Release()
-	if cnt == 0 {
-		// this object is going to be destroyed,
-		// release children
-		doc.setAssistants(nil)
-	}
-	return cnt
-}
+//func (doc *BaseBulletin) Release() int {
+//	cnt := doc.BaseDocument.Release()
+//	if cnt == 0 {
+//		// this object is going to be destroyed,
+//		// release children
+//		doc.setAssistants(nil)
+//	}
+//	return cnt
+//}
 
 func (doc *BaseBulletin) setAssistants(bots []ID) {
-	if bots != nil {
-		for _, item := range bots {
-			ObjectRetain(item)
-		}
-	}
-	if doc._assistants != nil {
-		for _, item := range doc._assistants {
-			ObjectRelease(item)
-		}
-	}
+	//if bots != nil {
+	//	for _, item := range bots {
+	//		ObjectRetain(item)
+	//	}
+	//}
+	//if doc._assistants != nil {
+	//	for _, item := range doc._assistants {
+	//		ObjectRelease(item)
+	//	}
+	//}
 	doc._assistants = bots
 }
 
@@ -178,7 +178,7 @@ func (doc *BaseBulletin) setAssistants(bots []ID) {
 
 func (doc *BaseBulletin) Assistants() []ID {
 	if doc._assistants == nil {
-		assistants := doc.self().GetProperty("assistants")
+		assistants := doc.GetProperty("assistants")
 		if assistants != nil {
 			doc.setAssistants(IDConvert(assistants))
 		}
@@ -188,9 +188,9 @@ func (doc *BaseBulletin) Assistants() []ID {
 
 func (doc *BaseBulletin) SetAssistants(bots []ID) {
 	if bots == nil {
-		doc.self().SetProperty("assistants", nil)
+		doc.SetProperty("assistants", nil)
 	} else {
-		doc.self().SetProperty("assistants", IDRevert(bots))
+		doc.SetProperty("assistants", IDRevert(bots))
 	}
 	doc.setAssistants(bots)
 }

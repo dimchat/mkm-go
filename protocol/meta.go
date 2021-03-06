@@ -135,7 +135,7 @@ func MetaGetType(meta map[string]interface{}) uint8 {
 func MetaGetKey(meta map[string]interface{}) VerifyKey {
 	key := meta["key"]
 	if key == nil {
-		panic("meta key not found: " + UTF8Decode(JSONEncode(meta)))
+		panic("meta key not found: " + UTF8Decode(JSONEncodeMap(meta)))
 	}
 	return PublicKeyParse(key)
 }

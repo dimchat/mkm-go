@@ -55,9 +55,7 @@ type Identifier struct {
 }
 
 func NewIdentifier(identifier string, name string, address Address, terminal string) *Identifier {
-	id := new(Identifier).Init(identifier, name, address, terminal)
-	ObjectRetain(id)
-	return id
+	return new(Identifier).Init(identifier, name, address, terminal)
 }
 
 func (id *Identifier) Init(string string, name string, address Address, terminal string) *Identifier {
@@ -69,10 +67,6 @@ func (id *Identifier) Init(string string, name string, address Address, terminal
 	return id
 }
 
-func (id *Identifier) self() ID {
-	return id.Self().(ID)
-}
-
 func (id *Identifier) Equal(other interface{}) bool {
 	var identifier = IDParse(other)
 	if identifier == nil {
@@ -81,25 +75,25 @@ func (id *Identifier) Equal(other interface{}) bool {
 		return true
 	}
 	// check ID.address & ID.name
-	addr1 := id.self().Address()
+	addr1 := id.Address()
 	addr2 := identifier.Address()
-	return addr1.Equal(addr2) && id.self().Name() == identifier.Name()
+	return addr1.Equal(addr2) && id.Name() == identifier.Name()
 }
 
-func (id *Identifier) Release() int {
-	cnt := id.ConstantString.Release()
-	if cnt == 0 {
-		// this object is going to be destroyed,
-		// release children
-		id.setAddress(nil)
-	}
-	return cnt
-}
+//func (id *Identifier) Release() int {
+//	cnt := id.ConstantString.Release()
+//	if cnt == 0 {
+//		// this object is going to be destroyed,
+//		// release children
+//		id.setAddress(nil)
+//	}
+//	return cnt
+//}
 
 func (id *Identifier) setAddress(address Address) {
 	if address != id._address {
-		ObjectRetain(address)
-		ObjectRelease(id._address)
+		//ObjectRetain(address)
+		//ObjectRelease(id._address)
 		id._address = address
 	}
 }
@@ -119,17 +113,17 @@ func (id *Identifier) Terminal() string {
 }
 
 func (id *Identifier) Type() uint8 {
-	return id.self().Address().Network()
+	return id._address.Network()
 }
 
 func (id *Identifier) IsUser() bool {
-	return id.self().Address().IsUser()
+	return id._address.IsUser()
 }
 
 func (id *Identifier) IsGroup() bool {
-	return id.self().Address().IsGroup()
+	return id._address.IsGroup()
 }
 
 func (id *Identifier) IsBroadcast() bool {
-	return id.self().Address().IsBroadcast()
+	return id._address.IsBroadcast()
 }

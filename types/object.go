@@ -29,73 +29,18 @@ import (
 	"reflect"
 )
 
-type OO interface {
-
-	// Get this pointer
-	Self() Object
-
-	//Super() Object
-}
-type MRC interface {
-
-	// Set this pointer and increase retain count
-	Retain(this Object) Object
-
-	// Decrease retain count and return it,
-	// if equals 0, erase this pointer
-	Release() int
-
-	// Append this object to AutoreleasePool
-	Autorelease() Object
-}
-
+/**
+ *  Base Object
+ *  ~~~~~~~~~~~
+ */
 type Object interface {
-	OO
-	MRC
 
 	Equal(other interface{}) bool
 }
 
 type BaseObject struct {
 	Object
-
-	_this Object
-	_retainCount int
 }
-
-func (obj *BaseObject) Init() *BaseObject {
-	obj._this = nil
-	obj._retainCount = 1
-	return obj
-}
-
-func (obj *BaseObject) Retain(this Object) Object {
-	if this != nil {
-		obj._this = this
-	}
-	obj._retainCount++
-	return obj
-}
-func (obj *BaseObject) Release() int {
-	obj._retainCount--
-	if obj._retainCount == 0 {
-		// break circular reference
-		obj._this = nil
-	} else if obj._retainCount < 0 {
-		panic(obj)
-	}
-	return obj._retainCount
-}
-func (obj *BaseObject) Autorelease() Object {
-	return AutoreleasePoolAppend(obj)
-}
-
-func (obj *BaseObject) Self() Object {
-	return obj._this
-}
-//func (obj *BaseObject) Super() Object {
-//	panic("super empty")
-//}
 
 func (obj *BaseObject) Equal(other interface{}) bool {
 	value := reflect.ValueOf(other)
@@ -106,13 +51,86 @@ func (obj *BaseObject) Equal(other interface{}) bool {
 	}
 }
 
+/**
+ *  Manual Reference Counting
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+type MRC interface {
+
+	// Set "this" pointer and increase retain count
+	Retain(this SelfReference) SelfReference
+
+	// Decrease retain count and return it,
+	// if equals 0, erase "this" pointer
+	Release() int
+
+	// Append this object to AutoreleasePool
+	Autorelease() SelfReference
+}
+
+/**
+ *  Self Referred Object
+ *  ~~~~~~~~~~~~~~~~~~~~
+ *
+ *  Inheritable
+ */
+type SelfReference interface {
+	MRC
+
+	// Get "this" pointer
+	Self() SelfReference
+
+	//Super() Object
+}
+
+type InheritableObject struct {
+	SelfReference
+
+	_this SelfReference
+	_retainCount int
+}
+
+func (obj *InheritableObject) Init() *InheritableObject {
+	obj._this = nil
+	obj._retainCount = 1
+	return obj
+}
+
+func (obj *InheritableObject) Retain(this SelfReference) SelfReference {
+	if this != nil {
+		obj._this = this
+	}
+	obj._retainCount++
+	return obj._this
+}
+func (obj *InheritableObject) Release() int {
+	obj._retainCount--
+	if obj._retainCount == 0 {
+		// break circular reference
+		obj._this = nil
+	} else if obj._retainCount < 0 {
+		panic(obj)
+	}
+	return obj._retainCount
+}
+func (obj *InheritableObject) Autorelease() SelfReference {
+	return AutoreleasePoolAppend(obj)
+}
+
+func (obj *InheritableObject) Self() SelfReference {
+	return obj._this
+}
+//func (obj *BaseObject) Super() Object {
+//	panic("super empty")
+//}
+
 //--------
 
 /**
- *  Set this pointer and increase retain count
+ *  Set "this" pointer and increase retain count
  */
-func ObjectRetain(obj interface{}) Object {
-	o, ok := obj.(Object)
+func ObjectRetain(obj interface{}) SelfReference {
+	o, ok := obj.(SelfReference)
 	if ok {
 		// call 'Retain()' from child class
 		s := o.Self()
@@ -128,10 +146,10 @@ func ObjectRetain(obj interface{}) Object {
 
 /**
  *  Decrease retain count,
- *  if equals 0, erase this pointer
+ *  if equals 0, erase "this" pointer
  */
 func ObjectRelease(obj interface{}) int {
-	o, ok := obj.(Object)
+	o, ok := obj.(SelfReference)
 	if ok {
 		// call 'Release()' from child class
 		s := o.Self()
@@ -148,8 +166,8 @@ func ObjectRelease(obj interface{}) int {
 /**
  *  Append the object to AutoreleasePool
  */
-func ObjectAutorelease(obj interface{}) Object {
-	o, ok := obj.(Object)
+func ObjectAutorelease(obj interface{}) SelfReference {
+	o, ok := obj.(SelfReference)
 	if ok {
 		// call 'Autorelease()' from child class
 		s := o.Self()

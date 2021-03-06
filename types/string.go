@@ -48,9 +48,7 @@ type ConstantString struct {
 }
 
 func (str *ConstantString) Init(string string) *ConstantString {
-	if str.BaseObject.Init() != nil {
-		str._string = string
-	}
+	str._string = string
 	return str
 }
 

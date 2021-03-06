@@ -77,12 +77,10 @@ type Dictionary struct {
 }
 
 func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
-	if dict.BaseObject.Init() != nil {
-		if dictionary == nil {
-			dictionary = make(map[string]interface{})
-		}
-		dict._dictionary = dictionary
+	if dictionary == nil {
+		dictionary = make(map[string]interface{})
 	}
+	dict._dictionary = dictionary
 	return dict
 }
 
