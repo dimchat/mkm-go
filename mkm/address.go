@@ -32,7 +32,6 @@ package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/protocol"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -69,12 +68,7 @@ func (factory *GeneralAddressFactory) Init(fn AddressCreator) *GeneralAddressFac
 }
 
 func (factory *GeneralAddressFactory) cacheAddress(str string, address Address) {
-	old := factory._addresses[str]
-	if old != address {
-		ObjectRetain(address)
-		ObjectRelease(old)
-		factory._addresses[str] = address
-	}
+	factory._addresses[str] = address
 }
 
 func (factory *GeneralAddressFactory) ParseAddress(address string) Address {

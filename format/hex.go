@@ -27,7 +27,6 @@ package format
 
 import (
 	"encoding/hex"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 type HexCoder struct {
@@ -51,11 +50,7 @@ func (coder HexCoder) Decode(string string) []byte {
 var hexCoder DataCoder = new(HexCoder)
 
 func SetHexCoder(coder DataCoder) {
-	if coder != hexCoder {
-		ObjectRetain(coder)
-		ObjectRelease(hexCoder)
-		hexCoder = coder
-	}
+	hexCoder = coder
 }
 
 func HexEncode(bytes []byte) string {

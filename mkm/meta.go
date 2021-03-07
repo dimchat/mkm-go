@@ -54,6 +54,9 @@ type IMetaExt interface {
  *
  * @abstract:
  *      GenerateAddress(network uint8) Address
+ * @overrides:
+ *      GenerateID(network uint8, terminal string) ID
+ *      MatchID(identifier ID) bool
  */
 type BaseMeta struct {
 	Dictionary
@@ -97,30 +100,12 @@ func (meta *BaseMeta) InitWithType(version uint8, key VerifyKey, seed string, fi
 	if meta.Dictionary.Init(dict) != nil {
 		// set values
 		meta._type = version
-		meta.setKey(key)
+		meta._key = key
 		meta._seed = seed
 		meta._fingerprint = fingerprint
 		meta._status = 0
 	}
 	return meta
-}
-
-//func (meta *BaseMeta) Release() int {
-//	cnt := meta.Dictionary.Release()
-//	if cnt == 0 {
-//		// this object is going to be destroyed,
-//		// release children
-//		meta.setKey(nil)
-//	}
-//	return cnt
-//}
-
-func (meta *BaseMeta) setKey(key VerifyKey) {
-	if key != meta._key {
-		//ObjectRetain(key)
-		//ObjectRelease(meta._key)
-		meta._key = key
-	}
 }
 
 //-------- IMeta
@@ -134,7 +119,7 @@ func (meta *BaseMeta) Type() uint8 {
 
 func (meta *BaseMeta) Key() VerifyKey {
 	if meta._key == nil {
-		meta.setKey(MetaGetKey(meta.GetMap(false)))
+		meta._key = MetaGetKey(meta.GetMap(false))
 	}
 	return meta._key
 }

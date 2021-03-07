@@ -27,7 +27,6 @@ package format
 
 import (
 	"bytes"
-	. "github.com/dimchat/mkm-go/types"
 	"math/big"
 )
 
@@ -75,11 +74,7 @@ func (coder Base58Coder) Decode(string string) []byte {
 var base58Coder DataCoder = new(Base58Coder)
 
 func SetBase58Coder(coder DataCoder) {
-	if coder != base58Coder {
-		ObjectRetain(coder)
-		ObjectRelease(base58Coder)
-		base58Coder = coder
-	}
+	base58Coder = coder
 }
 
 func Base58Encode(bytes []byte) string {

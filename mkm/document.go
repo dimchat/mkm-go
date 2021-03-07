@@ -55,7 +55,7 @@ type BaseDocument struct {
 func (doc *BaseDocument) Init(dict map[string]interface{}) *BaseDocument {
 	if doc.Dictionary.Init(dict) != nil {
 		// lazy load
-		doc.setID(nil)
+		doc._identifier = nil
 		doc._type = ""
 		doc._properties = nil
 		doc._status = 0
@@ -86,7 +86,7 @@ func (doc *BaseDocument) InitWithType(docType string, identifier ID, data []byte
 		status = 1  // all documents must be verified before saving into local storage
 	}
 	if doc.Dictionary.Init(dict) != nil {
-		doc.setID(identifier)
+		doc._identifier = identifier
 		doc._type = docType
 		doc._status = status
 		// set type for empty document
@@ -98,24 +98,6 @@ func (doc *BaseDocument) InitWithType(docType string, identifier ID, data []byte
 		}
 	}
 	return doc
-}
-
-//func (doc *BaseDocument) Release() int {
-//	cnt := doc.Dictionary.Release()
-//	if cnt == 0 {
-//		// this object is going to be destroyed,
-//		// release children
-//		doc.setID(nil)
-//	}
-//	return cnt
-//}
-
-func (doc *BaseDocument) setID(identifier ID) {
-	if identifier != doc._identifier {
-		//ObjectRetain(identifier)
-		//ObjectRelease(doc._identifier)
-		doc._identifier = identifier
-	}
 }
 
 func (doc *BaseDocument) data() []byte {
@@ -253,7 +235,7 @@ func (doc *BaseDocument) Type() string {
 
 func (doc *BaseDocument) ID() ID {
 	if doc._identifier == nil {
-		doc.setID(DocumentGetID(doc.GetMap(false)))
+		doc._identifier = DocumentGetID(doc.GetMap(false))
 	}
 	return doc._identifier
 }

@@ -52,7 +52,7 @@ type BaseVisa struct {
 func (doc *BaseVisa) Init(dict map[string]interface{}) *BaseVisa {
 	if doc.BaseDocument.Init(dict) != nil {
 		// lazy load
-		doc.setKey(nil)
+		doc._key = nil
 	}
 	return doc
 }
@@ -60,27 +60,9 @@ func (doc *BaseVisa) Init(dict map[string]interface{}) *BaseVisa {
 func (doc *BaseVisa) InitWithID(identifier ID, data []byte, signature []byte) *BaseVisa {
 	if doc.BaseDocument.InitWithType(VISA, identifier, data, signature) != nil {
 		// lazy load
-		doc.setKey(nil)
+		doc._key = nil
 	}
 	return doc
-}
-
-//func (doc *BaseVisa) Release() int {
-//	cnt := doc.BaseDocument.Release()
-//	if cnt == 0 {
-//		// this object is going to be destroyed,
-//		// release children
-//		doc.setKey(nil)
-//	}
-//	return cnt
-//}
-
-func (doc *BaseVisa) setKey(key EncryptKey) {
-	if key != doc._key {
-		//ObjectRetain(key)
-		//ObjectRelease(doc._key)
-		doc._key = key
-	}
 }
 
 //-------- IVisa
@@ -92,7 +74,7 @@ func (doc *BaseVisa) Key() EncryptKey {
 		if pKey != nil {
 			key, ok := pKey.(EncryptKey)
 			if ok {
-				doc.setKey(key)
+				doc._key = key
 			}
 		}
 	}
@@ -108,7 +90,7 @@ func (doc *BaseVisa) SetKey(key EncryptKey) {
 			doc.SetProperty("key", info.GetMap(false))
 		}
 	}
-	doc.setKey(key)
+	doc._key = key
 }
 
 func (doc *BaseVisa) Avatar() string {
@@ -137,7 +119,7 @@ type BaseBulletin struct {
 func (doc *BaseBulletin) Init(dict map[string]interface{}) *BaseBulletin {
 	if doc.BaseDocument.Init(dict) != nil {
 		// lazy load
-		doc.setAssistants(nil)
+		doc._assistants = nil
 	}
 	return doc
 }
@@ -145,33 +127,9 @@ func (doc *BaseBulletin) Init(dict map[string]interface{}) *BaseBulletin {
 func (doc *BaseBulletin) InitWithID(identifier ID, data []byte, signature []byte) *BaseBulletin {
 	if doc.BaseDocument.InitWithType(BULLETIN, identifier, data, signature) != nil {
 		// lazy load
-		doc.setAssistants(nil)
+		doc._assistants = nil
 	}
 	return doc
-}
-
-//func (doc *BaseBulletin) Release() int {
-//	cnt := doc.BaseDocument.Release()
-//	if cnt == 0 {
-//		// this object is going to be destroyed,
-//		// release children
-//		doc.setAssistants(nil)
-//	}
-//	return cnt
-//}
-
-func (doc *BaseBulletin) setAssistants(bots []ID) {
-	//if bots != nil {
-	//	for _, item := range bots {
-	//		ObjectRetain(item)
-	//	}
-	//}
-	//if doc._assistants != nil {
-	//	for _, item := range doc._assistants {
-	//		ObjectRelease(item)
-	//	}
-	//}
-	doc._assistants = bots
 }
 
 //-------- IBulletin
@@ -180,7 +138,7 @@ func (doc *BaseBulletin) Assistants() []ID {
 	if doc._assistants == nil {
 		assistants := doc.GetProperty("assistants")
 		if assistants != nil {
-			doc.setAssistants(IDConvert(assistants))
+			doc._assistants = IDConvert(assistants)
 		}
 	}
 	return doc._assistants
@@ -192,5 +150,5 @@ func (doc *BaseBulletin) SetAssistants(bots []ID) {
 	} else {
 		doc.SetProperty("assistants", IDRevert(bots))
 	}
-	doc.setAssistants(bots)
+	doc._assistants = bots
 }

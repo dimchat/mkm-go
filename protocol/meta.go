@@ -193,12 +193,7 @@ type MetaFactory interface {
 var metaFactory = make(map[uint8]MetaFactory)
 
 func MetaRegister(version uint8, factory MetaFactory) {
-	old := metaFactory[version]
-	if old != factory {
-		ObjectRetain(factory)
-		ObjectRelease(old)
-		metaFactory[version] = factory
-	}
+	metaFactory[version] = factory
 }
 
 func MetaGetFactory(version uint8) MetaFactory {

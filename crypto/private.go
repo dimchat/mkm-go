@@ -78,12 +78,7 @@ type PrivateKeyFactory interface {
 var privateFactories = make(map[string]PrivateKeyFactory)
 
 func PrivateKeyRegister(algorithm string, factory PrivateKeyFactory) {
-	old := privateFactories[algorithm]
-	if old != factory {
-		ObjectRetain(factory)
-		ObjectRelease(old)
-		privateFactories[algorithm] = factory
-	}
+	privateFactories[algorithm] = factory
 }
 
 func PrivateKeyGetFactory(algorithm string) PrivateKeyFactory {

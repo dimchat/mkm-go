@@ -37,6 +37,7 @@ import (
 
 /**
  *  ID for entity (User/Group)
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
  *      data format: "name@address[/terminal]"
  *
@@ -61,7 +62,7 @@ func NewIdentifier(identifier string, name string, address Address, terminal str
 func (id *Identifier) Init(string string, name string, address Address, terminal string) *Identifier {
 	if id.ConstantString.Init(string) != nil {
 		id._name = name
-		id.setAddress(address)
+		id._address = address
 		id._terminal = terminal
 	}
 	return id
@@ -78,24 +79,6 @@ func (id *Identifier) Equal(other interface{}) bool {
 	addr1 := id.Address()
 	addr2 := identifier.Address()
 	return addr1.Equal(addr2) && id.Name() == identifier.Name()
-}
-
-//func (id *Identifier) Release() int {
-//	cnt := id.ConstantString.Release()
-//	if cnt == 0 {
-//		// this object is going to be destroyed,
-//		// release children
-//		id.setAddress(nil)
-//	}
-//	return cnt
-//}
-
-func (id *Identifier) setAddress(address Address) {
-	if address != id._address {
-		//ObjectRetain(address)
-		//ObjectRelease(id._address)
-		id._address = address
-	}
 }
 
 //-------- IIdentifier

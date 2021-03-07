@@ -25,16 +25,10 @@
  */
 package digest
 
-import . "github.com/dimchat/mkm-go/types"
-
 var keccak256Digester DataDigester = nil
 
 func SetKECCAK256Digester(digester DataDigester) {
-	if digester != keccak256Digester {
-		ObjectRetain(digester)
-		ObjectRelease(keccak256Digester)
-		keccak256Digester = digester
-	}
+	keccak256Digester = digester
 }
 
 func KECCAK256(bytes []byte) []byte {

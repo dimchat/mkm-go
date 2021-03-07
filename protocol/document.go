@@ -260,12 +260,7 @@ type DocumentFactory interface {
 var documentFactories = make(map[string]DocumentFactory)
 
 func DocumentRegister(docType string, factory DocumentFactory) {
-	old := documentFactories[docType]
-	if old != factory {
-		ObjectRetain(factory)
-		ObjectRelease(old)
-		documentFactories[docType] = factory
-	}
+	documentFactories[docType] = factory
 }
 
 func DocumentGetFactory(docType string) DocumentFactory {

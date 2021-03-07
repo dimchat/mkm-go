@@ -27,7 +27,6 @@ package format
 
 import (
 	"encoding/json"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 type JSONParser struct {
@@ -76,11 +75,7 @@ func (parser JSONParser) Decode(bytes []byte) interface{} {
 var jsonParser DataParser = new(JSONParser)
 
 func SetJSONParser(parser DataParser) {
-	if parser != jsonParser {
-		ObjectRetain(parser)
-		ObjectRelease(jsonParser)
-		jsonParser = parser
-	}
+	jsonParser = parser
 }
 
 func JSONEncode(object interface{}) []byte {

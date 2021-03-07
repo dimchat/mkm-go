@@ -27,7 +27,6 @@ package digest
 
 import (
 	"crypto/sha256"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 type SHA256Digester struct {
@@ -42,11 +41,7 @@ func (digester SHA256Digester) Digest(data []byte) []byte {
 var sha256Digester DataDigester = new(SHA256Digester)
 
 func SetSHA256Digester(digester DataDigester) {
-	if digester != sha256Digester {
-		ObjectRetain(digester)
-		ObjectRelease(sha256Digester)
-		sha256Digester = digester
-	}
+	sha256Digester = digester
 }
 
 func SHA256(bytes []byte) []byte {

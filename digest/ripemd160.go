@@ -25,16 +25,10 @@
  */
 package digest
 
-import . "github.com/dimchat/mkm-go/types"
-
 var ripemd160Digester DataDigester = nil
 
 func SetRIPEMD160Digester(digester DataDigester) {
-	if digester != ripemd160Digester {
-		ObjectRetain(digester)
-		ObjectRelease(ripemd160Digester)
-		ripemd160Digester = digester
-	}
+	ripemd160Digester = digester
 }
 
 func RIPEMD160(bytes []byte) []byte {

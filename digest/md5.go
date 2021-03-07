@@ -27,7 +27,6 @@ package digest
 
 import (
 	"crypto/md5"
-	. "github.com/dimchat/mkm-go/types"
 )
 
 type MD5Digester struct {
@@ -42,11 +41,7 @@ func (digester MD5Digester) Digest(data []byte) []byte {
 var md5Digester DataDigester = new(MD5Digester)
 
 func SetMD5Digester(digester DataDigester) {
-	if digester != md5Digester {
-		ObjectRetain(digester)
-		ObjectRelease(md5Digester)
-		md5Digester = digester
-	}
+	md5Digester = digester
 }
 
 func MD5(bytes []byte) []byte {
