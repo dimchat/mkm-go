@@ -34,6 +34,7 @@ import (
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/types"
+	"strconv"
 )
 
 /**
@@ -206,7 +207,7 @@ func MetaGetFactory(version uint8) MetaFactory {
 func MetaCreate(version uint8, key VerifyKey, seed string, fingerprint []byte) Meta {
 	factory := MetaGetFactory(version)
 	if factory == nil {
-		panic("meta type not found: " + string(version))
+		panic("meta type not found: " + strconv.Itoa(int(version)))
 	}
 	return factory.CreateMeta(key, seed, fingerprint)
 }
@@ -214,7 +215,7 @@ func MetaCreate(version uint8, key VerifyKey, seed string, fingerprint []byte) M
 func MetaGenerate(version uint8, sKey SignKey, seed string) Meta {
 	factory := MetaGetFactory(version)
 	if factory == nil {
-		panic("meta type not found: " + string(version))
+		panic("meta type not found: " + strconv.Itoa(int(version)))
 	}
 	return factory.GenerateMeta(sKey, seed)
 }

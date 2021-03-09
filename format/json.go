@@ -44,7 +44,7 @@ func (parser JSONParser) Encode(object interface{}) []byte {
 }
 
 func (parser JSONParser) Decode(bytes []byte) interface{} {
-	for ch := range bytes {
+	for _, ch := range bytes {
 		if ch == '{' {
 			// decode to map
 			var dict map[string]interface{}
