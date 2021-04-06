@@ -88,13 +88,9 @@ func (dict *Dictionary) Equal(other interface{}) bool {
 	if ValueIsNil(other) {
 		return len(dict._dictionary) == 0
 	}
-	value := reflect.ValueOf(other)
-	if value.Kind() == reflect.Ptr {
-		// compare pointers
-		if dict == other {
-			return true
-		}
-		other = value.Elem().Interface()
+	// compare pointers
+	if dict == other {
+		return true
 	}
 	// compare inner maps
 	wrapper, ok := other.(Map)

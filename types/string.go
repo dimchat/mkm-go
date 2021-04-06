@@ -27,7 +27,6 @@ package types
 
 import (
 	"fmt"
-	"reflect"
 )
 
 type Stringer interface {
@@ -60,16 +59,8 @@ func (str *ConstantString) Equal(other interface{}) bool {
 	if ValueIsNil(other) {
 		return str._string == ""
 	}
-	value := reflect.ValueOf(other)
-	if value.Kind() == reflect.Ptr {
-		// compare pointers
-		if str == other {
-			return true
-		}
-		other = value.Elem().Interface()
-	}
-	// compare values
-	if *str == other {
+	// compare pointers
+	if str == other {
 		return true
 	}
 	// compare inner strings
