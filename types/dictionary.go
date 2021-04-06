@@ -77,7 +77,7 @@ type Dictionary struct {
 }
 
 func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
-	if ValueIsNil(dict) {
+	if ValueIsNil(dictionary) {
 		dictionary = make(map[string]interface{})
 	}
 	dict._dictionary = dictionary
