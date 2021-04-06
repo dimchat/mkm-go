@@ -221,7 +221,7 @@ func MetaGenerate(version uint8, sKey SignKey, seed string) Meta {
 }
 
 func MetaParse(meta interface{}) Meta {
-	if meta == nil {
+	if ValueIsNil(meta) {
 		return nil
 	}
 	value, ok := meta.(Meta)

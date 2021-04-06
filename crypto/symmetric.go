@@ -96,7 +96,7 @@ func SymmetricKeyGenerate(algorithm string) SymmetricKey {
 }
 
 func SymmetricKeyParse(key interface{}) SymmetricKey {
-	if key == nil {
+	if ValueIsNil(key) {
 		return nil
 	}
 	value, ok := key.(SymmetricKey)

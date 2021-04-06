@@ -57,7 +57,7 @@ func (str *ConstantString) String() string {
 }
 
 func (str *ConstantString) Equal(other interface{}) bool {
-	if other == nil {
+	if ValueIsNil(other) {
 		return str._string == ""
 	}
 	value := reflect.ValueOf(other)

@@ -77,7 +77,7 @@ type Dictionary struct {
 }
 
 func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
-	if dictionary == nil {
+	if ValueIsNil(dict) {
 		dictionary = make(map[string]interface{})
 	}
 	dict._dictionary = dictionary
@@ -85,7 +85,7 @@ func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
 }
 
 func (dict *Dictionary) Equal(other interface{}) bool {
-	if other == nil {
+	if ValueIsNil(other) {
 		return len(dict._dictionary) == 0
 	}
 	value := reflect.ValueOf(other)
@@ -110,7 +110,7 @@ func (dict *Dictionary) Get(key string) interface{} {
 }
 
 func (dict *Dictionary) Set(key string, value interface{}) {
-	if value == nil {
+	if ValueIsNil(value) {
 		delete(dict._dictionary, key)
 	} else {
 		dict._dictionary[key] = value

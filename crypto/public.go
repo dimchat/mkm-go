@@ -100,7 +100,7 @@ func PublicKeyGetFactory(algorithm string) PublicKeyFactory {
 //  Factory method
 //
 func PublicKeyParse(key interface{}) PublicKey {
-	if key == nil {
+	if ValueIsNil(key) {
 		return nil
 	}
 	value, ok := key.(PublicKey)

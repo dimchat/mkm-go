@@ -97,7 +97,7 @@ func PrivateKeyGenerate(algorithm string) PrivateKey {
 }
 
 func PrivateKeyParse(key interface{}) PrivateKey {
-	if key == nil {
+	if ValueIsNil(key) {
 		return nil
 	}
 	value, ok := key.(PrivateKey)

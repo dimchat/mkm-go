@@ -279,7 +279,7 @@ func DocumentCreate(docType string, identifier ID, data []byte, signature []byte
 }
 
 func DocumentParse(doc interface{}) Document {
-	if doc == nil {
+	if ValueIsNil(doc) {
 		return nil
 	}
 	value, ok := doc.(Document)

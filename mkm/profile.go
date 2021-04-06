@@ -82,13 +82,11 @@ func (doc *BaseVisa) Key() EncryptKey {
 }
 
 func (doc *BaseVisa) SetKey(key EncryptKey) {
-	if key == nil {
-		doc.SetProperty("key", nil)
+	info, ok := key.(Map)
+	if ok {
+		doc.SetProperty("key", info.GetMap(false))
 	} else {
-		info, ok := key.(Map)
-		if ok {
-			doc.SetProperty("key", info.GetMap(false))
-		}
+		doc.SetProperty("key", key)
 	}
 	doc._key = key
 }
@@ -145,7 +143,7 @@ func (doc *BaseBulletin) Assistants() []ID {
 }
 
 func (doc *BaseBulletin) SetAssistants(bots []ID) {
-	if bots == nil {
+	if ValueIsNil(bots) {
 		doc.SetProperty("assistants", nil)
 	} else {
 		doc.SetProperty("assistants", IDRevert(bots))

@@ -87,7 +87,7 @@ func AddressGetFactory() AddressFactory {
 //  Factory method
 //
 func AddressParse(address interface{}) Address {
-	if address == nil {
+	if ValueIsNil(address) {
 		return nil
 	}
 	addr, ok := address.(Address)

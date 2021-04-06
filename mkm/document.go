@@ -76,7 +76,7 @@ func (doc *BaseDocument) InitWithType(docType string, identifier ID, data []byte
 		dict["type"] = docType
 	}
 	// data & signature
-	if data == nil || signature == nil {
+	if ValueIsNil(data) || ValueIsNil(signature) {
 		// create a new empty document with ID and doc type
 		status = 0
 	} else {
@@ -209,7 +209,7 @@ func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 	doc._status = 0
 	// update property value with name
 	properties := doc.Properties()
-	if value == nil {
+	if ValueIsNil(value) {
 		delete(properties, name)
 	} else {
 		properties[name] = value

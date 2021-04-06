@@ -111,7 +111,7 @@ func IDCreate(name string, address Address, terminal string) ID {
 }
 
 func IDParse(identifier interface{}) ID {
-	if identifier == nil {
+	if ValueIsNil(identifier) {
 		return nil
 	}
 	id, ok := identifier.(ID)
