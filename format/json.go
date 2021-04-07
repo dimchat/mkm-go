@@ -95,10 +95,9 @@ func JSONEncodeMap(dict map[string]interface{}) []byte {
 }
 
 func JSONDecodeMap(bytes []byte) map[string]interface{} {
-	obj := jsonParser.Decode(bytes)
-	res, ok := obj.(map[string]interface{})
+	obj, ok := jsonParser.Decode(bytes).(map[string]interface{})
 	if ok {
-		return res
+		return obj
 	} else {
 		return nil
 	}
@@ -113,10 +112,9 @@ func JSONEncodeList(array []interface{}) []byte {
 }
 
 func JSONDecodeList(bytes []byte) []interface{} {
-	obj := jsonParser.Decode(bytes)
-	res, ok := obj.([]interface{})
+	obj, ok := jsonParser.Decode(bytes).([]interface{})
 	if ok {
-		return res
+		return obj
 	} else {
 		return nil
 	}

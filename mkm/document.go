@@ -113,11 +113,11 @@ func (doc *BaseDocument) signature() []byte {
  * @return JsON string
  */
 func DocumentGetData(dict map[string]interface{}) []byte {
-	utf8 := dict["data"]
-	if utf8 == nil {
-		return nil
+	text, ok := dict["data"].(string)
+	if ok {
+		return UTF8Encode(text)
 	} else {
-		return UTF8Encode(utf8.(string))
+		return nil
 	}
 }
 
@@ -127,11 +127,11 @@ func DocumentGetData(dict map[string]interface{}) []byte {
  * @return signature data
  */
 func DocumentGetSignature(dict map[string]interface{}) []byte {
-	base64 := dict["signature"]
-	if base64 == nil {
-		return nil
+	text, ok := dict["signature"].(string)
+	if ok {
+		return Base64Decode(text)
 	} else {
-		return Base64Decode(base64.(string))
+		return nil
 	}
 }
 
@@ -223,9 +223,9 @@ func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 
 func (doc *BaseDocument) Type() string {
 	if doc._type == "" {
-		docType := doc.GetProperty("type")
-		if docType != nil {
-			doc._type = docType.(string)
+		text, ok := doc.GetProperty("type").(string)
+		if ok && text != "" {
+			doc._type = text
 		} else {
 			doc._type = DocumentGetType(doc.GetMap(false))
 		}
@@ -241,11 +241,11 @@ func (doc *BaseDocument) ID() ID {
 }
 
 func (doc *BaseDocument) Name() string {
-	name := doc.GetProperty("name")
-	if name == nil {
-		return ""
+	text, ok := doc.GetProperty("name").(string)
+	if ok {
+		return text
 	} else {
-		return name.(string)
+		return ""
 	}
 }
 

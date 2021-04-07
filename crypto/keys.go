@@ -160,10 +160,10 @@ func CryptographyKeysMatch(pKey EncryptKey, sKey DecryptKey) bool {
 }
 
 func CryptographyKeyGetAlgorithm(key map[string]interface{}) string {
-	algorithm := key["algorithm"]
-	if algorithm == nil {
-		return ""
+	text, ok := key["algorithm"].(string)
+	if ok {
+		return text
 	} else {
-		return algorithm.(string)
+		return ""
 	}
 }

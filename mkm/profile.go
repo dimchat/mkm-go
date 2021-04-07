@@ -92,11 +92,12 @@ func (doc *BaseVisa) SetKey(key EncryptKey) {
 }
 
 func (doc *BaseVisa) Avatar() string {
-	url := doc.GetProperty("avatar")
-	if url == nil {
+	url, ok := doc.GetProperty("avatar").(string)
+	if ok {
+		return url
+	} else {
 		return ""
 	}
-	return url.(string)
 }
 
 func (doc *BaseVisa) SetAvatar(url string) {

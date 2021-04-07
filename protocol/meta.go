@@ -125,12 +125,12 @@ type IMeta interface {
 }
 
 func MetaGetType(meta map[string]interface{}) uint8 {
-	version := meta["type"]
-	if version == nil {
+	version, ok := meta["type"].(uint8)
+	if !ok {
 		// compatible with v1.0
-		version = meta["version"]
+		version, _ = meta["version"].(uint8)
 	}
-	return version.(uint8)
+	return version
 }
 
 func MetaGetKey(meta map[string]interface{}) VerifyKey {
@@ -142,19 +142,21 @@ func MetaGetKey(meta map[string]interface{}) VerifyKey {
 }
 
 func MetaGetSeed(meta map[string]interface{}) string {
-	seed := meta["seed"]
-	if seed == nil {
+	seed, ok := meta["seed"].(string)
+	if ok {
+		return seed
+	} else {
 		return ""
 	}
-	return seed.(string)
 }
 
 func MetaGetFingerprint(meta map[string]interface{}) []byte {
-	base64 := meta["fingerprint"]
-	if base64 == nil {
+	base64, ok := meta["fingerprint"].(string)
+	if ok {
+		return Base64Decode(base64)
+	} else {
 		return nil
 	}
-	return Base64Decode(base64.(string))
 }
 
 /**

@@ -154,11 +154,12 @@ type IDocument interface {
 }
 
 func DocumentGetType(doc map[string]interface{}) string {
-	str := doc["type"]
-	if str == nil {
+	text, ok := doc["type"].(string)
+	if ok {
+		return text
+	} else {
 		return ""
 	}
-	return str.(string)
 }
 
 func DocumentGetID(doc map[string]interface{}) ID {

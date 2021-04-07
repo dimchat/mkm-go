@@ -94,7 +94,7 @@ func (meta *BaseMeta) InitWithType(version uint8, key VerifyKey, seed string, fi
 		dict["seed"] = seed
 	}
 	// fingerprint
-	if fingerprint != nil {
+	if !ValueIsNil(fingerprint) {
 		dict["fingerprint"] = Base64Encode(fingerprint)
 	}
 	if meta.Dictionary.Init(dict) != nil {
@@ -198,7 +198,7 @@ func MetaGenerateID(meta IMetaExt, network uint8, terminal string) ID {
 }
 
 func MetaMatchID(meta IMetaExt, identifier ID) bool {
-	if meta.IsValid() == false {
+	if !meta.IsValid() {
 		return false
 	}
 	// check ID.name
@@ -212,7 +212,7 @@ func MetaMatchID(meta IMetaExt, identifier ID) bool {
 }
 
 func MetaMatchKey(meta IMeta, key VerifyKey) bool {
-	if meta.IsValid() == false {
+	if !meta.IsValid() {
 		return false
 	}
 	// check whether the public key equals to meta.key

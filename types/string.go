@@ -56,9 +56,6 @@ func (str *ConstantString) String() string {
 }
 
 func (str *ConstantString) Equal(other interface{}) bool {
-	if ValueIsNil(other) {
-		return str._string == ""
-	}
 	// compare pointers
 	if str == other {
 		return true
