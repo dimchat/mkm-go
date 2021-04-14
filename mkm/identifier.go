@@ -68,18 +68,10 @@ func (id *Identifier) Init(string string, name string, address Address, terminal
 	return id
 }
 
-func (id *Identifier) Equal(other interface{}) bool {
-	var identifier = IDParse(other)
-	if identifier == nil {
-		return false
-	} else if id == identifier {
-		return true
-	}
-	// check ID.address & ID.name
-	addr1 := id.Address()
-	addr2 := identifier.Address()
-	return addr1.Equal(addr2) && id.Name() == identifier.Name()
-}
+//func (id *Identifier) Equal(other interface{}) bool {
+//	var identifier = IDParse(other)
+//	return identifier != nil && IDEqual(id, identifier)
+//}
 
 //-------- IIdentifier
 

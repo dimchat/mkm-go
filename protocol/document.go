@@ -33,6 +33,7 @@ package protocol
 import (
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/types"
+	"time"
 )
 
 /**
@@ -137,6 +138,11 @@ type IDocument interface {
 	ID() ID
 
 	//---- properties getter/setter
+
+	/**
+	 * Get sign time
+	 */
+	Time() time.Time
 
 	/**
 	 *  Get entity name

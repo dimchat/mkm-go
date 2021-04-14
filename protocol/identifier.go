@@ -156,6 +156,14 @@ func IDRevert(members []ID) []string {
 	return res
 }
 
+//func IDEqual(id1, id2 ID) bool {
+//	if id1 == id2 {
+//		return true
+//	} else {
+//		return id1.Address().Equal(id2.Address()) && id1.Name() == id2.Name()
+//	}
+//}
+
 /**
  *  ID for broadcast
  */
