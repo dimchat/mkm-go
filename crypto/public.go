@@ -33,27 +33,6 @@ const (
 )
 
 /**
- *  Asymmetric Cryptography Key
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
- */
-type AsymmetricKey interface {
-	CryptographyKey
-}
-
-/**
- *  Check asymmetric keys
- *
- * @param sKey - private key
- * @param pKey - public key
- * @return true on keys matched
- */
-func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
-	// try to verify with signature
-	signature := sKey.Sign(promise)
-	return pKey.Verify(promise, signature)
-}
-
-/**
  *  Asymmetric Cryptography Public Key
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
@@ -64,8 +43,8 @@ func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
  *  }
  */
 type PublicKey interface {
-	AsymmetricKey
 	IPublicKey
+	AsymmetricKey
 }
 type IPublicKey interface {
 	IVerifyKey
@@ -76,6 +55,9 @@ type IPublicKey interface {
  *  ~~~~~~~~~~~~~~~~~~
  */
 type PublicKeyFactory interface {
+	IPublicKeyFactory
+}
+type IPublicKeyFactory interface {
 
 	/**
 	 *  Parse map object to key
@@ -88,7 +70,7 @@ type PublicKeyFactory interface {
 
 var publicFactories = make(map[string]PublicKeyFactory)
 
-func PublicKeyRegister(algorithm string, factory PublicKeyFactory) {
+func PublicKeySetFactory(algorithm string, factory PublicKeyFactory) {
 	publicFactories[algorithm] = factory
 }
 

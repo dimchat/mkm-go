@@ -47,8 +47,8 @@ import (
  *          terminal - entity login resource(device), OPTIONAL
  */
 type ID interface {
-	Stringer
 	IIdentifier
+	Stringer
 }
 type IIdentifier interface {
 
@@ -73,6 +73,19 @@ type IIdentifier interface {
  *  ~~~~~~~~~~
  */
 type IDFactory interface {
+	IIdentifierFactory
+}
+type IIdentifierFactory interface {
+
+	/**
+	 *  Generate ID
+	 *
+	 * @param meta - meta info
+	 * @param network - ID.type
+	 * @param terminal - ID.terminal
+	 * @return ID
+	 */
+	GenerateID(meta Meta, network uint8, terminal string) ID
 
 	/**
 	 *  Create ID
@@ -106,27 +119,45 @@ func IDGetFactory() IDFactory {
 //
 //  Factory methods
 //
+func IDGenerate(meta Meta, network uint8, terminal string) ID {
+	factory := IDGetFactory()
+	if factory == nil {
+		panic("ID factory not found")
+	}
+	return factory.GenerateID(meta, network, terminal)
+}
+
 func IDCreate(name string, address Address, terminal string) ID {
-	return idFactory.CreateID(name, address, terminal)
+	factory := IDGetFactory()
+	if factory == nil {
+		panic("ID factory not found")
+	}
+	return factory.CreateID(name, address, terminal)
 }
 
 func IDParse(identifier interface{}) ID {
 	if ValueIsNil(identifier) {
 		return nil
 	}
-	id, ok := identifier.(ID)
+	value, ok := identifier.(ID)
 	if ok {
-		return id
+		return value
 	}
+	var id string
 	wrapper, ok := identifier.(fmt.Stringer)
 	if ok {
-		return IDGetFactory().ParseID(wrapper.String())
+		id = wrapper.String()
+	} else {
+		id, ok = identifier.(string)
+		if !ok {
+			panic(identifier)
+		}
 	}
-	text, ok := identifier.(string)
-	if ok {
-		return IDGetFactory().ParseID(text)
+	factory := IDGetFactory()
+	if factory == nil {
+		panic("ID factory not found")
 	}
-	panic(identifier)
+	return factory.ParseID(id)
 }
 
 func IDConvert(members interface{}) []ID {

@@ -32,44 +32,7 @@ package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/protocol"
-	. "github.com/dimchat/mkm-go/types"
 )
-
-/**
- *  Base Address
- *  ~~~~~~~~~~~~
- */
-type BaseAddress struct {
-	ConstantString
-	IAddress
-
-	_network uint8
-}
-
-func (address *BaseAddress) Init(string string, network NetworkType) *BaseAddress {
-	if address.ConstantString.Init(string) != nil {
-		address._network = uint8(network)
-	}
-	return address
-}
-
-//-------- IAddress
-
-func (address *BaseAddress) Network() uint8 {
-	return address._network
-}
-
-func (address *BaseAddress) IsUser() bool {
-	return NetworkTypeIsUser(address._network)
-}
-
-func (address *BaseAddress) IsGroup() bool {
-	return NetworkTypeIsGroup(address._network)
-}
-
-func (address *BaseAddress) IsBroadcast() bool {
-	return false
-}
 
 /**
  *  Broadcast Address
@@ -79,10 +42,10 @@ type BroadcastAddress struct {
 }
 
 func NewBroadcastAddress(address string, network NetworkType) *BroadcastAddress {
-	return new(BroadcastAddress).Init(address, network)
+	return new(BroadcastAddress).Init(address, uint8(network))
 }
 
-func (address *BroadcastAddress) Init(string string, network NetworkType) *BroadcastAddress {
+func (address *BroadcastAddress) Init(string string, network uint8) *BroadcastAddress {
 	if address.BaseAddress.Init(string, network) != nil {
 	}
 	return address

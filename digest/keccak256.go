@@ -27,7 +27,7 @@ package digest
 
 var keccak256Digester DataDigester = nil
 
-func SetKECCAK256Digester(digester DataDigester) {
+func KECCAK256SetDigester(digester DataDigester) {
 	keccak256Digester = digester
 }
 

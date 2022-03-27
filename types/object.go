@@ -29,15 +29,18 @@ import (
 	"reflect"
 )
 
-/**
- *  Base Object
- *  ~~~~~~~~~~~
- */
 type Object interface {
+	IObject
+}
+type IObject interface {
 
 	Equal(other interface{}) bool
 }
 
+/**
+ *  Base Object
+ *  ~~~~~~~~~~~
+ */
 type BaseObject struct {
 	Object
 }

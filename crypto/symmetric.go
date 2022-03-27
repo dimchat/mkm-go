@@ -25,7 +25,10 @@
  */
 package crypto
 
-import . "github.com/dimchat/mkm-go/types"
+import (
+	"bytes"
+	. "github.com/dimchat/mkm-go/types"
+)
 
 const (
 	AES = "AES"  //-- "AES/CBC/PKCS7Padding"
@@ -44,8 +47,8 @@ const (
  *  }
  */
 type SymmetricKey interface {
-	CryptographyKey
 	ISymmetricKey
+	CryptographyKey
 }
 type ISymmetricKey interface {
 	IEncryptKey
@@ -53,10 +56,27 @@ type ISymmetricKey interface {
 }
 
 /**
+ *  Check symmetric keys
+ *
+ * @param pKey - symmetric key1
+ * @param sKey - symmetric key2
+ * @return true on keys equal
+ */
+func SymmetricKeysMatch(pKey EncryptKey, sKey DecryptKey) bool {
+	// check by encryption
+	ciphertext := pKey.Encrypt(promise)
+	plaintext := sKey.Decrypt(ciphertext)
+	return bytes.Equal(plaintext, promise)
+}
+
+/**
  *  Symmetric Key Factory
  *  ~~~~~~~~~~~~~~~~~~~~~
  */
 type SymmetricKeyFactory interface {
+	ISymmetricKeyFactory
+}
+type ISymmetricKeyFactory interface {
 
 	/**
 	 *  Generate key
@@ -76,7 +96,7 @@ type SymmetricKeyFactory interface {
 
 var symmetricFactories = make(map[string]SymmetricKeyFactory)
 
-func SymmetricKeyRegister(algorithm string, factory SymmetricKeyFactory) {
+func SymmetricKeySetFactory(algorithm string, factory SymmetricKeyFactory) {
 	symmetricFactories[algorithm] = factory
 }
 

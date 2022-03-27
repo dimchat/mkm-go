@@ -30,8 +30,8 @@ import (
 )
 
 type Map interface {
-	Object
 	IMap
+	Object
 }
 type IMap interface {
 

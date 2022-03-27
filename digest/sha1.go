@@ -40,7 +40,7 @@ func (digester SHA1Digester) Digest(data []byte) []byte {
 
 var sha1Digester DataDigester = new(SHA1Digester)
 
-func SetSHA1Digester(digester DataDigester) {
+func SHA1SetDigester(digester DataDigester) {
 	sha1Digester = digester
 }
 

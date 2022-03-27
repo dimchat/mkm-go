@@ -37,17 +37,6 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-type IMetaExt interface {
-	IMeta
-
-	/* Generate address with network(type)
-	 *
-	 * @param network - ID.type
-	 * @return Address
-	 */
-	GenerateAddress(network uint8) Address
-}
-
 /**
  *  Base Meta
  *  ~~~~~~~~~
@@ -60,15 +49,13 @@ type IMetaExt interface {
  */
 type BaseMeta struct {
 	Dictionary
-	IMetaExt
+	IMeta
 
 	_type uint8
 	_key VerifyKey
 
 	_seed string
 	_fingerprint []byte
-
-	_status int8  // 1 for valid, -1 for invalid
 }
 
 func (meta *BaseMeta) Init(dict map[string]interface{}) *BaseMeta {
@@ -78,7 +65,6 @@ func (meta *BaseMeta) Init(dict map[string]interface{}) *BaseMeta {
 		meta._key = nil
 		meta._seed = ""
 		meta._fingerprint = nil
-		meta._status = 0
 	}
 	return meta
 }
@@ -103,7 +89,6 @@ func (meta *BaseMeta) InitWithType(version uint8, key VerifyKey, seed string, fi
 		meta._key = key
 		meta._seed = seed
 		meta._fingerprint = fingerprint
-		meta._status = 0
 	}
 	return meta
 }
@@ -140,95 +125,4 @@ func (meta *BaseMeta) Fingerprint() []byte {
 		}
 	}
 	return meta._fingerprint
-}
-
-func (meta *BaseMeta) IsValid() bool {
-	if meta._status == 0 {
-		meta._status = MetaStatus(meta)
-	}
-	return meta._status == 1
-}
-
-func (meta *BaseMeta) GenerateID(network uint8, terminal string) ID {
-	return MetaGenerateID(meta, network, terminal)
-}
-
-func (meta *BaseMeta) MatchID(identifier ID) bool {
-	return MetaMatchID(meta, identifier)
-}
-
-func (meta *BaseMeta) MatchKey(key VerifyKey) bool {
-	return MetaMatchKey(meta, key)
-}
-
-//
-//  Functions for handling meta info
-//
-
-func MetaStatus(meta IMeta) int8 {
-	key := meta.Key()
-	if key == nil {
-		// meta.key should not be empty
-		return -1
-	} else if MetaTypeHasSeed(meta.Type()) {
-		seed := meta.Seed()
-		fingerprint := meta.Fingerprint()
-		if seed == "" || fingerprint == nil {
-			// seed and fingerprint should not be empty
-			return -1
-		} else if key.Verify(UTF8Encode(seed), fingerprint) {
-			// fingerprint matched
-			return 1
-		} else {
-			// fingerprint not matched
-			return -1
-		}
-	} else {
-		return 1
-	}
-}
-
-func MetaGenerateID(meta IMetaExt, network uint8, terminal string) ID {
-	address := meta.GenerateAddress(network)
-	if address == nil {
-		return nil
-	} else {
-		return IDCreate(meta.Seed(), address, terminal)
-	}
-}
-
-func MetaMatchID(meta IMetaExt, identifier ID) bool {
-	if !meta.IsValid() {
-		return false
-	}
-	// check ID.name
-	if identifier.Name() != meta.Seed() {
-		return false
-	}
-	// check ID.address
-	addr1 := identifier.Address()
-	addr2 := meta.GenerateAddress(identifier.Type())
-	return addr1.Equal(addr2)
-}
-
-func MetaMatchKey(meta IMeta, key VerifyKey) bool {
-	if !meta.IsValid() {
-		return false
-	}
-	// check whether the public key equals to meta.key
-	other, ok := key.(Object)
-	if ok && other.Equal(meta.Key()) {
-		return true
-	}
-	// check with seed & fingerprint
-	if MetaTypeHasSeed(meta.Type()) {
-		// check whether keys equal by verifying signature
-		seed := meta.Seed()
-		fingerprint := meta.Fingerprint()
-		return key.Verify(UTF8Encode(seed), fingerprint)
-	} else {
-		// ID with BTC/ETH address has no username
-		// so we can just compare the key.data to check matching
-		return false
-	}
 }

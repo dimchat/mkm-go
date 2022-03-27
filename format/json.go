@@ -74,7 +74,7 @@ func (parser JSONParser) Decode(bytes []byte) interface{} {
 
 var jsonParser DataParser = new(JSONParser)
 
-func SetJSONParser(parser DataParser) {
+func JSONSetParser(parser DataParser) {
 	jsonParser = parser
 }
 

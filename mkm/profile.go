@@ -57,8 +57,16 @@ func (doc *BaseVisa) Init(dict map[string]interface{}) *BaseVisa {
 	return doc
 }
 
-func (doc *BaseVisa) InitWithID(identifier ID, data []byte, signature []byte) *BaseVisa {
-	if doc.BaseDocument.InitWithType(VISA, identifier, data, signature) != nil {
+func (doc *BaseVisa) InitWithData(identifier ID, data []byte, signature []byte) *BaseVisa {
+	if doc.BaseDocument.InitWithData(identifier, data, signature) != nil {
+		// lazy load
+		doc._key = nil
+	}
+	return doc
+}
+
+func (doc *BaseVisa) InitWithType(identifier ID, docType string) *BaseVisa {
+	if doc.BaseDocument.InitWithType(identifier, docType) != nil {
 		// lazy load
 		doc._key = nil
 	}
@@ -123,8 +131,16 @@ func (doc *BaseBulletin) Init(dict map[string]interface{}) *BaseBulletin {
 	return doc
 }
 
-func (doc *BaseBulletin) InitWithID(identifier ID, data []byte, signature []byte) *BaseBulletin {
-	if doc.BaseDocument.InitWithType(BULLETIN, identifier, data, signature) != nil {
+func (doc *BaseBulletin) InitWithData(identifier ID, data []byte, signature []byte) *BaseBulletin {
+	if doc.BaseDocument.InitWithData(identifier, data, signature) != nil {
+		// lazy load
+		doc._assistants = nil
+	}
+	return doc
+}
+
+func (doc *BaseBulletin) InitWithType(identifier ID, docType string) *BaseBulletin {
+	if doc.BaseDocument.InitWithType(identifier, docType) != nil {
 		// lazy load
 		doc._assistants = nil
 	}

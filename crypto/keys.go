@@ -26,7 +26,6 @@
 package crypto
 
 import (
-	"bytes"
 	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/types"
 )
@@ -43,8 +42,8 @@ import (
  *  }
  */
 type CryptographyKey interface {
-	Map
 	ICryptographyKey
+	Map
 }
 type ICryptographyKey interface {
 
@@ -142,22 +141,29 @@ type IVerifyKey interface {
 	Match(sKey SignKey) bool
 }
 
-const _promise = "Moky loves May Lee forever!"
-var promise = UTF8Encode(_promise)
+/**
+ *  Asymmetric Cryptography Key
+ *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ */
+type AsymmetricKey interface {
+	CryptographyKey
+}
 
 /**
- *  Check symmetric keys
+ *  Check asymmetric keys
  *
- * @param pKey - symmetric key1
- * @param sKey - symmetric key2
- * @return true on keys equal
+ * @param sKey - private key
+ * @param pKey - public key
+ * @return true on keys matched
  */
-func CryptographyKeysMatch(pKey EncryptKey, sKey DecryptKey) bool {
-	// check by encryption
-	ciphertext := pKey.Encrypt(promise)
-	plaintext := sKey.Decrypt(ciphertext)
-	return bytes.Equal(plaintext, promise)
+func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
+	// try to verify with signature
+	signature := sKey.Sign(promise)
+	return pKey.Verify(promise, signature)
 }
+
+const _promise = "Moky loves May Lee forever!"
+var promise = UTF8Encode(_promise)
 
 func CryptographyKeyGetAlgorithm(key map[string]interface{}) string {
 	text, ok := key["algorithm"].(string)

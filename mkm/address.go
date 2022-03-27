@@ -32,51 +32,79 @@ package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
- *  Function for creating address from string
+ *  Base Address
+ *  ~~~~~~~~~~~~
  *
- * @param address - address string
- * @return Address
+ *  abstract method:
+ *      IsBroadcast()
  */
-type AddressCreator func(address string) Address
+type BaseAddress struct {
+	ConstantString
+	IAddress
+
+	_network uint8
+}
+
+func (address *BaseAddress) Init(string string, network uint8) *BaseAddress {
+	if address.ConstantString.Init(string) != nil {
+		address._network = network
+	}
+	return address
+}
+
+//-------- IAddress
+
+func (address *BaseAddress) Network() uint8 {
+	return address._network
+}
+
+func (address *BaseAddress) IsUser() bool {
+	return NetworkTypeIsUser(address._network)
+}
+
+func (address *BaseAddress) IsGroup() bool {
+	return NetworkTypeIsGroup(address._network)
+}
 
 /**
- *  General Address Factory
- *  ~~~~~~~~~~~~~~~~~~~~~~~
+ *  Base Address Factory
+ *  ~~~~~~~~~~~~~~~~~~~~
+ *
+ *  abstract method:
+ *      CreateAddress(string)
  */
-type GeneralAddressFactory struct {
+type BaseAddressFactory struct {
 	AddressFactory
-
-	CreateAddress AddressCreator
 
 	_addresses map[string]Address
 }
 
-func NewGeneralAddressFactory(fn AddressCreator) *GeneralAddressFactory {
-	return new(GeneralAddressFactory).Init(fn)
-}
-
-func (factory *GeneralAddressFactory) Init(fn AddressCreator) *GeneralAddressFactory {
-	factory.CreateAddress = fn
+func (factory *BaseAddressFactory) Init() *BaseAddressFactory {
 	factory._addresses = make(map[string]Address)
 	// cache broadcast addresses
-	factory.cacheAddress(ANYWHERE.String(), ANYWHERE)
-	factory.cacheAddress(EVERYWHERE.String(), EVERYWHERE)
+	factory._addresses[ANYWHERE.String()] = ANYWHERE
+	factory._addresses[EVERYWHERE.String()] = EVERYWHERE
 	return factory
 }
 
-func (factory *GeneralAddressFactory) cacheAddress(str string, address Address) {
-	factory._addresses[str] = address
+func (factory *BaseAddressFactory) GenerateAddress(meta Meta, network uint8) Address {
+	address := meta.GenerateAddress(network)
+	if address != nil {
+		factory._addresses[address.String()] = address
+	}
+	return address
 }
 
-func (factory *GeneralAddressFactory) ParseAddress(address string) Address {
+func (factory *BaseAddressFactory) ParseAddress(address string) Address {
 	addr := factory._addresses[address]
 	if addr == nil {
 		addr = factory.CreateAddress(address)
 		if addr != nil {
-			factory.cacheAddress(address, addr)
+			factory._addresses[address] = addr
 		}
 	}
 	return addr

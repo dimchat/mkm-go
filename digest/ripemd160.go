@@ -27,7 +27,7 @@ package digest
 
 var ripemd160Digester DataDigester = nil
 
-func SetRIPEMD160Digester(digester DataDigester) {
+func RIPEMD160SetDigester(digester DataDigester) {
 	ripemd160Digester = digester
 }
 

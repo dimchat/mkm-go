@@ -53,8 +53,8 @@ import (
  *          fingerprint = sign(seed, SK);
  */
 type Meta interface {
-	Map
 	IMeta
+	Map
 }
 type IMeta interface {
 
@@ -90,38 +90,12 @@ type IMeta interface {
 	Fingerprint() []byte
 
 	/**
-	 *  Check meta valid
-	 *  (must call this when received a new meta from network)
-	 *
-	 * @return true on valid
-	 */
-	IsValid() bool
-
-	/**
-	 *  Generate ID with terminal
+	 *  Generate address with network(type)
 	 *
 	 * @param network - ID.type
-	 * @param terminal - ID.terminal
-	 * @return ID
+	 * @return Address
 	 */
-	GenerateID(network uint8, terminal string) ID
-
-	/**
-	 *  Check whether meta match with entity ID
-	 *  (must call this when received a new meta from network)
-	 *
-	 * @param identifier - entity ID
-	 * @return true on matched
-	 */
-	MatchID(identifier ID) bool
-
-	/**
-	 *  Check whether meta match with public key
-	 *
-	 * @param pk - public key
-	 * @return true on matched
-	 */
-	MatchKey(key VerifyKey) bool
+	GenerateAddress(network uint8) Address
 }
 
 func MetaGetType(meta map[string]interface{}) uint8 {
@@ -156,6 +130,59 @@ func MetaGetFingerprint(meta map[string]interface{}) []byte {
 		return Base64Decode(base64)
 	} else {
 		return nil
+	}
+}
+
+/**
+ *  Check meta valid
+ *  (must call this when received a new meta from network)
+ */
+func MetaCheck(meta Meta) bool {
+	key := meta.Key()
+	if key == nil {
+		// meta.key should not be empty
+		return false
+	}
+	if !MetaTypeHasSeed(meta.Type()) {
+		// this meta has no seed, so no signature too
+		return true
+	}
+	// check seed with signature
+	seed := meta.Seed()
+	fingerprint := meta.Fingerprint()
+	if seed == "" || fingerprint == nil {
+		// seed and fingerprint should not be empty
+		return false;
+	}
+	// verify fingerprint
+	return key.Verify(UTF8Encode(seed), fingerprint)
+}
+
+func MetaMatchID(meta Meta, identifier ID) bool {
+	// check ID.name
+	if identifier.Name() != meta.Seed() {
+		return false
+	}
+	// check ID.address
+	address := AddressGenerate(meta, identifier.Type())
+	return identifier.Address().Equal(address)
+}
+
+func MetaMatchKey(meta Meta, key VerifyKey) bool {
+	// check whether the public key equals to meta.key
+	if meta.Key().Equal(key) {
+		return true
+	}
+	// check with seed & fingerprint
+	if MetaTypeHasSeed(meta.Type()) {
+		// check whether keys equal by verifying signature
+		seed := meta.Seed()
+		fingerprint := meta.Fingerprint()
+		return key.Verify(UTF8Encode(seed), fingerprint)
+	} else {
+		// ID with BTC/ETH address has no username
+		// so we can just compare the key.data to check matching
+		return false
 	}
 }
 
@@ -195,7 +222,7 @@ type MetaFactory interface {
 
 var metaFactory = make(map[uint8]MetaFactory)
 
-func MetaRegister(version uint8, factory MetaFactory) {
+func MetaSetFactory(version uint8, factory MetaFactory) {
 	metaFactory[version] = factory
 }
 

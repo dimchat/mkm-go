@@ -99,7 +99,7 @@ const (
 	 */
 	GROUP        = 0x10  // 0001 0000 (Multi-Persons)
 
-	MOMENTS      = 0x18  // 0001 1000 (Twitter)
+	//MOMENTS    = 0x18  // 0001 1000 (Twitter)
 	POLYLOGUE    = 0x10  // 0001 0000 (Multi-Persons Chat, N < 100)
 	CHATROOM     = 0x30  // 0011 0000 (Multi-Persons Chat, N >= 100)
 

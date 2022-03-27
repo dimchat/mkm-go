@@ -73,7 +73,7 @@ func (coder Base58Coder) Decode(string string) []byte {
 
 var base58Coder DataCoder = new(Base58Coder)
 
-func SetBase58Coder(coder DataCoder) {
+func Base58SetCoder(coder DataCoder) {
 	base58Coder = coder
 }
 

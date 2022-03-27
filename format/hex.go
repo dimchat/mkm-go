@@ -49,7 +49,7 @@ func (coder HexCoder) Decode(string string) []byte {
 
 var hexCoder DataCoder = new(HexCoder)
 
-func SetHexCoder(coder DataCoder) {
+func HexSetCoder(coder DataCoder) {
 	hexCoder = coder
 }
 

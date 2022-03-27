@@ -41,8 +41,8 @@ import (
  *  This class is used to build address for ID
  */
 type Address interface {
-	Stringer
 	IAddress
+	Stringer
 }
 type IAddress interface {
 
@@ -63,6 +63,26 @@ type IAddress interface {
  *  ~~~~~~~~~~~~~~~
  */
 type AddressFactory interface {
+	IAddressFactory
+}
+type IAddressFactory interface {
+
+	/**
+	 *  Generate address with meta & network
+	 *
+	 * @param meta - meta info
+	 * @param network - address type
+	 @ @return Address
+	 */
+	GenerateAddress(meta Meta, network uint8) Address
+
+	/**
+	 *  Create address from string
+	 *
+	 * @param address - address string
+	 * @return Address
+	 */
+	CreateAddress(address string) Address
 
 	/**
 	 *  Parse string object to address
@@ -84,25 +104,47 @@ func AddressGetFactory() AddressFactory {
 }
 
 //
-//  Factory method
+//  Factory methods
 //
+func AddressGenerate(meta Meta, network uint8) Address {
+	factory := AddressGetFactory()
+	if factory == nil {
+		panic("address factory not found")
+	}
+	return factory.GenerateAddress(meta, network)
+}
+
+func AddressCreate(address string) Address {
+	factory := AddressGetFactory()
+	if factory == nil {
+		panic("address factory not found")
+	}
+	return factory.CreateAddress(address)
+}
+
 func AddressParse(address interface{}) Address {
 	if ValueIsNil(address) {
 		return nil
 	}
-	addr, ok := address.(Address)
+	value, ok := address.(Address)
 	if ok {
-		return addr
+		return value
 	}
+	var addr string
 	wrapper, ok := address.(fmt.Stringer)
 	if ok {
-		return AddressGetFactory().ParseAddress(wrapper.String())
+		addr = wrapper.String()
+	} else {
+		addr, ok = address.(string)
+		if !ok {
+			panic(address)
+		}
 	}
-	text, ok := address.(string)
-	if ok {
-		return AddressGetFactory().ParseAddress(text)
+	factory := AddressGetFactory()
+	if factory == nil {
+		panic("address factory not found")
 	}
-	panic(address)
+	return factory.ParseAddress(addr)
 }
 
 /**
@@ -114,7 +156,7 @@ const (
 )
 
 //
-//  These addresses will be created when AddressFactory init
+//  Broadcast addresses for User/Group
 //
 var ANYWHERE Address = nil    // "anywhere"
 var EVERYWHERE Address = nil  // "everywhere"

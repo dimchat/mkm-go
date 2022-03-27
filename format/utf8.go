@@ -44,7 +44,7 @@ func (parser UTF8Parser) Decode(bytes []byte) interface{} {
 
 var utf8Parser DataParser = new(UTF8Parser)
 
-func SetUTF8Parser(parser DataParser) {
+func UTF8SetParser(parser DataParser) {
 	utf8Parser = parser
 }
 

@@ -40,7 +40,7 @@ func (digester MD5Digester) Digest(data []byte) []byte {
 
 var md5Digester DataDigester = new(MD5Digester)
 
-func SetMD5Digester(digester DataDigester) {
+func MD5SetDigester(digester DataDigester) {
 	md5Digester = digester
 }
 
