@@ -43,9 +43,6 @@ import (
  *
  * @abstract:
  *      GenerateAddress(network uint8) Address
- * @overrides:
- *      GenerateID(network uint8, terminal string) ID
- *      MatchID(identifier ID) bool
  */
 type BaseMeta struct {
 	Dictionary
@@ -125,4 +122,8 @@ func (meta *BaseMeta) Fingerprint() []byte {
 		}
 	}
 	return meta._fingerprint
+}
+
+func (meta *BaseMeta) GenerateAddress(network uint8) Address {
+	panic("not implemented")
 }

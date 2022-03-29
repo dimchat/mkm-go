@@ -51,6 +51,8 @@ func (address *BroadcastAddress) Init(string string, network uint8) *BroadcastAd
 	return address
 }
 
+//-------- IAddress
+
 func (address *BroadcastAddress) IsBroadcast() bool {
 	return true
 }

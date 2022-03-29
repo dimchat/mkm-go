@@ -38,9 +38,6 @@ import (
 /**
  *  Base Address
  *  ~~~~~~~~~~~~
- *
- *  abstract method:
- *      IsBroadcast()
  */
 type BaseAddress struct {
 	ConstantString
@@ -70,20 +67,27 @@ func (address *BaseAddress) IsGroup() bool {
 	return NetworkTypeIsGroup(address._network)
 }
 
+func (address *BaseAddress) IsBroadcast() bool {
+	//panic("not implemented")
+	return false
+}
+
 /**
- *  Base Address Factory
- *  ~~~~~~~~~~~~~~~~~~~~
- *
- *  abstract method:
- *      CreateAddress(string)
+ *  General Address Factory
+ *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
-type BaseAddressFactory struct {
+type GeneralAddressFactory struct {
 	AddressFactory
+
+	_create AddressCreator
 
 	_addresses map[string]Address
 }
 
-func (factory *BaseAddressFactory) Init() *BaseAddressFactory {
+type AddressCreator func(address string) Address
+
+func (factory *GeneralAddressFactory) Init(fn AddressCreator) *GeneralAddressFactory {
+	factory._create = fn
 	factory._addresses = make(map[string]Address)
 	// cache broadcast addresses
 	factory._addresses[ANYWHERE.String()] = ANYWHERE
@@ -91,7 +95,9 @@ func (factory *BaseAddressFactory) Init() *BaseAddressFactory {
 	return factory
 }
 
-func (factory *BaseAddressFactory) GenerateAddress(meta Meta, network uint8) Address {
+//-------- IAddressFactory
+
+func (factory *GeneralAddressFactory) GenerateAddress(meta Meta, network uint8) Address {
 	address := meta.GenerateAddress(network)
 	if address != nil {
 		factory._addresses[address.String()] = address
@@ -99,7 +105,11 @@ func (factory *BaseAddressFactory) GenerateAddress(meta Meta, network uint8) Add
 	return address
 }
 
-func (factory *BaseAddressFactory) ParseAddress(address string) Address {
+func (factory *GeneralAddressFactory) CreateAddress(address string) Address {
+	return factory._create(address)
+}
+
+func (factory *GeneralAddressFactory) ParseAddress(address string) Address {
 	addr := factory._addresses[address]
 	if addr == nil {
 		addr = factory.CreateAddress(address)

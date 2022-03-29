@@ -33,6 +33,7 @@ package mkm
 import (
 	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
+	"strings"
 )
 
 /**
@@ -101,4 +102,97 @@ func (id *Identifier) IsGroup() bool {
 
 func (id *Identifier) IsBroadcast() bool {
 	return id._address.IsBroadcast()
+}
+
+/**
+ *  General ID Factory
+ *  ~~~~~~~~~~~~~~~~~~
+ */
+type GeneralIDFactory struct {
+	IDFactory
+
+	_ids map[string]ID
+}
+
+func (factory *GeneralIDFactory) Init() *GeneralIDFactory {
+	factory._ids = make(map[string]ID)
+	return factory
+}
+
+//-------- IIdentifierFactory
+
+func (factory *GeneralIDFactory) GenerateID(meta Meta, network uint8, terminal string) ID {
+	address := AddressGenerate(meta, network)
+	return IDCreate(meta.Seed(), address, terminal)
+}
+
+func (factory *GeneralIDFactory) CreateID(name string, address Address, terminal string) ID {
+	identifier := concat(name, address, terminal)
+	id := factory._ids[identifier]
+	if id == nil {
+		id = NewIdentifier(identifier, name, address, terminal)
+		factory._ids[identifier] = id
+	}
+	return id
+}
+
+func (factory *GeneralIDFactory) ParseID(identifier string) ID {
+	id := factory._ids[identifier]
+	if id == nil {
+		id = parse(identifier)
+		if id != nil {
+			factory._ids[identifier] = id
+		}
+	}
+	return id
+}
+
+func concat(name string, address Address, terminal string) string {
+	str := address.String()
+	if name != "" {
+		str = name + "@" + str
+	}
+	if terminal != "" {
+		str = str + "/" + terminal
+	}
+	return str
+}
+
+func parse(identifier string) ID {
+	var name string
+	var address Address
+	var terminal string
+	// split ID string
+	pair := strings.Split(identifier, "/")
+	if len(pair) == 1 {
+		// no terminal
+		terminal = ""
+	} else {
+		// got terminal
+		terminal = pair[1]
+	}
+	// split name & address
+	pair = strings.Split(pair[0], "@")
+	if len(pair) == 1 {
+		// got address without name
+		name = ""
+		address = AddressParse(pair[0])
+	} else {
+		// got name & address
+		name = pair[0]
+		address = AddressParse(pair[1])
+	}
+	if address == nil {
+		return nil
+	}
+	return NewIdentifier(identifier, name, address, terminal)
+}
+
+func BuildGeneralIDFactory() IDFactory {
+	factory := IDGetFactory()
+	if factory == nil {
+		factory = new(GeneralIDFactory).Init()
+		IDSetFactory(factory)
+	}
+	return factory
 }
