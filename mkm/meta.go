@@ -46,7 +46,6 @@ import (
  */
 type BaseMeta struct {
 	Dictionary
-	IMeta
 
 	_type uint8
 	_key VerifyKey
@@ -124,6 +123,6 @@ func (meta *BaseMeta) Fingerprint() []byte {
 	return meta._fingerprint
 }
 
-func (meta *BaseMeta) GenerateAddress(network uint8) Address {
-	panic("not implemented")
-}
+//func (meta *BaseMeta) GenerateAddress(network uint8) Address {
+//	panic("not implemented")
+//}

@@ -47,12 +47,9 @@ const (
  *  }
  */
 type SymmetricKey interface {
-	ISymmetricKey
 	CryptographyKey
-}
-type ISymmetricKey interface {
-	IEncryptKey
-	IDecryptKey
+	EncryptKey
+	DecryptKey
 }
 
 /**
@@ -74,9 +71,6 @@ func SymmetricKeysMatch(pKey EncryptKey, sKey DecryptKey) bool {
  *  ~~~~~~~~~~~~~~~~~~~~~
  */
 type SymmetricKeyFactory interface {
-	ISymmetricKeyFactory
-}
-type ISymmetricKeyFactory interface {
 
 	/**
 	 *  Generate key
@@ -94,6 +88,9 @@ type ISymmetricKeyFactory interface {
 	ParseSymmetricKey(key map[string]interface{}) SymmetricKey
 }
 
+//
+//  Instances of SymmetricKeyFactory
+//
 var symmetricFactories = make(map[string]SymmetricKeyFactory)
 
 func SymmetricKeySetFactory(algorithm string, factory SymmetricKeyFactory) {

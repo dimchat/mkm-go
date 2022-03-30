@@ -49,7 +49,6 @@ import (
  */
 type Identifier struct {
 	ConstantString
-	IIdentifier
 
 	_name string
 	_address Address
@@ -109,7 +108,6 @@ func (id *Identifier) IsBroadcast() bool {
  *  ~~~~~~~~~~~~~~~~~~
  */
 type GeneralIDFactory struct {
-	IDFactory
 
 	_ids map[string]ID
 }

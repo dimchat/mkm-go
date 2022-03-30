@@ -31,7 +31,6 @@ import (
 
 type Stringer interface {
 	Object
-
 	fmt.Stringer
 }
 
@@ -41,7 +40,6 @@ type Stringer interface {
  */
 type ConstantString struct {
 	BaseObject
-	fmt.Stringer
 
 	_string string
 }
@@ -51,9 +49,13 @@ func (str *ConstantString) Init(string string) *ConstantString {
 	return str
 }
 
+//-------- fmt.Stringer
+
 func (str *ConstantString) String() string {
 	return str._string
 }
+
+//-------- IObject
 
 func (str *ConstantString) Equal(other interface{}) bool {
 	// compare pointers

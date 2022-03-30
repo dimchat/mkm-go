@@ -29,9 +29,9 @@ import (
 	"encoding/hex"
 )
 
-type HexCoder struct {
-	DataCoder
-}
+type HexCoder struct {}
+
+//-------- IDataCoder
 
 func (coder HexCoder) Encode(data []byte) string {
 	return hex.EncodeToString(data)
@@ -47,6 +47,9 @@ func (coder HexCoder) Decode(string string) []byte {
 	}
 }
 
+//
+//  Instance of DataCoder
+//
 var hexCoder DataCoder = new(HexCoder)
 
 func HexSetCoder(coder DataCoder) {

@@ -47,10 +47,7 @@ import (
  *          terminal - entity login resource(device), OPTIONAL
  */
 type ID interface {
-	IIdentifier
 	Stringer
-}
-type IIdentifier interface {
 
 	Name() string
 	Address() Address
@@ -73,9 +70,6 @@ type IIdentifier interface {
  *  ~~~~~~~~~~
  */
 type IDFactory interface {
-	IIdentifierFactory
-}
-type IIdentifierFactory interface {
 
 	/**
 	 *  Generate ID
@@ -106,6 +100,9 @@ type IIdentifierFactory interface {
 	ParseID(identifier string) ID
 }
 
+//
+//  Instance of IDFactory
+//
 var idFactory IDFactory = nil
 
 func IDSetFactory(factory IDFactory) {

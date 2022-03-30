@@ -42,10 +42,7 @@ import (
  *  }
  */
 type CryptographyKey interface {
-	ICryptographyKey
 	Map
-}
-type ICryptographyKey interface {
 
 	/**
 	 *  Get key algorithm name
@@ -63,10 +60,7 @@ type ICryptographyKey interface {
 }
 
 type EncryptKey interface {
-	IEncryptKey
 	CryptographyKey
-}
-type IEncryptKey interface {
 
 	/**
 	 *  ciphertext = encrypt(plaintext, PW)
@@ -79,10 +73,7 @@ type IEncryptKey interface {
 }
 
 type DecryptKey interface {
-	IDecryptKey
 	CryptographyKey
-}
-type IDecryptKey interface {
 
 	/**
 	 *  plaintext = decrypt(ciphertext, PW);
@@ -103,10 +94,7 @@ type IDecryptKey interface {
 }
 
 type SignKey interface {
-	ISignKey
 	CryptographyKey
-}
-type ISignKey interface {
 
 	/**
 	 *  signature = sign(data, SK);
@@ -118,10 +106,7 @@ type ISignKey interface {
 }
 
 type VerifyKey interface {
-	IVerifyKey
 	CryptographyKey
-}
-type IVerifyKey interface {
 
 	/**
 	 *  OK = verify(data, signature, PK)

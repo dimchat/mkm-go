@@ -29,9 +29,9 @@ import (
 	"encoding/base64"
 )
 
-type Base64Coder struct {
-	DataCoder
-}
+type Base64Coder struct {}
+
+//-------- IDataCoder
 
 func (coder Base64Coder) Encode(data []byte) string {
 	return base64.StdEncoding.EncodeToString(data)
@@ -47,6 +47,9 @@ func (coder Base64Coder) Decode(string string) []byte {
 	}
 }
 
+//
+//  Instance of DataCoder
+//
 var base64Coder DataCoder = new(Base64Coder)
 
 func Base64SetCoder(coder DataCoder) {

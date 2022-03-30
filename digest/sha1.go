@@ -29,15 +29,18 @@ import (
 	"crypto/sha1"
 )
 
-type SHA1Digester struct {
-	DataDigester
-}
+type SHA1Digester struct {}
+
+//-------- IDataDigester
 
 func (digester SHA1Digester) Digest(data []byte) []byte {
 	hash := sha1.Sum(data)
 	return hash[:]
 }
 
+//
+//  Instance of DataDigester
+//
 var sha1Digester DataDigester = new(SHA1Digester)
 
 func SHA1SetDigester(digester DataDigester) {

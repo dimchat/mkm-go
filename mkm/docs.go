@@ -39,12 +39,12 @@ import (
 /**
  *  User Document
  *  ~~~~~~~~~~~~~
+ *
  *  This interface is defined for authorizing other apps to login,
  *  which can generate a temporary asymmetric key pair for messaging.
  */
 type BaseVisa struct {
 	BaseDocument
-	IVisa
 
 	_key EncryptKey
 }
@@ -118,7 +118,6 @@ func (doc *BaseVisa) SetAvatar(url string) {
  */
 type BaseBulletin struct {
 	BaseDocument
-	IBulletin
 
 	_assistants []ID
 }

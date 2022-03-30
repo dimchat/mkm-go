@@ -25,6 +25,9 @@
  */
 package digest
 
+//
+//  Instance of DataDigester
+//
 var ripemd160Digester DataDigester = nil
 
 func RIPEMD160SetDigester(digester DataDigester) {

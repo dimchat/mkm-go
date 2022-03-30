@@ -53,10 +53,7 @@ import (
  *          fingerprint = sign(seed, SK);
  */
 type Meta interface {
-	IMeta
 	Map
-}
-type IMeta interface {
 
 	/**
 	 *  Meta algorithm version
@@ -220,6 +217,9 @@ type MetaFactory interface {
 	ParseMeta(meta map[string]interface{}) Meta
 }
 
+//
+//  Instances of MetaFactory
+//
 var metaFactory = make(map[uint8]MetaFactory)
 
 func MetaSetFactory(version uint8, factory MetaFactory) {

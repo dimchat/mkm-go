@@ -39,11 +39,8 @@ import . "github.com/dimchat/mkm-go/types"
  *  }
  */
 type PrivateKey interface {
-	IPrivateKey
 	AsymmetricKey
-}
-type IPrivateKey interface {
-	ISignKey
+	SignKey
 
 	/**
 	 *  Get public key from private key
@@ -58,9 +55,6 @@ type IPrivateKey interface {
  *  ~~~~~~~~~~~~~~~~~~~
  */
 type PrivateKeyFactory interface {
-	IPrivateKeyFactory
-}
-type IPrivateKeyFactory interface {
 
 	/**
 	 *  Generate key
@@ -78,6 +72,9 @@ type IPrivateKeyFactory interface {
 	ParsePrivateKey(key map[string]interface{}) PrivateKey
 }
 
+//
+//  Instances of PrivateKeyFactory
+//
 var privateFactories = make(map[string]PrivateKeyFactory)
 
 func PrivateKeySetFactory(algorithm string, factory PrivateKeyFactory) {

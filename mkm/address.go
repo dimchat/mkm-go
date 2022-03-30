@@ -41,7 +41,6 @@ import (
  */
 type BaseAddress struct {
 	ConstantString
-	IAddress
 
 	_network uint8
 }
@@ -77,7 +76,6 @@ func (address *BaseAddress) IsBroadcast() bool {
  *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 type GeneralAddressFactory struct {
-	AddressFactory
 
 	_create AddressCreator
 

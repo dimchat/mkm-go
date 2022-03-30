@@ -29,15 +29,18 @@ import (
 	"crypto/sha256"
 )
 
-type SHA256Digester struct {
-	DataDigester
-}
+type SHA256Digester struct {}
+
+//-------- IDataDigester
 
 func (digester SHA256Digester) Digest(data []byte) []byte {
 	hash := sha256.Sum256(data)
 	return hash[:]
 }
 
+//
+//  Instance of DataDigester
+//
 var sha256Digester DataDigester = new(SHA256Digester)
 
 func SHA256SetDigester(digester DataDigester) {

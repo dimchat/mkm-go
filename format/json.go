@@ -29,9 +29,9 @@ import (
 	"encoding/json"
 )
 
-type JSONParser struct {
-	DataParser
-}
+type JSONParser struct {}
+
+//-------- IDataParser
 
 func (parser JSONParser) Encode(object interface{}) []byte {
 	bytes, err := json.Marshal(object)
@@ -72,6 +72,9 @@ func (parser JSONParser) Decode(bytes []byte) interface{} {
 	return nil
 }
 
+//
+//  Instance of DataParser
+//
 var jsonParser DataParser = new(JSONParser)
 
 func JSONSetParser(parser DataParser) {

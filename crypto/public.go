@@ -43,11 +43,8 @@ const (
  *  }
  */
 type PublicKey interface {
-	IPublicKey
 	AsymmetricKey
-}
-type IPublicKey interface {
-	IVerifyKey
+	VerifyKey
 }
 
 /**
@@ -55,9 +52,6 @@ type IPublicKey interface {
  *  ~~~~~~~~~~~~~~~~~~
  */
 type PublicKeyFactory interface {
-	IPublicKeyFactory
-}
-type IPublicKeyFactory interface {
 
 	/**
 	 *  Parse map object to key
@@ -68,6 +62,9 @@ type IPublicKeyFactory interface {
 	ParsePublicKey(key map[string]interface{}) PublicKey
 }
 
+//
+//  Instances of PublicKeyFactory
+//
 var publicFactories = make(map[string]PublicKeyFactory)
 
 func PublicKeySetFactory(algorithm string, factory PublicKeyFactory) {

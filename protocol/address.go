@@ -41,10 +41,7 @@ import (
  *  This class is used to build address for ID
  */
 type Address interface {
-	IAddress
 	Stringer
-}
-type IAddress interface {
 
 	/**
 	 *  get address type
@@ -63,9 +60,6 @@ type IAddress interface {
  *  ~~~~~~~~~~~~~~~
  */
 type AddressFactory interface {
-	IAddressFactory
-}
-type IAddressFactory interface {
 
 	/**
 	 *  Generate address with meta & network
@@ -93,6 +87,9 @@ type IAddressFactory interface {
 	ParseAddress(address string) Address
 }
 
+//
+//  Instance of AddressFactory
+//
 var addressFactory AddressFactory = nil
 
 func AddressSetFactory(factory AddressFactory) {

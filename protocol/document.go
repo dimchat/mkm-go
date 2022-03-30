@@ -117,10 +117,7 @@ const (
  *      }
  */
 type Document interface {
-	IDocument
 	Map
-}
-type IDocument interface {
 	TAI
 
 	/**
@@ -179,10 +176,7 @@ func DocumentGetID(doc map[string]interface{}) ID {
  *  which can generate a temporary asymmetric key pair for messaging.
  */
 type Visa interface {
-	IVisa
 	Document
-}
-type IVisa interface {
 
 	/**
 	 *  Get public key to encrypt message for user
@@ -218,10 +212,7 @@ type IVisa interface {
  *  ~~~~~~~~~~~~~~
  */
 type Bulletin interface {
-	IBulletin
 	Document
-}
-type IBulletin interface {
 
 	/**
 	 *  Get group assistants
@@ -243,9 +234,6 @@ type IBulletin interface {
  *  ~~~~~~~~~~~~~~~~
  */
 type DocumentFactory interface {
-	IDocumentFactory
-}
-type IDocumentFactory interface {
 
 	/**
 	 *  Create document with data & signature loaded from local storage
@@ -267,6 +255,9 @@ type IDocumentFactory interface {
 	ParseDocument(doc map[string]interface{}) Document
 }
 
+//
+//  Instances of DocumentFactory
+//
 var documentFactories = make(map[string]DocumentFactory)
 
 func DocumentSetFactory(docType string, factory DocumentFactory) {

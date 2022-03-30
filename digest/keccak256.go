@@ -25,6 +25,9 @@
  */
 package digest
 
+//
+//  Instance of DataDigester
+//
 var keccak256Digester DataDigester = nil
 
 func KECCAK256SetDigester(digester DataDigester) {

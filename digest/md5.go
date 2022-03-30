@@ -29,15 +29,18 @@ import (
 	"crypto/md5"
 )
 
-type MD5Digester struct {
-	DataDigester
-}
+type MD5Digester struct {}
+
+//-------- IDataDigester
 
 func (digester MD5Digester) Digest(data []byte) []byte {
 	hash := md5.Sum(data)
 	return hash[:]
 }
 
+//
+//  Instance of DataDigester
+//
 var md5Digester DataDigester = new(MD5Digester)
 
 func MD5SetDigester(digester DataDigester) {

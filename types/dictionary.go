@@ -30,10 +30,7 @@ import (
 )
 
 type Map interface {
-	IMap
 	Object
-}
-type IMap interface {
 
 	Get(key string) interface{}
 	Set(key string, value interface{})
@@ -71,7 +68,6 @@ func CloneMap(dictionary map[string]interface{}) map[string]interface{} {
  */
 type Dictionary struct {
 	BaseObject
-	IMap
 
 	_dictionary map[string]interface{}
 }
@@ -83,6 +79,8 @@ func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
 	dict._dictionary = dictionary
 	return dict
 }
+
+//-------- IObject
 
 func (dict *Dictionary) Equal(other interface{}) bool {
 	// compare pointers
@@ -97,6 +95,8 @@ func (dict *Dictionary) Equal(other interface{}) bool {
 	table, ok := other.(map[string]interface{})
 	return ok && reflect.DeepEqual(dict._dictionary, table)
 }
+
+//-------- IMap
 
 func (dict *Dictionary) Get(key string) interface{} {
 	return dict._dictionary[key]

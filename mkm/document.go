@@ -44,7 +44,6 @@ import (
  */
 type BaseDocument struct {
 	Dictionary
-	IDocument
 
 	_identifier ID
 

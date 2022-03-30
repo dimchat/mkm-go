@@ -30,9 +30,6 @@ import (
 )
 
 type Object interface {
-	IObject
-}
-type IObject interface {
 
 	Equal(other interface{}) bool
 }
@@ -41,9 +38,9 @@ type IObject interface {
  *  Base Object
  *  ~~~~~~~~~~~
  */
-type BaseObject struct {
-	Object
-}
+type BaseObject struct {}
+
+//-------- IObject
 
 func (obj *BaseObject) Equal(other interface{}) bool {
 	value := reflect.ValueOf(other)
