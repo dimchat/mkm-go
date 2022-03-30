@@ -60,7 +60,10 @@ type CryptographyKey interface {
 }
 
 type EncryptKey interface {
+	IEncryptKey
 	CryptographyKey
+}
+type IEncryptKey interface {
 
 	/**
 	 *  ciphertext = encrypt(plaintext, PW)
@@ -73,7 +76,10 @@ type EncryptKey interface {
 }
 
 type DecryptKey interface {
+	IDecryptKey
 	CryptographyKey
+}
+type IDecryptKey interface {
 
 	/**
 	 *  plaintext = decrypt(ciphertext, PW);
@@ -94,7 +100,10 @@ type DecryptKey interface {
 }
 
 type SignKey interface {
+	ISignKey
 	CryptographyKey
+}
+type ISignKey interface {
 
 	/**
 	 *  signature = sign(data, SK);
@@ -106,7 +115,10 @@ type SignKey interface {
 }
 
 type VerifyKey interface {
+	IVerifyKey
 	CryptographyKey
+}
+type IVerifyKey interface {
 
 	/**
 	 *  OK = verify(data, signature, PK)

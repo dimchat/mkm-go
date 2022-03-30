@@ -44,7 +44,7 @@ const (
  */
 type PublicKey interface {
 	AsymmetricKey
-	VerifyKey
+	IVerifyKey
 }
 
 /**

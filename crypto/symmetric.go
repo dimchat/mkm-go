@@ -48,8 +48,8 @@ const (
  */
 type SymmetricKey interface {
 	CryptographyKey
-	EncryptKey
-	DecryptKey
+	IEncryptKey
+	IDecryptKey
 }
 
 /**

@@ -40,7 +40,7 @@ import . "github.com/dimchat/mkm-go/types"
  */
 type PrivateKey interface {
 	AsymmetricKey
-	SignKey
+	ISignKey
 
 	/**
 	 *  Get public key from private key
