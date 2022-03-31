@@ -122,11 +122,11 @@ func MetaGetSeed(meta map[string]interface{}) string {
 }
 
 func MetaGetFingerprint(meta map[string]interface{}) []byte {
-	base64, ok := meta["fingerprint"].(string)
-	if ok {
-		return Base64Decode(base64)
-	} else {
+	base64 := meta["fingerprint"]
+	if base64 == nil {
 		return nil
+	} else {
+		return Base64Decode(base64.(string))
 	}
 }
 

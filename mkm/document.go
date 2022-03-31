@@ -103,18 +103,18 @@ func (doc *BaseDocument) InitWithType(identifier ID, docType string) *BaseDocume
 
 func (doc *BaseDocument) data() []byte {
 	if doc._data == nil {
-		json, ok := doc.Get("data").(string)
-		if ok {
-			doc._data = UTF8Encode(json)
+		json := doc.Get("data")
+		if json != nil {
+			doc._data = UTF8Encode(json.(string))
 		}
 	}
 	return doc._data
 }
 func (doc *BaseDocument) signature() []byte {
 	if doc._signature == nil {
-		base64, ok := doc.Get("signature").(string)
-		if ok {
-			doc._signature = Base64Decode(base64)
+		base64 := doc.Get("signature")
+		if base64 != nil {
+			doc._signature = Base64Decode(base64.(string))
 		}
 	}
 	return doc._signature
