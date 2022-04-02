@@ -95,8 +95,12 @@ func ObjectPointer(i interface{}) interface{} {
 }
 
 func ValueIsNil(i interface{}) bool {
+	if i == nil {
+		return true
+	}
 	defer func() {
 		recover()
 	}()
-	return reflect.ValueOf(i).IsNil()
+	value := reflect.ValueOf(i)
+	return value.IsNil()
 }

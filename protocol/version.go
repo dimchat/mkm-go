@@ -30,6 +30,11 @@
  */
 package protocol
 
+import (
+	"fmt"
+	. "github.com/dimchat/mkm-go/types"
+)
+
 /*
  *  enum MKMMetaVersion
  *
@@ -69,4 +74,32 @@ const (
 
 func MetaTypeHasSeed(metaType uint8) bool {
 	return (metaType & MKM) == MKM
+}
+
+func MetaTypeParse(version interface{}) uint8 {
+	if ValueIsNil(version) {
+		return 0
+	} else {
+		return uint8(version.(float64))
+	}
+}
+
+func (version MetaType) String() string {
+	switch version {
+	case MKM:
+		return "MKM"
+
+	case BTC:
+		return "BTC"
+	case ExBTC:
+		return "ExBTC"
+
+	case ETH:
+		return "ETH"
+	case ExETH:
+		return "ExETH"
+
+	default:
+		return fmt.Sprintf("MetaType(%d)", version)
+	}
 }

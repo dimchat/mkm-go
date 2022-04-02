@@ -35,7 +35,6 @@ import (
 	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
-	"time"
 )
 
 /**
@@ -160,7 +159,7 @@ func (doc *BaseDocument) Sign(privateKey SignKey) (data, signature []byte) {
 		return doc.data(), doc.signature()
 	}
 	// update sign time
-	doc.SetProperty("time", time.Now().Unix())
+	doc.SetProperty("time", TimeToInt64(TimeNow()))
 	// sign
 	data = JSONEncodeMap(doc.Properties())
 	signature = privateKey.Sign(data)
@@ -233,13 +232,9 @@ func (doc *BaseDocument) ID() ID {
 	return doc._identifier
 }
 
-func (doc *BaseDocument) Time() time.Time {
-	timestamp, ok := doc.GetProperty("time").(int64)
-	if ok {
-		return time.Unix(timestamp, 0)
-	} else {
-		return time.Time{}
-	}
+func (doc *BaseDocument) Time() Time {
+	timestamp := doc.GetProperty("time")
+	return TimeParse(timestamp)
 }
 
 func (doc *BaseDocument) Name() string {

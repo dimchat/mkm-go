@@ -30,6 +30,11 @@
  */
 package protocol
 
+import (
+	"fmt"
+	. "github.com/dimchat/mkm-go/types"
+)
+
 /*
  *  @enum MKMNetworkID
  *
@@ -133,4 +138,60 @@ func NetworkTypeIsUser(networkType uint8) bool {
 
 func NetworkTypeIsGroup(networkType uint8) bool {
 	return (networkType & GROUP) == GROUP
+}
+
+func NetworkTypeParse(network interface{}) uint8 {
+	if ValueIsNil(network) {
+		return 0
+	} else {
+		return uint8(network.(float64))
+	}
+}
+
+func (network NetworkType) String() string {
+	switch network {
+	case BTCMain:
+		return "BTCMain"
+	//case BTCTest:
+	//	return "BTCTest"
+
+	case MAIN:
+		return "MAIN"
+	case GROUP:
+		return "GROUP"
+
+	//case MOMENTS:
+	//	return "MOMENTS"
+	//case POLYLOGUE:
+	//	return "POLYLOGUE"
+	case CHATROOM:
+		return "CHATROOM"
+
+	//case SOCIAL:
+	//	return "SOCIAL"
+
+	//case ORGANIZATION:
+	//	return "ORGANIZATION"
+	//case COMPANY:
+	//	return "COMPANY"
+	//case SCHOOL:
+	//	return "SCHOOL"
+	//case GOVERNMENT:
+	//	return "GOVERNMENT"
+	//case DEPARTMENT:
+	//	return "DEPARTMENT"
+
+	case PROVIDER:
+		return "PROVIDER"
+	case STATION:
+		return "STATION"
+
+	case THING:
+		return "THING"
+	case ROBOT:
+		return "ROBOT"
+
+	default:
+		return fmt.Sprintf("Network(%d)", network)
+	}
 }

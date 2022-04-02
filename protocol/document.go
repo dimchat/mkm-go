@@ -33,7 +33,6 @@ package protocol
 import (
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/types"
-	"time"
 )
 
 /**
@@ -139,7 +138,7 @@ type Document interface {
 	/**
 	 * Get sign time
 	 */
-	Time() time.Time
+	Time() Time
 
 	/**
 	 *  Get entity name

@@ -96,12 +96,12 @@ type Meta interface {
 }
 
 func MetaGetType(meta map[string]interface{}) uint8 {
-	version, ok := meta["type"].(uint8)
-	if !ok {
+	version := meta["type"]
+	if version == nil {
 		// compatible with v1.0
-		version, _ = meta["version"].(uint8)
+		version = meta["version"]
 	}
-	return version
+	return MetaTypeParse(version)
 }
 
 func MetaGetKey(meta map[string]interface{}) VerifyKey {

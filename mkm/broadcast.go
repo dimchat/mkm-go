@@ -41,8 +41,8 @@ type BroadcastAddress struct {
 	BaseAddress
 }
 
-func NewBroadcastAddress(address string, network NetworkType) *BroadcastAddress {
-	return new(BroadcastAddress).Init(address, uint8(network))
+func NewBroadcastAddress(address string, network uint8) *BroadcastAddress {
+	return new(BroadcastAddress).Init(address, network)
 }
 
 func (address *BroadcastAddress) Init(string string, network uint8) *BroadcastAddress {
