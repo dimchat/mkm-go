@@ -48,7 +48,7 @@ type Address interface {
 	 *
 	 * @return network type
 	 */
-	Network() uint8
+	Network() NetworkType
 
 	IsUser() bool
 	IsGroup() bool
@@ -68,7 +68,7 @@ type AddressFactory interface {
 	 * @param network - address type
 	 @ @return Address
 	 */
-	GenerateAddress(meta Meta, network uint8) Address
+	GenerateAddress(meta Meta, network NetworkType) Address
 
 	/**
 	 *  Create address from string
@@ -103,7 +103,7 @@ func AddressGetFactory() AddressFactory {
 //
 //  Factory methods
 //
-func AddressGenerate(meta Meta, network uint8) Address {
+func AddressGenerate(meta Meta, network NetworkType) Address {
 	factory := AddressGetFactory()
 	if factory == nil {
 		panic("address factory not found")

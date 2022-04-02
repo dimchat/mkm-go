@@ -42,12 +42,12 @@ import (
  *  ~~~~~~~~~
  *
  * @abstract:
- *      GenerateAddress(network uint8) Address
+ *      GenerateAddress(network NetworkType) Address
  */
 type BaseMeta struct {
 	Dictionary
 
-	_type uint8
+	_type MetaType
 	_key VerifyKey
 
 	_seed string
@@ -65,7 +65,7 @@ func (meta *BaseMeta) Init(dict map[string]interface{}) *BaseMeta {
 	return meta
 }
 
-func (meta *BaseMeta) InitWithType(version uint8, key VerifyKey, seed string, fingerprint []byte) *BaseMeta {
+func (meta *BaseMeta) InitWithType(version MetaType, key VerifyKey, seed string, fingerprint []byte) *BaseMeta {
 	dict := make(map[string]interface{})
 	// meta type
 	dict["type"] = version
@@ -91,7 +91,7 @@ func (meta *BaseMeta) InitWithType(version uint8, key VerifyKey, seed string, fi
 
 //-------- IMeta
 
-func (meta *BaseMeta) Type() uint8 {
+func (meta *BaseMeta) Type() MetaType {
 	if meta._type == 0 {
 		meta._type = MetaGetType(meta.GetMap(false))
 	}
@@ -123,6 +123,6 @@ func (meta *BaseMeta) Fingerprint() []byte {
 	return meta._fingerprint
 }
 
-//func (meta *BaseMeta) GenerateAddress(network uint8) Address {
+//func (meta *BaseMeta) GenerateAddress(network NetworkType) Address {
 //	panic("not implemented")
 //}

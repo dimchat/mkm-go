@@ -91,106 +91,101 @@ import (
 type NetworkType uint8
 
 const (
-	BTCMain      = 0x00  // 0000 0000
-	//BTCTest    = 0x6F  // 0110 1111
+	BTCMain      NetworkType = 0x00  // 0000 0000
+	//BTCTest    NetworkType = 0x6F  // 0110 1111
 
 	/*
 	 *  Person Account
 	 */
-	MAIN         = 0x08  // 0000 1000 (Person)
+	MAIN         NetworkType = 0x08  // 0000 1000 (Person)
 
 	/*
 	 *  Virtual Groups
 	 */
-	GROUP        = 0x10  // 0001 0000 (Multi-Persons)
+	GROUP        NetworkType = 0x10  // 0001 0000 (Multi-Persons)
 
-	//MOMENTS    = 0x18  // 0001 1000 (Twitter)
-	POLYLOGUE    = 0x10  // 0001 0000 (Multi-Persons Chat, N < 100)
-	CHATROOM     = 0x30  // 0011 0000 (Multi-Persons Chat, N >= 100)
+	//MOMENTS    NetworkType = 0x18  // 0001 1000 (Twitter)
+	POLYLOGUE    NetworkType = 0x10  // 0001 0000 (Multi-Persons Chat, N < 100)
+	CHATROOM     NetworkType = 0x30  // 0011 0000 (Multi-Persons Chat, N >= 100)
 
 	/*
 	 *  Social Entities in Reality
 	 */
-	//SOCIAL       = 0x50  // 0101 0000
+	//SOCIAL       NetworkType = 0x50  // 0101 0000
 
-	//ORGANIZATION = 0x74  // 0111 0100
-	//COMPANY      = 0x76  // 0111 0110
-	//SCHOOL       = 0x77  // 0111 0111
-	//GOVERNMENT   = 0x73  // 0111 0011
-	//DEPARTMENT   = 0x52  // 0101 0010
+	//ORGANIZATION NetworkType = 0x74  // 0111 0100
+	//COMPANY      NetworkType = 0x76  // 0111 0110
+	//SCHOOL       NetworkType = 0x77  // 0111 0111
+	//GOVERNMENT   NetworkType = 0x73  // 0111 0011
+	//DEPARTMENT   NetworkType = 0x52  // 0101 0010
 
 	/*
 	 *  Network
 	 */
-	PROVIDER     = 0x76  // 0111 0110 (Service Provider)
-	STATION      = 0x88  // 1000 1000 (Server Node)
+	PROVIDER     NetworkType = 0x76  // 0111 0110 (Service Provider)
+	STATION      NetworkType = 0x88  // 1000 1000 (Server Node)
 
 	/*
 	 *  Internet of Things
 	 */
-	THING        = 0x80  // 1000 0000 (IoT)
-	ROBOT        = 0xC8  // 1100 1000
+	THING        NetworkType = 0x80  // 1000 0000 (IoT)
+	ROBOT        NetworkType = 0xC8  // 1100 1000
 )
 
-func NetworkTypeIsUser(networkType uint8) bool {
+func NetworkTypeIsUser(networkType NetworkType) bool {
 	return (networkType & MAIN) == MAIN || networkType == BTCMain
 }
 
-func NetworkTypeIsGroup(networkType uint8) bool {
+func NetworkTypeIsGroup(networkType NetworkType) bool {
 	return (networkType & GROUP) == GROUP
 }
 
-func NetworkTypeParse(network interface{}) uint8 {
+func NetworkTypeParse(network interface{}) NetworkType {
 	if ValueIsNil(network) {
 		return 0
 	}
-	return uint8(network.(float64))
+	return NetworkType(network.(float64))
 }
 
 func (network NetworkType) String() string {
-	switch network {
-	case BTCMain:
-		return "BTCMain"
-	//case BTCTest:
-	//	return "BTCTest"
-
-	case MAIN:
-		return "MAIN"
-	case GROUP:
-		return "GROUP"
-
-	//case MOMENTS:
-	//	return "MOMENTS"
-	//case POLYLOGUE:
-	//	return "POLYLOGUE"
-	case CHATROOM:
-		return "CHATROOM"
-
-	//case SOCIAL:
-	//	return "SOCIAL"
-
-	//case ORGANIZATION:
-	//	return "ORGANIZATION"
-	//case COMPANY:
-	//	return "COMPANY"
-	//case SCHOOL:
-	//	return "SCHOOL"
-	//case GOVERNMENT:
-	//	return "GOVERNMENT"
-	//case DEPARTMENT:
-	//	return "DEPARTMENT"
-
-	case PROVIDER:
-		return "PROVIDER"
-	case STATION:
-		return "STATION"
-
-	case THING:
-		return "THING"
-	case ROBOT:
-		return "ROBOT"
-
-	default:
-		return fmt.Sprintf("Network(%d)", network)
+	text := NetworkTypeGetAlias(network)
+	if text == "" {
+		text = fmt.Sprintf("Network(%d)", network)
 	}
+	return text
+}
+
+func NetworkTypeGetAlias(network NetworkType) string {
+	return networkNames[network]
+}
+func NetworkTypeSetAlias(network NetworkType, alias string) {
+	networkNames[network] = alias
+}
+
+var networkNames = make(map[NetworkType]string, 8)
+
+func init() {
+	NetworkTypeSetAlias(BTCMain, "BTCMain")
+	//NetworkTypeSetAlias(BTCTest, "BTCTest")
+
+	NetworkTypeSetAlias(MAIN, "MAIN")
+	NetworkTypeSetAlias(GROUP, "GROUP")
+
+	//NetworkTypeSetAlias(MOMENTS, "MOMENTS")
+	//NetworkTypeSetAlias(POLYLOGUE, "POLYLOGUE")
+	NetworkTypeSetAlias(CHATROOM, "CHATROOM")
+
+	//NetworkTypeSetAlias(SOCIAL, "SOCIAL")
+
+	//NetworkTypeSetAlias(ORGANIZATION, "ORGANIZATION")
+	//NetworkTypeSetAlias(COMPANY, "COMPANY")
+	//NetworkTypeSetAlias(SCHOOL, "SCHOOL")
+	//NetworkTypeSetAlias(GOVERNMENT, "GOVERNMENT")
+	//NetworkTypeSetAlias(DEPARTMENT, "DEPARTMENT")
+
+	NetworkTypeSetAlias(PROVIDER, "PROVIDER")
+	NetworkTypeSetAlias(STATION, "STATION")
+
+	NetworkTypeSetAlias(THING, "THING")
+	NetworkTypeSetAlias(ROBOT, "ROBOT")
 }

@@ -62,7 +62,7 @@ type Meta interface {
 	 *      0x02 - btc_address
 	 *      0x03 - username@btc_address
 	 */
-	Type() uint8
+	Type() MetaType
 
 	/**
 	 *  Public key (used for signature)
@@ -92,10 +92,10 @@ type Meta interface {
 	 * @param network - ID.type
 	 * @return Address
 	 */
-	GenerateAddress(network uint8) Address
+	GenerateAddress(network NetworkType) Address
 }
 
-func MetaGetType(meta map[string]interface{}) uint8 {
+func MetaGetType(meta map[string]interface{}) MetaType {
 	version := meta["type"]
 	if version == nil {
 		// compatible with v1.0
@@ -220,20 +220,20 @@ type MetaFactory interface {
 //
 //  Instances of MetaFactory
 //
-var metaFactory = make(map[uint8]MetaFactory)
+var metaFactory = make(map[MetaType]MetaFactory)
 
-func MetaSetFactory(version uint8, factory MetaFactory) {
+func MetaSetFactory(version MetaType, factory MetaFactory) {
 	metaFactory[version] = factory
 }
 
-func MetaGetFactory(version uint8) MetaFactory {
+func MetaGetFactory(version MetaType) MetaFactory {
 	return metaFactory[version]
 }
 
 //
 //  Factory methods
 //
-func MetaCreate(version uint8, key VerifyKey, seed string, fingerprint []byte) Meta {
+func MetaCreate(version MetaType, key VerifyKey, seed string, fingerprint []byte) Meta {
 	factory := MetaGetFactory(version)
 	if factory == nil {
 		panic("meta type not found: " + strconv.Itoa(int(version)))
@@ -241,7 +241,7 @@ func MetaCreate(version uint8, key VerifyKey, seed string, fingerprint []byte) M
 	return factory.CreateMeta(key, seed, fingerprint)
 }
 
-func MetaGenerate(version uint8, sKey SignKey, seed string) Meta {
+func MetaGenerate(version MetaType, sKey SignKey, seed string) Meta {
 	factory := MetaGetFactory(version)
 	if factory == nil {
 		panic("meta type not found: " + strconv.Itoa(int(version)))

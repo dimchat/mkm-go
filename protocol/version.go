@@ -62,43 +62,50 @@ import (
 type MetaType uint8
 
 const (
-	DEFAULT = 0x01
-	MKM     = 0x01  // 0000 0001
+	DEFAULT MetaType = 0x01
+	MKM     MetaType = 0x01  // 0000 0001
 
-	BTC     = 0x02  // 0000 0010
-	ExBTC   = 0x03  // 0000 0011
+	BTC     MetaType = 0x02  // 0000 0010
+	ExBTC   MetaType = 0x03  // 0000 0011
 
-	ETH     = 0x04  // 0000 0100
-	ExETH   = 0x05  // 0000 0101
+	ETH     MetaType = 0x04  // 0000 0100
+	ExETH   MetaType = 0x05  // 0000 0101
 )
 
-func MetaTypeHasSeed(metaType uint8) bool {
+func MetaTypeHasSeed(metaType MetaType) bool {
 	return (metaType & MKM) == MKM
 }
 
-func MetaTypeParse(version interface{}) uint8 {
+func MetaTypeParse(version interface{}) MetaType {
 	if ValueIsNil(version) {
 		return 0
 	}
-	return uint8(version.(float64))
+	return MetaType(version.(float64))
 }
 
 func (version MetaType) String() string {
-	switch version {
-	case MKM:
-		return "MKM"
-
-	case BTC:
-		return "BTC"
-	case ExBTC:
-		return "ExBTC"
-
-	case ETH:
-		return "ETH"
-	case ExETH:
-		return "ExETH"
-
-	default:
-		return fmt.Sprintf("MetaType(%d)", version)
+	text := MetaTypeGetAlias(version)
+	if text == "" {
+		text = fmt.Sprintf("MetaType(%d)", version)
 	}
+	return text
+}
+
+func MetaTypeGetAlias(version MetaType) string {
+	return versionNames[version]
+}
+func MetaTypeSetAlias(version MetaType, alias string) {
+	versionNames[version] = alias
+}
+
+var versionNames = make(map[MetaType]string, 5)
+
+func init() {
+	MetaTypeSetAlias(MKM, "MKM")
+
+	MetaTypeSetAlias(BTC, "BTC")
+	MetaTypeSetAlias(ExBTC, "ExBTC")
+
+	MetaTypeSetAlias(ETH, "ETH")
+	MetaTypeSetAlias(ExETH, "ExETH")
 }

@@ -58,7 +58,7 @@ type ID interface {
 	 *
 	 * @return network type
 	 */
-	Type() uint8
+	Type() NetworkType
 
 	IsUser() bool
 	IsGroup() bool
@@ -79,7 +79,7 @@ type IDFactory interface {
 	 * @param terminal - ID.terminal
 	 * @return ID
 	 */
-	GenerateID(meta Meta, network uint8, terminal string) ID
+	GenerateID(meta Meta, network NetworkType, terminal string) ID
 
 	/**
 	 *  Create ID
@@ -116,7 +116,7 @@ func IDGetFactory() IDFactory {
 //
 //  Factory methods
 //
-func IDGenerate(meta Meta, network uint8, terminal string) ID {
+func IDGenerate(meta Meta, network NetworkType, terminal string) ID {
 	factory := IDGetFactory()
 	if factory == nil {
 		panic("ID factory not found")

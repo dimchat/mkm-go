@@ -87,7 +87,7 @@ func (id *Identifier) Terminal() string {
 	return id._terminal
 }
 
-func (id *Identifier) Type() uint8 {
+func (id *Identifier) Type() NetworkType {
 	return id._address.Network()
 }
 
@@ -119,7 +119,7 @@ func (factory *GeneralIDFactory) Init() *GeneralIDFactory {
 
 //-------- IIdentifierFactory
 
-func (factory *GeneralIDFactory) GenerateID(meta Meta, network uint8, terminal string) ID {
+func (factory *GeneralIDFactory) GenerateID(meta Meta, network NetworkType, terminal string) ID {
 	address := AddressGenerate(meta, network)
 	return IDCreate(meta.Seed(), address, terminal)
 }

@@ -41,11 +41,11 @@ type BroadcastAddress struct {
 	BaseAddress
 }
 
-func NewBroadcastAddress(address string, network uint8) *BroadcastAddress {
+func NewBroadcastAddress(address string, network NetworkType) *BroadcastAddress {
 	return new(BroadcastAddress).Init(address, network)
 }
 
-func (address *BroadcastAddress) Init(string string, network uint8) *BroadcastAddress {
+func (address *BroadcastAddress) Init(string string, network NetworkType) *BroadcastAddress {
 	if address.BaseAddress.Init(string, network) != nil {
 	}
 	return address

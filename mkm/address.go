@@ -42,10 +42,10 @@ import (
 type BaseAddress struct {
 	ConstantString
 
-	_network uint8
+	_network NetworkType
 }
 
-func (address *BaseAddress) Init(string string, network uint8) *BaseAddress {
+func (address *BaseAddress) Init(string string, network NetworkType) *BaseAddress {
 	if address.ConstantString.Init(string) != nil {
 		address._network = network
 	}
@@ -54,7 +54,7 @@ func (address *BaseAddress) Init(string string, network uint8) *BaseAddress {
 
 //-------- IAddress
 
-func (address *BaseAddress) Network() uint8 {
+func (address *BaseAddress) Network() NetworkType {
 	return address._network
 }
 
@@ -95,7 +95,7 @@ func (factory *GeneralAddressFactory) Init(fn AddressCreator) *GeneralAddressFac
 
 //-------- IAddressFactory
 
-func (factory *GeneralAddressFactory) GenerateAddress(meta Meta, network uint8) Address {
+func (factory *GeneralAddressFactory) GenerateAddress(meta Meta, network NetworkType) Address {
 	address := meta.GenerateAddress(network)
 	if address != nil {
 		factory._addresses[address.String()] = address
