@@ -159,7 +159,7 @@ func (doc *BaseDocument) Sign(privateKey SignKey) (data, signature []byte) {
 		return doc.data(), doc.signature()
 	}
 	// update sign time
-	doc.SetProperty("time", TimeToInt64(TimeNow()))
+	doc.SetProperty("time", Timestamp(TimeNow()))
 	// sign
 	data = JSONEncodeMap(doc.Properties())
 	signature = privateKey.Sign(data)

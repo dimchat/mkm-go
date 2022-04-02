@@ -62,6 +62,14 @@ type Time interface {
 	// value it is valid for billions of years into the past or future.
 	Unix() int64
 
+	// UnixNano returns t as a Unix time, the number of nanoseconds elapsed
+	// since January 1, 1970 UTC. The result is undefined if the Unix time
+	// in nanoseconds cannot be represented by an int64 (a date before the year
+	// 1678 or after 2262). Note that this means the result of calling UnixNano
+	// on the zero Time is undefined. The result does not depend on the
+	// location associated with t.
+	UnixNano() int64
+
 	// IsZero reports whether t represents the zero time instant,
 	// January 1, year 1, 00:00:00 UTC.
 	IsZero() bool
@@ -82,8 +90,11 @@ func TimeNow() Time {
 	return time.Now()
 }
 
-func UnixTime(t Time) int64 {
+func Timestamp(t Time) int64 {
 	return t.Unix()
+}
+func TimestampNano(t Time) int64 {
+	return t.UnixNano()
 }
 
 func TimeToInt64(t Time) int64 {
