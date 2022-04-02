@@ -68,6 +68,9 @@ type Time interface {
 }
 
 func TimeIsNil(t Time) bool {
+	if ValueIsNil(t) {
+		return true
+	}
 	return t.IsZero()
 }
 
@@ -107,7 +110,6 @@ func TimeFromFloat64(seconds float64) Time {
 func TimeParse(timestamp interface{}) Time {
 	if ValueIsNil(timestamp) {
 		return TimeNil()
-	} else {
-		return TimeFromFloat64(timestamp.(float64))
 	}
+	return TimeFromFloat64(timestamp.(float64))
 }

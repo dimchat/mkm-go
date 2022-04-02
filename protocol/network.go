@@ -143,9 +143,8 @@ func NetworkTypeIsGroup(networkType uint8) bool {
 func NetworkTypeParse(network interface{}) uint8 {
 	if ValueIsNil(network) {
 		return 0
-	} else {
-		return uint8(network.(float64))
 	}
+	return uint8(network.(float64))
 }
 
 func (network NetworkType) String() string {
