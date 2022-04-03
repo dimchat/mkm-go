@@ -32,6 +32,19 @@ import (
 
 type Time interface {
 
+	// Date returns the year, month, and day in which t occurs.
+	Date() (year int, month time.Month, day int)
+
+	// Clock returns the hour, minute, and second within the day specified by t.
+	Clock() (hour, min, sec int)
+
+	// Weekday returns the day of the week specified by t.
+	Weekday() time.Weekday
+
+	// YearDay returns the day of the year specified by t, in the range [1,365] for non-leap years,
+	// and [1,366] in leap years.
+	YearDay() int
+
 	// Year returns the year in which t occurs.
 	Year() int
 
@@ -73,6 +86,13 @@ type Time interface {
 	// IsZero reports whether t represents the zero time instant,
 	// January 1, year 1, 00:00:00 UTC.
 	IsZero() bool
+
+	// Equal reports whether t and u represent the same time instant.
+	// Two times can be equal even if they are in different locations.
+	// For example, 6:00 +0200 and 4:00 UTC are Equal.
+	// See the documentation on the Time type for the pitfalls of using == with
+	// Time values; most code should use Equal instead.
+	Equal(u time.Time) bool
 }
 
 func TimeIsNil(t Time) bool {
