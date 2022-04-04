@@ -93,6 +93,36 @@ type Time interface {
 	// See the documentation on the Time type for the pitfalls of using == with
 	// Time values; most code should use Equal instead.
 	Equal(u time.Time) bool
+
+	// String returns the time formatted using the format string
+	//	"2006-01-02 15:04:05.999999999 -0700 MST"
+	//
+	// If the time has a monotonic clock reading, the returned string
+	// includes a final field "m=±<value>", where value is the monotonic
+	// clock reading formatted as a decimal number of seconds.
+	//
+	// The returned string is meant for debugging; for a stable serialized
+	// representation, use t.MarshalText, t.MarshalBinary, or t.Format
+	// with an explicit format string.
+	String() string
+
+	// Format returns a textual representation of the time value formatted
+	// according to layout, which defines the format by showing how the reference
+	// time, defined to be
+	//	Mon Jan 2 15:04:05 -0700 MST 2006
+	// would be displayed if it were the value; it serves as an example of the
+	// desired output. The same display rules will then be applied to the time
+	// value.
+	//
+	// A fractional second is represented by adding a period and zeros
+	// to the end of the seconds section of layout string, as in "15:04:05.000"
+	// to format a time stamp with millisecond precision.
+	//
+	// Predefined layouts ANSIC, UnixDate, RFC3339 and others describe standard
+	// and convenient representations of the reference time. For more information
+	// about the formats and the definition of the reference time, see the
+	// documentation for ANSIC and the other constants defined by this package.
+	Format(layout string) string
 }
 
 func TimeIsNil(t Time) bool {

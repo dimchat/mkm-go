@@ -42,14 +42,16 @@ type BroadcastAddress struct {
 }
 
 func NewBroadcastAddress(address string, network NetworkType) *BroadcastAddress {
-	return new(BroadcastAddress).Init(address, network)
+	broadcast := new(BroadcastAddress)
+	broadcast.Init(address, network)
+	return broadcast
 }
 
-func (address *BroadcastAddress) Init(string string, network NetworkType) *BroadcastAddress {
-	if address.BaseAddress.Init(string, network) != nil {
-	}
-	return address
-}
+//func (address *BroadcastAddress) Init(string string, network NetworkType) *BroadcastAddress {
+//	if address.BaseAddress.Init(string, network) != nil {
+//	}
+//	return address
+//}
 
 //-------- IAddress
 
