@@ -39,12 +39,10 @@ func (coder Base64Coder) Encode(data []byte) string {
 
 func (coder Base64Coder) Decode(string string) []byte {
 	bytes, err := base64.StdEncoding.DecodeString(string)
-	if err == nil {
-		return bytes
-	} else {
-		//panic("failed to decode string for Base64")
-		return nil
+	if err != nil {
+		panic(err)
 	}
+	return bytes
 }
 
 //

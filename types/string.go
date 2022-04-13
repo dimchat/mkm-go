@@ -34,6 +34,15 @@ type Stringer interface {
 	fmt.Stringer
 }
 
+func FetchString(str interface{}) string {
+	wrapper, ok := str.(fmt.Stringer)
+	if ok {
+		return wrapper.String()
+	} else {
+		return str.(string)
+	}
+}
+
 /**
  *  Constant String Wrapper
  *  ~~~~~~~~~~~~~~~~~~~~~~~

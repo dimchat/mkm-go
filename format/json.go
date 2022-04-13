@@ -25,100 +25,47 @@
  */
 package format
 
-import (
-	"encoding/json"
-)
-
-type JSONParser struct {}
-
-//-------- IDataParser
-
-func (parser JSONParser) Encode(object interface{}) []byte {
-	bytes, err := json.Marshal(object)
-	if err == nil {
-		return bytes
-	} else {
-		//panic("failed to encode to JsON string")
-		return nil
-	}
-}
-
-func (parser JSONParser) Decode(bytes []byte) interface{} {
-	for _, ch := range bytes {
-		if ch == '{' {
-			// decode to map
-			var dict map[string]interface{}
-			err := json.Unmarshal(bytes, &dict)
-			if err == nil {
-				return dict
-			} else {
-				return nil
-			}
-		} else if ch == '[' {
-			// decode to array
-			var array []interface{}
-			err := json.Unmarshal(bytes, &array)
-			if err == nil {
-				return array
-			} else {
-				return nil
-			}
-		} else if ch != ' ' && ch != '\t' {
-			// error
-			break
-		}
-	}
-	//panic(bytes)
-	return nil
-}
-
 //
-//  Instance of DataParser
+//  Instance of ObjectCoder
 //
-var jsonParser DataParser = new(JSONParser)
+var jsonCoder ObjectCoder = nil
 
-func JSONSetParser(parser DataParser) {
-	jsonParser = parser
+func JSONSetCoder(parser ObjectCoder) {
+	jsonCoder = parser
 }
 
-func JSONEncode(object interface{}) []byte {
-	return jsonParser.Encode(object)
+func JSONEncode(object interface{}) string {
+	return jsonCoder.Encode(object)
 }
 
-func JSONDecode(bytes []byte) interface{} {
-	return jsonParser.Decode(bytes)
+func JSONDecode(string string) interface{} {
+	return jsonCoder.Decode(string)
 }
 
 //
 //  JsON <-> Map
 //
 
-func JSONEncodeMap(dict map[string]interface{}) []byte {
-	return jsonParser.Encode(dict)
+func JSONEncodeMap(dict map[string]interface{}) string {
+	return jsonCoder.Encode(dict)
 }
 
-func JSONDecodeMap(bytes []byte) map[string]interface{} {
-	obj, ok := jsonParser.Decode(bytes).(map[string]interface{})
-	if ok {
-		return obj
-	} else {
-		return nil
-	}
+func JSONDecodeMap(str string) map[string]interface{} {
+	obj := jsonCoder.Decode(str)
+	dict, _ := obj.(map[string]interface{})
+	return dict
 }
 
 //
 //  JsON <-> List
 //
 
-func JSONEncodeList(array []interface{}) []byte {
-	return jsonParser.Encode(array)
+func JSONEncodeList(array []interface{}) string {
+	return jsonCoder.Encode(array)
 }
 
-func JSONDecodeList(bytes []byte) []interface{} {
-	obj, ok := jsonParser.Decode(bytes).([]interface{})
-	if ok {
-		return obj
-	} else {
-		return nil
-	}
+func JSONDecodeList(str string) []interface{} {
+	obj := jsonCoder.Decode(str)
+	arr, _ := obj.([]interface{})
+	return arr
 }

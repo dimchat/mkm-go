@@ -57,7 +57,7 @@ func (doc *BaseVisa) Init(dict map[string]interface{}) *BaseVisa {
 	return doc
 }
 
-func (doc *BaseVisa) InitWithData(identifier ID, data []byte, signature []byte) *BaseVisa {
+func (doc *BaseVisa) InitWithData(identifier ID, data string, signature []byte) *BaseVisa {
 	if doc.BaseDocument.InitWithData(identifier, data, signature) != nil {
 		// lazy load
 		doc._key = nil
@@ -128,7 +128,7 @@ func (doc *BaseBulletin) Init(dict map[string]interface{}) *BaseBulletin {
 	return doc
 }
 
-func (doc *BaseBulletin) InitWithData(identifier ID, data []byte, signature []byte) *BaseBulletin {
+func (doc *BaseBulletin) InitWithData(identifier ID, data string, signature []byte) *BaseBulletin {
 	if doc.BaseDocument.InitWithData(identifier, data, signature) != nil {
 		// lazy load
 		doc._assistants = nil

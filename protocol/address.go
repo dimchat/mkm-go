@@ -31,7 +31,6 @@
 package protocol
 
 import (
-	"fmt"
 	. "github.com/dimchat/mkm-go/types"
 )
 
@@ -105,17 +104,11 @@ func AddressGetFactory() AddressFactory {
 //
 func AddressGenerate(meta Meta, network NetworkType) Address {
 	factory := AddressGetFactory()
-	if factory == nil {
-		panic("address factory not found")
-	}
 	return factory.GenerateAddress(meta, network)
 }
 
 func AddressCreate(address string) Address {
 	factory := AddressGetFactory()
-	if factory == nil {
-		panic("address factory not found")
-	}
 	return factory.CreateAddress(address)
 }
 
@@ -127,21 +120,9 @@ func AddressParse(address interface{}) Address {
 	if ok {
 		return value
 	}
-	var addr string
-	wrapper, ok := address.(fmt.Stringer)
-	if ok {
-		addr = wrapper.String()
-	} else {
-		addr, ok = address.(string)
-		if !ok {
-			panic(address)
-		}
-	}
+	str := FetchString(address)
 	factory := AddressGetFactory()
-	if factory == nil {
-		panic("address factory not found")
-	}
-	return factory.ParseAddress(addr)
+	return factory.ParseAddress(str)
 }
 
 /**

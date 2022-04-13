@@ -39,12 +39,10 @@ func (coder HexCoder) Encode(data []byte) string {
 
 func (coder HexCoder) Decode(string string) []byte {
 	bytes, err := hex.DecodeString(string)
-	if err == nil {
-		return bytes
-	} else {
-		//panic("failed to decode string for Hex")
-		return nil
+	if err != nil {
+		panic(err)
 	}
+	return bytes
 }
 
 //

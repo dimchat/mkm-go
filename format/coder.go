@@ -25,21 +25,83 @@
  */
 package format
 
+/**
+ *  Data Coder
+ *  ~~~~~~~~~~
+ *  Hex, Base58, Base64, ...
+ *
+ *  1. encode binary data to string;
+ *  2. decode string to binary data.
+ */
 type DataCoder interface {
 
 	/**
-	 *  Encode binary data to text string
+	 *  Encode binary data to local string
 	 *
 	 * @param data - binary data
-	 * @return Base58/64 string
+	 * @return local string
 	 */
 	Encode(data []byte) string
 
 	/**
-	 *  Decode text string to binary data
+	 *  Decode local string to binary data
 	 *
-	 * @param string - base58/64 string
+	 * @param string - local string
 	 * @return binary data
 	 */
 	Decode(string string) []byte
+}
+
+/**
+ *  Object Coder
+ *  ~~~~~~~~~~~~
+ *  JsON, XML, ...
+ *
+ *  1. encode object to string;
+ *  2. decode string to object.
+ */
+type ObjectCoder interface {
+
+	/**
+	 *  Encode Map/List object to string
+	 *
+	 * @param object - Map or List
+	 * @return serialized string
+	 */
+	Encode(object interface{}) string
+
+	/**
+	 *  Decode string to Map/List object
+	 *
+	 * @param string - serialized string
+	 * @return Map or List
+	 */
+	Decode(string string) interface{}
+}
+
+/**
+ *  String Coder
+ *  ~~~~~~~~~~~~
+ *  UTF-8, UTF-16, GBK, GB2312, ...
+ *
+ *  1. encode string to binary data;
+ *  2. decode binary data to string.
+ */
+type StringCoder interface {
+
+	/**
+	 *  Encode local string to binary data
+	 *
+	 * @param string - local string
+	 * @return binary data
+	 */
+	Encode(string string) []byte
+
+	/**
+	 *  Decode binary data to local string
+	 *
+	 * @param bytes - binary data
+	 * @return local string
+	 */
+	Decode(bytes []byte) interface{}
 }

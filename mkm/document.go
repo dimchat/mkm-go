@@ -46,7 +46,7 @@ type BaseDocument struct {
 
 	_identifier ID
 
-	_data []byte       // JSONEncode(properties)
+	_data string       // JSONEncode(properties)
 	_signature []byte  // LocalUser(id).Sign(data)
 
 	_properties map[string]interface{}
@@ -57,7 +57,7 @@ func (doc *BaseDocument) Init(dict map[string]interface{}) *BaseDocument {
 	if doc.Dictionary.Init(dict) != nil {
 		// lazy load
 		doc._identifier = nil
-		doc._data = nil
+		doc._data = ""
 		doc._signature = nil
 		doc._properties = nil
 		doc._status = 0
@@ -65,11 +65,11 @@ func (doc *BaseDocument) Init(dict map[string]interface{}) *BaseDocument {
 	return doc
 }
 
-func (doc *BaseDocument) InitWithData(identifier ID, data []byte, signature []byte) *BaseDocument {
+func (doc *BaseDocument) InitWithData(identifier ID, data string, signature []byte) *BaseDocument {
 	dict := make(map[string]interface{})
 	dict["ID"] = identifier.String()  // ID
-	if data != nil /*&& len(data) > 0 */{
-		dict["data"] = UTF8Decode(data)  // JsON data
+	if data != "" {
+		dict["data"] = data  // JsON data
 	}
 	if signature != nil /*&& len(signature) > 0 */{
 		dict["signature"] = Base64Encode(signature)  // Base64
@@ -90,7 +90,7 @@ func (doc *BaseDocument) InitWithType(identifier ID, docType string) *BaseDocume
 	dict["ID"] = identifier.String()  // ID
 	if doc.Dictionary.Init(dict) != nil {
 		doc._identifier = identifier
-		doc._data = nil
+		doc._data = ""
 		doc._signature = nil
 		if docType == "" {
 			doc._properties = nil
@@ -104,11 +104,11 @@ func (doc *BaseDocument) InitWithType(identifier ID, docType string) *BaseDocume
 	return doc
 }
 
-func (doc *BaseDocument) data() []byte {
-	if doc._data == nil {
+func (doc *BaseDocument) data() string {
+	if doc._data == "" {
 		json := doc.Get("data")
 		if json != nil {
-			doc._data = UTF8Encode(json.(string))
+			doc._data, _ = json.(string)
 		}
 	}
 	return doc._data
@@ -136,7 +136,7 @@ func (doc *BaseDocument) Verify(publicKey VerifyKey) bool {
 	}
 	data := doc.data()
 	signature := doc.signature()
-	if data == nil || len(data) == 0 {
+	if data == "" {
 		// NOTICE: if data is empty, signature should be empty at the same time
 		//         this happen while entity document not found
 		if signature == nil || len(signature) == 0 {
@@ -148,7 +148,7 @@ func (doc *BaseDocument) Verify(publicKey VerifyKey) bool {
 	} else if signature == nil || len(signature) == 0 {
 		// signature error
 		doc._status = -1
-	} else if publicKey.Verify(data, signature) {
+	} else if publicKey.Verify(UTF8Encode(data), signature) {
 		// signature matched
 		doc._status = 1
 	}
@@ -157,7 +157,7 @@ func (doc *BaseDocument) Verify(publicKey VerifyKey) bool {
 	return doc._status > 0
 }
 
-func (doc *BaseDocument) Sign(privateKey SignKey) (data, signature []byte) {
+func (doc *BaseDocument) Sign(privateKey SignKey) (data string, signature []byte) {
 	if doc._status > 0 {
 		// already signed/verified
 		return doc.data(), doc.signature()
@@ -166,8 +166,8 @@ func (doc *BaseDocument) Sign(privateKey SignKey) (data, signature []byte) {
 	doc.SetProperty("time", TimeToFloat64(TimeNow()))
 	// sign
 	data = JSONEncodeMap(doc.Properties())
-	signature = privateKey.Sign(data)
-	doc.Set("data", UTF8Decode(data))
+	signature = privateKey.Sign(UTF8Encode(data))
+	doc.Set("data", data)
 	doc.Set("signature", Base64Encode(signature))
 	// update status
 	doc._status = 1
@@ -181,7 +181,7 @@ func (doc *BaseDocument) Properties() map[string]interface{} {
 	}
 	if doc._properties == nil {
 		data := doc.data()
-		if data == nil || len(data) == 0 {
+		if data == "" {
 			// create new properties
 			doc._properties = make(map[string]interface{})
 		} else {
@@ -214,7 +214,7 @@ func (doc *BaseDocument) SetProperty(name string, value interface{}) {
 	// 3. clear data signature after properties changed
 	doc.Remove("data")
 	doc.Remove("signature")
-	doc._data = nil
+	doc._data = ""
 	doc._signature = nil
 }
 

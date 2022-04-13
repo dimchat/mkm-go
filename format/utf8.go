@@ -25,38 +25,21 @@
  */
 package format
 
-type UTF8Parser struct {}
-
-//-------- IDataParser
-
-func (parser UTF8Parser) Encode(object interface{}) []byte {
-	str, ok := object.(string)
-	if ok {
-		return []byte(str)
-	} else {
-		return nil
-	}
-}
-
-func (parser UTF8Parser) Decode(bytes []byte) interface{} {
-	return string(bytes)
-}
-
 //
-//  Instance of DataParser
+//  Instance of StringCoder
 //
-var utf8Parser DataParser = new(UTF8Parser)
+var utf8Coder StringCoder = nil
 
-func UTF8SetParser(parser DataParser) {
-	utf8Parser = parser
+func UTF8SetCoder(parser StringCoder) {
+	utf8Coder = parser
 }
 
 func UTF8Encode(string string) []byte {
-	return utf8Parser.Encode(string)
+	return utf8Coder.Encode(string)
 }
 
 func UTF8Decode(bytes []byte) string {
-	str, ok := utf8Parser.Decode(bytes).(string)
+	str, ok := utf8Coder.Decode(bytes).(string)
 	if ok {
 		return str
 	} else {

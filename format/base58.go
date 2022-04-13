@@ -25,56 +25,10 @@
  */
 package format
 
-import (
-	"bytes"
-	"math/big"
-)
-
-type Base58Coder struct {}
-
-var base58Alphabets = []byte("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
-
-func ReverseBytes(data []byte) {
-	for i, j := 0, len(data)-1; i < j; i, j = i+1, j-1 {
-		data[i], data[j] = data[j], data[i]
-	}
-}
-
-//-------- IDataCoder
-
-func (coder Base58Coder) Encode(data []byte) string {
-	x := big.NewInt(0).SetBytes(data)
-	base := big.NewInt(58)
-	zero := big.NewInt(0)
-	mod := &big.Int{}
-	var result []byte
-	for x.Cmp(zero) != 0 {
-		x.DivMod(x, base, mod)
-		result = append(result, base58Alphabets[mod.Int64()])
-	}
-	ReverseBytes(result)
-	return string(result)
-}
-
-func (coder Base58Coder) Decode(string string) []byte {
-	result := big.NewInt(0)
-	input := []byte(string)
-	for _, b := range input {
-		charIndex := bytes.IndexByte(base58Alphabets, b)
-		result.Mul(result, big.NewInt(58))
-		result.Add(result, big.NewInt(int64(charIndex)))
-	}
-	decoded := result.Bytes()
-	if input[0] == base58Alphabets[0] {
-		decoded = append([]byte{0x00}, decoded...)
-	}
-	return decoded
-}
-
 //
 //  Instance of DataCoder
 //
-var base58Coder DataCoder = new(Base58Coder)
+var base58Coder DataCoder = nil
 
 func Base58SetCoder(coder DataCoder) {
 	base58Coder = coder

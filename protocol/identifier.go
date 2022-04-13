@@ -31,7 +31,6 @@
 package protocol
 
 import (
-	"fmt"
 	. "github.com/dimchat/mkm-go/types"
 	"reflect"
 )
@@ -118,17 +117,11 @@ func IDGetFactory() IDFactory {
 //
 func IDGenerate(meta Meta, network NetworkType, terminal string) ID {
 	factory := IDGetFactory()
-	if factory == nil {
-		panic("ID factory not found")
-	}
 	return factory.GenerateID(meta, network, terminal)
 }
 
 func IDCreate(name string, address Address, terminal string) ID {
 	factory := IDGetFactory()
-	if factory == nil {
-		panic("ID factory not found")
-	}
 	return factory.CreateID(name, address, terminal)
 }
 
@@ -140,21 +133,9 @@ func IDParse(identifier interface{}) ID {
 	if ok {
 		return value
 	}
-	var id string
-	wrapper, ok := identifier.(fmt.Stringer)
-	if ok {
-		id = wrapper.String()
-	} else {
-		id, ok = identifier.(string)
-		if !ok {
-			panic(identifier)
-		}
-	}
+	str := FetchString(identifier)
 	factory := IDGetFactory()
-	if factory == nil {
-		panic("ID factory not found")
-	}
-	return factory.ParseID(id)
+	return factory.ParseID(str)
 }
 
 func IDConvert(members interface{}) []ID {
