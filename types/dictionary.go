@@ -81,11 +81,14 @@ type Dictionary struct {
 	_dictionary map[string]interface{}
 }
 
-func (dict *Dictionary) Init(dictionary map[string]interface{}) *Dictionary {
-	if ValueIsNil(dictionary) {
-		dictionary = make(map[string]interface{})
+func (dict *Dictionary) Init(dictionary map[string]interface{}) Map {
+	if dict.BaseObject.Init() != nil {
+		if ValueIsNil(dictionary) {
+			// create empty map
+			dictionary = make(map[string]interface{})
+		}
+		dict._dictionary = dictionary
 	}
-	dict._dictionary = dictionary
 	return dict
 }
 

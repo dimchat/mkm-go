@@ -49,7 +49,7 @@ type BaseVisa struct {
 	_key EncryptKey
 }
 
-func (doc *BaseVisa) Init(dict map[string]interface{}) *BaseVisa {
+func (doc *BaseVisa) Init(dict map[string]interface{}) Visa {
 	if doc.BaseDocument.Init(dict) != nil {
 		// lazy load
 		doc._key = nil
@@ -57,7 +57,7 @@ func (doc *BaseVisa) Init(dict map[string]interface{}) *BaseVisa {
 	return doc
 }
 
-func (doc *BaseVisa) InitWithData(identifier ID, data string, signature []byte) *BaseVisa {
+func (doc *BaseVisa) InitWithData(identifier ID, data string, signature []byte) Visa {
 	if doc.BaseDocument.InitWithData(identifier, data, signature) != nil {
 		// lazy load
 		doc._key = nil
@@ -65,7 +65,7 @@ func (doc *BaseVisa) InitWithData(identifier ID, data string, signature []byte) 
 	return doc
 }
 
-func (doc *BaseVisa) InitWithType(identifier ID, docType string) *BaseVisa {
+func (doc *BaseVisa) InitWithType(identifier ID, docType string) Visa {
 	if doc.BaseDocument.InitWithType(identifier, docType) != nil {
 		// lazy load
 		doc._key = nil
@@ -120,7 +120,7 @@ type BaseBulletin struct {
 	_assistants []ID
 }
 
-func (doc *BaseBulletin) Init(dict map[string]interface{}) *BaseBulletin {
+func (doc *BaseBulletin) Init(dict map[string]interface{}) Bulletin {
 	if doc.BaseDocument.Init(dict) != nil {
 		// lazy load
 		doc._assistants = nil
@@ -128,7 +128,7 @@ func (doc *BaseBulletin) Init(dict map[string]interface{}) *BaseBulletin {
 	return doc
 }
 
-func (doc *BaseBulletin) InitWithData(identifier ID, data string, signature []byte) *BaseBulletin {
+func (doc *BaseBulletin) InitWithData(identifier ID, data string, signature []byte) Bulletin {
 	if doc.BaseDocument.InitWithData(identifier, data, signature) != nil {
 		// lazy load
 		doc._assistants = nil
@@ -136,7 +136,7 @@ func (doc *BaseBulletin) InitWithData(identifier ID, data string, signature []by
 	return doc
 }
 
-func (doc *BaseBulletin) InitWithType(identifier ID, docType string) *BaseBulletin {
+func (doc *BaseBulletin) InitWithType(identifier ID, docType string) Bulletin {
 	if doc.BaseDocument.InitWithType(identifier, docType) != nil {
 		// lazy load
 		doc._assistants = nil

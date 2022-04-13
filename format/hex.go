@@ -31,6 +31,10 @@ import (
 
 type HexCoder struct {}
 
+func (coder HexCoder) Init() DataCoder {
+	return coder
+}
+
 //-------- IDataCoder
 
 func (coder HexCoder) Encode(data []byte) string {

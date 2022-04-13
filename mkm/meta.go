@@ -54,7 +54,7 @@ type BaseMeta struct {
 	_fingerprint []byte
 }
 
-func (meta *BaseMeta) Init(dict map[string]interface{}) *BaseMeta {
+func (meta *BaseMeta) Init(dict map[string]interface{}) Meta {
 	if meta.Dictionary.Init(dict) != nil {
 		// lazy load
 		meta._type = 0
@@ -65,7 +65,7 @@ func (meta *BaseMeta) Init(dict map[string]interface{}) *BaseMeta {
 	return meta
 }
 
-func (meta *BaseMeta) InitWithType(version MetaType, key VerifyKey, seed string, fingerprint []byte) *BaseMeta {
+func (meta *BaseMeta) InitWithType(version MetaType, key VerifyKey, seed string, fingerprint []byte) Meta {
 	dict := make(map[string]interface{})
 	// meta type
 	dict["type"] = version
@@ -125,6 +125,6 @@ func (meta *BaseMeta) Fingerprint() []byte {
 	return meta._fingerprint
 }
 
-//func (meta *BaseMeta) GenerateAddress(network NetworkType) Address {
-//	panic("not implemented")
-//}
+func (meta *BaseMeta) GenerateAddress(_ NetworkType) Address {
+	panic("override me!")
+}

@@ -40,6 +40,10 @@ type Object interface {
  */
 type BaseObject struct {}
 
+func (obj *BaseObject) Init() Object {
+	return obj
+}
+
 //-------- IObject
 
 func (obj *BaseObject) Equal(other interface{}) bool {

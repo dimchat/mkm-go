@@ -31,6 +31,10 @@ import (
 
 type Base64Coder struct {}
 
+func (coder Base64Coder) Init() DataCoder {
+	return coder
+}
+
 //-------- IDataCoder
 
 func (coder Base64Coder) Encode(data []byte) string {

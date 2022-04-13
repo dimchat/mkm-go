@@ -31,6 +31,10 @@ import (
 
 type MD5Digester struct {}
 
+func (digester MD5Digester) Init() DataDigester {
+	return digester
+}
+
 //-------- IDataDigester
 
 func (digester MD5Digester) Digest(data []byte) []byte {

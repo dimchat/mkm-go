@@ -45,7 +45,7 @@ type BaseAddress struct {
 	_network NetworkType
 }
 
-func (address *BaseAddress) Init(string string, network NetworkType) *BaseAddress {
+func (address *BaseAddress) Init(string string, network NetworkType) Address {
 	if address.ConstantString.Init(string) != nil {
 		address._network = network
 	}
@@ -84,7 +84,7 @@ type GeneralAddressFactory struct {
 
 type AddressCreator func(address string) Address
 
-func (factory *GeneralAddressFactory) Init(fn AddressCreator) *GeneralAddressFactory {
+func (factory *GeneralAddressFactory) Init(fn AddressCreator) AddressFactory {
 	factory._create = fn
 	factory._addresses = make(map[string]Address)
 	// cache broadcast addresses

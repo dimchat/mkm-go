@@ -55,11 +55,11 @@ type Identifier struct {
 	_terminal string
 }
 
-func NewIdentifier(identifier string, name string, address Address, terminal string) *Identifier {
+func NewIdentifier(identifier string, name string, address Address, terminal string) ID {
 	return new(Identifier).Init(identifier, name, address, terminal)
 }
 
-func (id *Identifier) Init(string string, name string, address Address, terminal string) *Identifier {
+func (id *Identifier) Init(string string, name string, address Address, terminal string) ID {
 	if id.ConstantString.Init(string) != nil {
 		id._name = name
 		id._address = address
@@ -112,7 +112,7 @@ type GeneralIDFactory struct {
 	_ids map[string]ID
 }
 
-func (factory *GeneralIDFactory) Init() *GeneralIDFactory {
+func (factory *GeneralIDFactory) Init() IDFactory {
 	factory._ids = make(map[string]ID)
 	return factory
 }

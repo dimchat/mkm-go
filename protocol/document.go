@@ -68,7 +68,7 @@ type TAI interface {
 	 * @param privateKey - private key match meta.key
 	 * @return (data, signature)
 	 */
-	Sign(privateKey SignKey) (data, signature []byte)
+	Sign(privateKey SignKey) (data string, signature []byte)
 
 	//-------- properties
 

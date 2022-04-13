@@ -31,6 +31,10 @@ import (
 
 type SHA1Digester struct {}
 
+func (digester SHA1Digester) Init() DataDigester {
+	return digester
+}
+
 //-------- IDataDigester
 
 func (digester SHA1Digester) Digest(data []byte) []byte {

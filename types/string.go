@@ -53,8 +53,10 @@ type ConstantString struct {
 	_string string
 }
 
-func (str *ConstantString) Init(string string) *ConstantString {
-	str._string = string
+func (str *ConstantString) Init(string string) Stringer {
+	if str.BaseObject.Init() != nil {
+		str._string = string
+	}
 	return str
 }
 

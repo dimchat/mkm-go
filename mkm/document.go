@@ -53,7 +53,7 @@ type BaseDocument struct {
 	_status int8       // 1 for valid, -1 for invalid
 }
 
-func (doc *BaseDocument) Init(dict map[string]interface{}) *BaseDocument {
+func (doc *BaseDocument) Init(dict map[string]interface{}) Document {
 	if doc.Dictionary.Init(dict) != nil {
 		// lazy load
 		doc._identifier = nil
@@ -65,7 +65,7 @@ func (doc *BaseDocument) Init(dict map[string]interface{}) *BaseDocument {
 	return doc
 }
 
-func (doc *BaseDocument) InitWithData(identifier ID, data string, signature []byte) *BaseDocument {
+func (doc *BaseDocument) InitWithData(identifier ID, data string, signature []byte) Document {
 	dict := make(map[string]interface{})
 	dict["ID"] = identifier.String()  // ID
 	if data != "" {
@@ -85,7 +85,7 @@ func (doc *BaseDocument) InitWithData(identifier ID, data string, signature []by
 	return doc
 }
 
-func (doc *BaseDocument) InitWithType(identifier ID, docType string) *BaseDocument {
+func (doc *BaseDocument) InitWithType(identifier ID, docType string) Document {
 	dict := make(map[string]interface{})
 	dict["ID"] = identifier.String()  // ID
 	if doc.Dictionary.Init(dict) != nil {
