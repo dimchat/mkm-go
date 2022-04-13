@@ -100,7 +100,8 @@ func (meta *BaseMeta) Type() MetaType {
 
 func (meta *BaseMeta) Key() VerifyKey {
 	if meta._key == nil {
-		meta._key = MetaGetKey(meta.GetMap(false))
+		key := meta.Get("key")
+		meta._key = PublicKeyParse(key)
 	}
 	return meta._key
 }
@@ -108,7 +109,7 @@ func (meta *BaseMeta) Key() VerifyKey {
 func (meta *BaseMeta) Seed() string {
 	if meta._seed == "" {
 		if MetaTypeHasSeed(meta.Type()) {
-			meta._seed = MetaGetSeed(meta.GetMap(false))
+			meta._seed, _ = meta.Get("seed").(string)
 		}
 	}
 	return meta._seed
@@ -117,7 +118,8 @@ func (meta *BaseMeta) Seed() string {
 func (meta *BaseMeta) Fingerprint() []byte {
 	if meta._fingerprint == nil {
 		if MetaTypeHasSeed(meta.Type()) {
-			meta._fingerprint = MetaGetFingerprint(meta.GetMap(false))
+			base64, _ := meta.Get("fingerprint").(string)
+			meta._fingerprint = Base64Decode(base64)
 		}
 	}
 	return meta._fingerprint

@@ -104,32 +104,6 @@ func MetaGetType(meta map[string]interface{}) MetaType {
 	return MetaTypeParse(version)
 }
 
-func MetaGetKey(meta map[string]interface{}) VerifyKey {
-	key := meta["key"]
-	if key == nil {
-		panic("meta key not found: " + UTF8Decode(JSONEncodeMap(meta)))
-	}
-	return PublicKeyParse(key)
-}
-
-func MetaGetSeed(meta map[string]interface{}) string {
-	seed, ok := meta["seed"].(string)
-	if ok {
-		return seed
-	} else {
-		return ""
-	}
-}
-
-func MetaGetFingerprint(meta map[string]interface{}) []byte {
-	base64 := meta["fingerprint"]
-	if base64 == nil {
-		return nil
-	} else {
-		return Base64Decode(base64.(string))
-	}
-}
-
 /**
  *  Check meta valid
  *  (must call this when received a new meta from network)
@@ -257,18 +231,7 @@ func MetaParse(meta interface{}) Meta {
 	if ok {
 		return value
 	}
-	// get meta info
-	var info map[string]interface{}
-	wrapper, ok := meta.(Map)
-	if ok {
-		info = wrapper.GetMap(false)
-	} else {
-		info, ok = meta.(map[string]interface{})
-		if !ok {
-			panic(meta)
-			return nil
-		}
-	}
+	info := FetchMap(meta)
 	// get meta factory by type
 	version := MetaGetType(info)
 	factory := MetaGetFactory(version)

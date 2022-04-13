@@ -286,18 +286,7 @@ func DocumentParse(doc interface{}) Document {
 	if ok {
 		return value
 	}
-	// get document info
-	var info map[string]interface{}
-	wrapper, ok := doc.(Map)
-	if ok {
-		info = wrapper.GetMap(false)
-	} else {
-		info, ok = doc.(map[string]interface{})
-		if !ok {
-			panic(doc)
-			return nil
-		}
-	}
+	info := FetchMap(doc)
 	// get document factory by type
 	docType := DocumentGetType(info)
 	factory := DocumentGetFactory(docType)

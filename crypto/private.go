@@ -104,18 +104,7 @@ func PrivateKeyParse(key interface{}) PrivateKey {
 	if ok {
 		return value
 	}
-	// get key info
-	var info map[string]interface{}
-	wrapper, ok := key.(Map)
-	if ok {
-		info = wrapper.GetMap(false)
-	} else {
-		info, ok = key.(map[string]interface{})
-		if !ok {
-			panic(key)
-			return nil
-		}
-	}
+	info := FetchMap(key)
 	// get key factory by algorithm
 	algorithm := CryptographyKeyGetAlgorithm(info)
 	factory := PrivateKeyGetFactory(algorithm)

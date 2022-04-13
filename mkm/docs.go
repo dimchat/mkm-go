@@ -79,11 +79,9 @@ func (doc *BaseVisa) Key() EncryptKey {
 	if doc._key == nil {
 		info := doc.GetProperty("key")
 		pKey := PublicKeyParse(info)
-		if pKey != nil {
-			key, ok := pKey.(EncryptKey)
-			if ok {
-				doc._key = key
-			}
+		key, ok := pKey.(EncryptKey)
+		if ok {
+			doc._key = key
 		}
 	}
 	return doc._key

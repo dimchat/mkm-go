@@ -59,6 +59,15 @@ func CloneMap(dictionary map[string]interface{}) map[string]interface{} {
 	return clone
 }
 
+func FetchMap(dictionary interface{}) map[string]interface{} {
+	wrapper, ok := dictionary.(Map)
+	if ok {
+		return wrapper.GetMap(false)
+	} else {
+		return dictionary.(map[string]interface{})
+	}
+}
+
 /**
  *  Mutable Dictionary Wrapper
  *  ~~~~~~~~~~~~~~~~~~~~~~~~~~

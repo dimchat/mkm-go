@@ -140,17 +140,22 @@ func TimeNow() Time {
 	return time.Now()
 }
 
+// timestamp in seconds
 func Timestamp(t Time) int64 {
 	return t.Unix()
 }
+
+// timestamp in nanoseconds
 func TimestampNano(t Time) int64 {
 	return t.UnixNano()
 }
 
+// timestamp in seconds
 func TimeToInt64(t Time) int64 {
 	return t.Unix()
 }
 
+// timestamp in seconds
 func TimeToFloat64(t Time) float64 {
 	secs := t.Unix()
 	nano := t.Nanosecond()
@@ -168,6 +173,7 @@ func TimeFromFloat64(seconds float64) Time {
 	return time.Unix(secs, nano)
 }
 
+// parse from timestamp in seconds
 func TimeParse(timestamp interface{}) Time {
 	if ValueIsNil(timestamp) {
 		return TimeNil()
