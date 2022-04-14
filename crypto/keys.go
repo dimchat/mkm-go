@@ -42,7 +42,7 @@ import (
  *  }
  */
 type CryptographyKey interface {
-	Map
+	Mapper
 
 	/**
 	 *  Get key algorithm name

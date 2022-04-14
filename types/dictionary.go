@@ -29,7 +29,7 @@ import (
 	"reflect"
 )
 
-type Map interface {
+type Mapper interface {
 	Object
 
 	Get(key string) interface{}
@@ -38,7 +38,8 @@ type Map interface {
 
 	Keys() []string
 
-	GetMap(clone bool) map[string]interface{}
+	Map() map[string]interface{}
+	CopyMap(deep bool) map[string]interface{}
 }
 
 func MapKeys(dictionary map[string]interface{}) []string {
@@ -51,18 +52,10 @@ func MapKeys(dictionary map[string]interface{}) []string {
 	return keys
 }
 
-func CloneMap(dictionary map[string]interface{}) map[string]interface{} {
-	clone := make(map[string]interface{})
-	for key, value := range dictionary {
-		clone[key] = value
-	}
-	return clone
-}
-
 func FetchMap(dictionary interface{}) map[string]interface{} {
-	wrapper, ok := dictionary.(Map)
+	wrapper, ok := dictionary.(Mapper)
 	if ok {
-		return wrapper.GetMap(false)
+		return wrapper.Map()
 	} else {
 		return dictionary.(map[string]interface{})
 	}
@@ -81,7 +74,7 @@ type Dictionary struct {
 	_dictionary map[string]interface{}
 }
 
-func (dict *Dictionary) Init(dictionary map[string]interface{}) Map {
+func (dict *Dictionary) Init(dictionary map[string]interface{}) Mapper {
 	if dict.BaseObject.Init() != nil {
 		if ValueIsNil(dictionary) {
 			// create empty map
@@ -100,9 +93,9 @@ func (dict *Dictionary) Equal(other interface{}) bool {
 		return true
 	}
 	// compare inner maps
-	wrapper, ok := other.(Map)
+	wrapper, ok := other.(Mapper)
 	if ok {
-		return reflect.DeepEqual(dict._dictionary, wrapper.GetMap(false))
+		return reflect.DeepEqual(dict._dictionary, wrapper.Map())
 	}
 	table, ok := other.(map[string]interface{})
 	return ok && reflect.DeepEqual(dict._dictionary, table)
@@ -130,10 +123,14 @@ func (dict *Dictionary) Keys() []string {
 	return MapKeys(dict._dictionary)
 }
 
-func (dict *Dictionary) GetMap(clone bool) map[string]interface{} {
-	if clone {
-		return CloneMap(dict._dictionary)
+func (dict *Dictionary) Map() map[string]interface{} {
+	return dict._dictionary
+}
+
+func (dict *Dictionary) CopyMap(deep bool) map[string]interface{} {
+	if deep {
+		return DeepCopyMap(dict._dictionary)
 	} else {
-		return dict._dictionary
+		return CopyMap(dict._dictionary)
 	}
 }

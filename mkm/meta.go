@@ -70,7 +70,7 @@ func (meta *BaseMeta) InitWithType(version MetaType, key VerifyKey, seed string,
 	// meta type
 	dict["type"] = version
 	// meta key
-	dict["key"] = key.GetMap(false)
+	dict["key"] = key.Map()
 	// seed
 	if seed != "" {
 		dict["seed"] = seed
@@ -93,7 +93,7 @@ func (meta *BaseMeta) InitWithType(version MetaType, key VerifyKey, seed string,
 
 func (meta *BaseMeta) Type() MetaType {
 	if meta._type == 0 {
-		meta._type = MetaGetType(meta.GetMap(false))
+		meta._type = MetaGetType(meta.Map())
 	}
 	return meta._type
 }
@@ -126,5 +126,5 @@ func (meta *BaseMeta) Fingerprint() []byte {
 }
 
 func (meta *BaseMeta) GenerateAddress(_ NetworkType) Address {
-	panic("override me!")
+	panic("BaseMeta::GenerateAddress(network) > override me!")
 }

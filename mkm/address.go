@@ -67,8 +67,7 @@ func (address *BaseAddress) IsGroup() bool {
 }
 
 func (address *BaseAddress) IsBroadcast() bool {
-	//panic("not implemented")
-	return false
+	panic("BaseAddress::IsBroadcast() > override me!")
 }
 
 /**

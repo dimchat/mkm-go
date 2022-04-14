@@ -53,7 +53,7 @@ import (
  *          fingerprint = sign(seed, SK);
  */
 type Meta interface {
-	Map
+	Mapper
 
 	/**
 	 *  Meta algorithm version

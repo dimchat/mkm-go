@@ -116,7 +116,7 @@ const (
  *      }
  */
 type Document interface {
-	Map
+	Mapper
 	TAI
 
 	/**
@@ -243,7 +243,7 @@ type DocumentFactory interface {
 	 * @param signature  - document signature
 	 * @return Document
 	 */
-	CreateDocument(identifier ID, data []byte, signature []byte) Document
+	CreateDocument(identifier ID, data string, signature []byte) Document
 
 	/**
 	 *  Parse map object to entity document
@@ -270,7 +270,7 @@ func DocumentGetFactory(docType string) DocumentFactory {
 //
 //  Factory methods
 //
-func DocumentCreate(docType string, identifier ID, data []byte, signature []byte) Document {
+func DocumentCreate(docType string, identifier ID, data string, signature []byte) Document {
 	factory := DocumentGetFactory(docType)
 	if factory == nil {
 		panic("document type not found: " + docType)

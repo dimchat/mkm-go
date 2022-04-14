@@ -88,9 +88,9 @@ func (doc *BaseVisa) Key() EncryptKey {
 }
 
 func (doc *BaseVisa) SetKey(key EncryptKey) {
-	info, ok := key.(Map)
+	info, ok := key.(Mapper)
 	if ok {
-		doc.SetProperty("key", info.GetMap(false))
+		doc.SetProperty("key", info.Map())
 	} else {
 		doc.SetProperty("key", key)
 	}

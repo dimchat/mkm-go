@@ -225,13 +225,13 @@ func (doc *BaseDocument) Type() string {
 	if ok && text != "" {
 		return text
 	} else {
-		return DocumentGetType(doc.GetMap(false))
+		return DocumentGetType(doc.Map())
 	}
 }
 
 func (doc *BaseDocument) ID() ID {
 	if doc._identifier == nil {
-		doc._identifier = DocumentGetID(doc.GetMap(false))
+		doc._identifier = DocumentGetID(doc.Map())
 	}
 	return doc._identifier
 }
