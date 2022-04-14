@@ -66,9 +66,9 @@ type TAI interface {
 	 *  Encode properties to 'data' and sign it to 'signature'
 	 *
 	 * @param privateKey - private key match meta.key
-	 * @return (data, signature)
+	 * @return signature
 	 */
-	Sign(privateKey SignKey) (data string, signature []byte)
+	Sign(privateKey SignKey) []byte
 
 	//-------- properties
 

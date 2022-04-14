@@ -157,21 +157,21 @@ func (doc *BaseDocument) Verify(publicKey VerifyKey) bool {
 	return doc._status > 0
 }
 
-func (doc *BaseDocument) Sign(privateKey SignKey) (data string, signature []byte) {
+func (doc *BaseDocument) Sign(privateKey SignKey) []byte {
 	if doc._status > 0 {
 		// already signed/verified
-		return doc.data(), doc.signature()
+		return doc.signature()
 	}
 	// update sign time
 	doc.SetProperty("time", TimeToFloat64(TimeNow()))
 	// sign
-	data = JSONEncodeMap(doc.Properties())
-	signature = privateKey.Sign(UTF8Encode(data))
-	doc.Set("data", data)
-	doc.Set("signature", Base64Encode(signature))
+	doc._data = JSONEncodeMap(doc.Properties())
+	doc._signature = privateKey.Sign(UTF8Encode(doc._data))
+	doc.Set("data", doc._data)
+	doc.Set("signature", Base64Encode(doc._signature))
 	// update status
 	doc._status = 1
-	return data, signature
+	return doc._signature
 }
 
 func (doc *BaseDocument) Properties() map[string]interface{} {
