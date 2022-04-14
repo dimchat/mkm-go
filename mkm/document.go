@@ -65,19 +65,17 @@ func (doc *BaseDocument) Init(dict map[string]interface{}) Document {
 	return doc
 }
 
-func (doc *BaseDocument) InitWithData(identifier ID, data string, signature []byte) Document {
+// load document info from local database
+func (doc *BaseDocument) InitWithData(identifier ID, data string, signature string) Document {
 	dict := make(map[string]interface{})
-	dict["ID"] = identifier.String()  // ID
-	if data != "" {
-		dict["data"] = data  // JsON data
-	}
-	if signature != nil /*&& len(signature) > 0 */{
-		dict["signature"] = Base64Encode(signature)  // Base64
-	}
+	dict["ID"] = identifier.String()  // ID string
+	dict["data"] = data               // JsON string
+	dict["signature"] = signature     // Base64 string
+	// create
 	if doc.Dictionary.Init(dict) != nil {
 		doc._identifier = identifier
 		doc._data = data
-		doc._signature = signature
+		doc._signature = nil  // lazy
 		doc._properties = nil
 		// all documents must be verified before saving into local storage
 		doc._status = 1
@@ -85,9 +83,11 @@ func (doc *BaseDocument) InitWithData(identifier ID, data string, signature []by
 	return doc
 }
 
-func (doc *BaseDocument) InitWithType(identifier ID, docType string) Document {
+// create empty document with ID & type
+func (doc *BaseDocument) InitWithID(identifier ID, docType string) Document {
 	dict := make(map[string]interface{})
-	dict["ID"] = identifier.String()  // ID
+	dict["ID"] = identifier.String()  // ID string
+	// create
 	if doc.Dictionary.Init(dict) != nil {
 		doc._identifier = identifier
 		doc._data = ""

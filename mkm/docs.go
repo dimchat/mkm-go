@@ -57,7 +57,8 @@ func (doc *BaseVisa) Init(dict map[string]interface{}) Visa {
 	return doc
 }
 
-func (doc *BaseVisa) InitWithData(identifier ID, data string, signature []byte) Visa {
+// load visa info from local database
+func (doc *BaseVisa) InitWithData(identifier ID, data string, signature string) Visa {
 	if doc.BaseDocument.InitWithData(identifier, data, signature) != nil {
 		// lazy load
 		doc._key = nil
@@ -65,9 +66,9 @@ func (doc *BaseVisa) InitWithData(identifier ID, data string, signature []byte) 
 	return doc
 }
 
-func (doc *BaseVisa) InitWithType(identifier ID, docType string) Visa {
-	if doc.BaseDocument.InitWithType(identifier, docType) != nil {
-		// lazy load
+// create empty visa with ID
+func (doc *BaseVisa) InitWithID(identifier ID) Visa {
+	if doc.BaseDocument.InitWithID(identifier, VISA) != nil {
 		doc._key = nil
 	}
 	return doc
@@ -128,7 +129,7 @@ func (doc *BaseBulletin) Init(dict map[string]interface{}) Bulletin {
 	return doc
 }
 
-func (doc *BaseBulletin) InitWithData(identifier ID, data string, signature []byte) Bulletin {
+func (doc *BaseBulletin) InitWithData(identifier ID, data string, signature string) Bulletin {
 	if doc.BaseDocument.InitWithData(identifier, data, signature) != nil {
 		// lazy load
 		doc._assistants = nil
@@ -136,9 +137,8 @@ func (doc *BaseBulletin) InitWithData(identifier ID, data string, signature []by
 	return doc
 }
 
-func (doc *BaseBulletin) InitWithType(identifier ID, docType string) Bulletin {
-	if doc.BaseDocument.InitWithType(identifier, docType) != nil {
-		// lazy load
+func (doc *BaseBulletin) InitWithID(identifier ID) Bulletin {
+	if doc.BaseDocument.InitWithID(identifier, BULLETIN) != nil {
 		doc._assistants = nil
 	}
 	return doc

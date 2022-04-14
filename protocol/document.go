@@ -239,11 +239,11 @@ type DocumentFactory interface {
 	 *  (If data & signature empty, create a new empty document with entity ID)
 	 *
 	 * @param identifier - entity ID
-	 * @param data       - document data
-	 * @param signature  - document signature
+	 * @param data       - document data (JsON)
+	 * @param signature  - document signature (Base64)
 	 * @return Document
 	 */
-	CreateDocument(identifier ID, data string, signature []byte) Document
+	CreateDocument(identifier ID, data string, signature string) Document
 
 	/**
 	 *  Parse map object to entity document
@@ -270,7 +270,7 @@ func DocumentGetFactory(docType string) DocumentFactory {
 //
 //  Factory methods
 //
-func DocumentCreate(docType string, identifier ID, data string, signature []byte) Document {
+func DocumentCreate(docType string, identifier ID, data string, signature string) Document {
 	factory := DocumentGetFactory(docType)
 	if factory == nil {
 		panic("document type not found: " + docType)
