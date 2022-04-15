@@ -30,8 +30,8 @@ package format
 //
 var jsonCoder ObjectCoder = nil
 
-func JSONSetCoder(parser ObjectCoder) {
-	jsonCoder = parser
+func JSONSetCoder(coder ObjectCoder) {
+	jsonCoder = coder
 }
 
 func JSONEncode(object interface{}) string {

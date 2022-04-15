@@ -26,7 +26,6 @@
 package crypto
 
 import (
-	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/types"
 )
 
@@ -160,7 +159,7 @@ func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
 }
 
 const _promise = "Moky loves May Lee forever!"
-var promise = UTF8Encode(_promise)
+var promise = []byte(_promise)
 
 func CryptographyKeyGetAlgorithm(key map[string]interface{}) string {
 	text, ok := key["algorithm"].(string)

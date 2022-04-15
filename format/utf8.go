@@ -30,8 +30,8 @@ package format
 //
 var utf8Coder StringCoder = nil
 
-func UTF8SetCoder(parser StringCoder) {
-	utf8Coder = parser
+func UTF8SetCoder(coder StringCoder) {
+	utf8Coder = coder
 }
 
 func UTF8Encode(string string) []byte {
