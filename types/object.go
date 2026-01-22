@@ -35,76 +35,120 @@ type Object interface {
 }
 
 /**
- *  Base Object
- *  ~~~~~~~~~~~
+ *  Get object type (class name)
  */
-type BaseObject struct {}
-
-func (obj *BaseObject) Init() Object {
-	return obj
-}
-
-//-------- IObject
-
-func (obj *BaseObject) Equal(other interface{}) bool {
-	value := reflect.ValueOf(other)
-	if value.Kind() == reflect.Ptr {
-		return obj == other
-	} else {
-		return *obj == value.Elem().Interface()
-	}
-}
-
-func ObjectsEqual(i1, i2 interface{}) bool {
-	v1 := reflect.ValueOf(i1)
-	v2 := reflect.ValueOf(i2)
-	if v1.Kind() == reflect.Ptr {
-		if v2.Kind() == reflect.Ptr {
-			// both i1, i2 are pointers
-			return i1 == i2 || v1.Elem().Interface() == v2.Elem().Interface()
-		} else {
-			// i1 is pointer
-			return v1.Elem().Interface() == i2
-		}
-	} else if v2.Kind() == reflect.Ptr {
-		// i2 is pointer
-		return i1 == v2.Elem().Interface()
-	} else {
-		// both i1, i2 are values
-		return i1 == i2
-	}
-}
-
-func ObjectValue(i interface{}) interface{} {
-	value := reflect.ValueOf(i)
-	if value.Kind() == reflect.Ptr {
-		return value.Elem().Interface()
-	} else {
-		return i
-	}
-}
-
-func ObjectIsPointer(i interface{}) bool {
-	value := reflect.ValueOf(i)
-	return value.Kind() == reflect.Ptr
-}
-
-func ObjectPointer(i interface{}) interface{} {
-	value := reflect.ValueOf(i)
-	if value.Kind() == reflect.Ptr {
-		return i
-	} else {
-		return &i
-	}
-}
-
-func ValueIsNil(i interface{}) bool {
+func ObjectType(i interface{}) string {
 	if i == nil {
+		return "<nil>"
+	}
+	t := reflect.TypeOf(i)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	return t.String()
+}
+
+/**
+ *  Check whether the two objects equal
+ *
+ *  WARNING:
+ *      Don't call this method in Object.Equal()
+ */
+func ObjectsEqual(i1, i2 interface{}) bool {
+	if i1 == nil && i2 == nil {
+		return true
+	} else if i1 == nil || i2 == nil {
+		return false
+	}
+	// get values
+	v1 := ObjectValue(i1)
+	v2 := ObjectValue(i2)
+	if v1 == nil && v2 == nil {
+		return true
+	} else if v1 == nil || v2 == nil {
+		return false
+	}
+	// check type
+	if p1, ok := v1.(Object); ok {
+		return p1.Equal(v2)
+	//} else if p2, ok := v2.(Object); ok {
+	//	return p2.Equal(v1)
+	}
+	// other types
+	return reflect.DeepEqual(v1, v2)
+}
+
+/**
+ *  Get object value from pointer
+ */
+func ObjectValue(i interface{}) interface{} {
+	v := reflect.ValueOf(i)
+	if !v.IsValid() {
+		return nil
+	} else if v.Kind() != reflect.Ptr {
+		return i
+	} else if v.IsNil() {
+		return nil
+	}
+	return v.Elem().Interface()
+}
+
+/**
+ *  Get address of the object value
+ */
+func ObjectPointer(i interface{}) interface{} {
+	v := reflect.ValueOf(i)
+	if !v.IsValid() {
+		return nil
+	} else if v.Kind() == reflect.Ptr {
+		return i
+	} else if v.CanAddr() {
+		return v.Addr().Interface()
+	}
+	ptr := reflect.New(v.Type())
+	ptr.Elem().Set(v)
+	return ptr.Interface()
+}
+
+/**
+ *  Check whether the variable is a pointer
+ */
+func ObjectIsPointer(i interface{}) bool {
+	v := reflect.ValueOf(i)
+	if !v.IsValid() {
+		return false
+	}
+	return v.Kind() == reflect.Ptr
+}
+
+/**
+ *  Check whether the value is nil
+ */
+func ValueIsNil(i interface{}) bool {
+	v := reflect.ValueOf(i)
+	if !v.IsValid() {
 		return true
 	}
-	defer func() {
-		recover()
-	}()
-	value := reflect.ValueOf(i)
-	return value.IsNil()
+	k := v.Kind()
+	if k == reflect.Interface {
+		if v.IsNil() {
+			return true
+		}
+		// check inner value
+		e := v.Elem()
+		if !e.IsValid() {
+			return true
+		}
+		return isNil(e, e.Kind())
+	}
+	return isNil(v, k)
+}
+
+func isNil(v reflect.Value, k reflect.Kind) bool {
+	switch k {
+	case reflect.Ptr, reflect.Map, reflect.Slice, reflect.Func, reflect.Chan, reflect.Interface:
+		return v.IsNil()
+	default:
+		return false
+	}
 }
