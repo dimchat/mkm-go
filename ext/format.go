@@ -2,7 +2,7 @@
  * ==============================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2020 Albert Moky
+ * Copyright (c) 2026 Albert Moky
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,66 +23,55 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package types
+package ext
 
 import (
-	"fmt"
-	"reflect"
+	. "github.com/dimchat/mkm-go/crypto"
+	. "github.com/dimchat/mkm-go/protocol"
+	"net/url"
 )
 
-type Stringer interface {
-	Object
-	fmt.Stringer
+/**
+ *  TED Helper
+ */
+type TransportableDataHelper interface {
+
+	SetTransportableDataFactory(factory TransportableDataFactory)
+	GetTransportableDataFactory() TransportableDataFactory
+
+	ParseTransportableData(ted interface{}) TransportableData
+}
+
+var sharedTransportableDataHelper TransportableDataHelper = nil
+
+func SetTransportableDataHelper(helper TransportableDataHelper) {
+	sharedTransportableDataHelper = helper
+}
+
+func GetTransportableDataHelper() TransportableDataHelper {
+	return sharedTransportableDataHelper
 }
 
 /**
- *  Constant String Wrapper
- *  ~~~~~~~~~~~~~~~~~~~~~~~
+ *  PNF Helper
  */
-type ConstantString struct {
+type TransportableFileHelper interface {
 
-	_string string
+	SetTransportableFileFactory(factory TransportableFileFactory)
+	GetTransportableFileFactory() TransportableFileFactory
+
+	ParseTransportableFile(pnf interface{}) TransportableFile
+
+	CreateTransportableFile(data TransportableData, filename string,
+		                    url url.URL, password DecryptKey) TransportableFile
 }
 
-func (str *ConstantString) Init(string string) {
-	str._string = string
+var sharedTransportableFileHelper TransportableFileHelper = nil
+
+func SetTransportableFileHelper(helper TransportableFileHelper) {
+	sharedTransportableFileHelper = helper
 }
 
-//-------- fmt.Stringer
-
-func (str *ConstantString) String() string {
-	return str._string
-}
-
-//-------- IObject
-
-func (str *ConstantString) Equal(other interface{}) bool {
-	if other == nil {
-		return str._string == ""
-	} else if other == str {
-		// same object
-		return true
-	}
-	// check targeted value
-	target, rv := ObjectReflectValue(other)
-	if target == nil {
-		return str._string == ""
-	}
-	// check value types
-	switch v := target.(type) {
-	case fmt.Stringer:
-		other = v.String()
-	case string:
-		other = v
-	default:
-		// other types
-		switch rv.Kind() {
-		case reflect.String:
-			other = rv.String()
-		default:
-			// type not matched
-			return false
-		}
-	}
-	return str._string == other
+func GetTransportableFileHelper() TransportableFileHelper {
+	return sharedTransportableFileHelper
 }

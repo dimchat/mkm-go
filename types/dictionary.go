@@ -41,20 +41,19 @@ type Dictionary struct {
 	_dictionary StringKeyMap
 }
 
-func (dict *Dictionary) Init(dictionary StringKeyMap) Mapper {
+func (dict *Dictionary) Init(dictionary StringKeyMap) {
 	if ValueIsNil(dictionary) {
 		// create empty map
 		dictionary = NewMap()
 	}
 	dict._dictionary = dictionary
-	return dict
 }
 
 //-------- IObject
 
 func (dict *Dictionary) Equal(other interface{}) bool {
 	if other == nil {
-		return len(dict._dictionary) == 0
+		return dict.IsEmpty()
 	} else if other == dict {
 		// same object
 		return true
@@ -62,7 +61,7 @@ func (dict *Dictionary) Equal(other interface{}) bool {
 	// check targeted value
 	target, rv := ObjectReflectValue(other)
 	if target == nil {
-		return len(dict._dictionary) == 0
+		return dict.IsEmpty()
 	}
 	// check value types
 	switch v := target.(type) {
@@ -101,6 +100,10 @@ func (dict *Dictionary) Remove(key string) {
 	delete(dict._dictionary, key)
 }
 
+func (dict *Dictionary) IsEmpty() bool {
+	return len(dict._dictionary) == 0
+}
+
 func (dict *Dictionary) Keys() []string {
 	return MapKeys(dict._dictionary)
 }
@@ -120,61 +123,78 @@ func (dict *Dictionary) CopyMap(deep bool) StringKeyMap {
 //-------- Convert values
 
 func (dict *Dictionary) GetString(key string, defaultValue string) string {
-	return ConvertString(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertString(value, defaultValue)
 }
 
 func (dict *Dictionary) GetBool(key string, defaultValue bool) bool {
-	return ConvertBool(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertBool(value, defaultValue)
 }
 
 func (dict *Dictionary) GetInt(key string, defaultValue int) int {
-	return ConvertInt(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertInt(value, defaultValue)
 }
 func (dict *Dictionary) GetInt8(key string, defaultValue int8) int8 {
-	return ConvertInt8(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertInt8(value, defaultValue)
 }
 func (dict *Dictionary) GetInt16(key string, defaultValue int16) int16 {
-	return ConvertInt16(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertInt16(value, defaultValue)
 }
 func (dict *Dictionary) GetInt32(key string, defaultValue int32) int32 {
-	return ConvertInt32(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertInt32(value, defaultValue)
 }
 func (dict *Dictionary) GetInt64(key string, defaultValue int64) int64 {
-	return ConvertInt64(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertInt64(value, defaultValue)
 }
 
 func (dict *Dictionary) GetUInt(key string, defaultValue uint) uint {
-	return ConvertUInt(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertUInt(value, defaultValue)
 }
 func (dict *Dictionary) GetUInt8(key string, defaultValue uint8) uint8 {
-	return ConvertUInt8(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertUInt8(value, defaultValue)
 }
 func (dict *Dictionary) GetUInt16(key string, defaultValue uint16) uint16 {
-	return ConvertUInt16(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertUInt16(value, defaultValue)
 }
 func (dict *Dictionary) GetUInt32(key string, defaultValue uint32) uint32 {
-	return ConvertUInt32(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertUInt32(value, defaultValue)
 }
 func (dict *Dictionary) GetUInt64(key string, defaultValue uint64) uint64 {
-	return ConvertUInt64(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertUInt64(value, defaultValue)
 }
 
 func (dict *Dictionary) GetFloat32(key string, defaultValue float32) float32 {
-	return ConvertFloat32(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertFloat32(value, defaultValue)
 }
 func (dict *Dictionary) GetFloat64(key string, defaultValue float64) float64 {
-	return ConvertFloat64(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertFloat64(value, defaultValue)
 }
 
 func (dict *Dictionary) GetComplex64(key string, defaultValue complex64) complex64 {
-	return ConvertComplex64(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertComplex64(value, defaultValue)
 }
 func (dict *Dictionary) GetComplex128(key string, defaultValue complex128) complex128 {
-	return ConvertComplex128(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertComplex128(value, defaultValue)
 }
 
 func (dict *Dictionary) GetTime(key string, defaultValue Time) Time {
-	return ConvertTime(dict._dictionary[key], defaultValue)
+	value := dict.Get(key)
+	return ConvertTime(value, defaultValue)
 }
 func (dict *Dictionary) SetTime(key string, value Time) {
 	if ValueIsNil(value) {
