@@ -25,12 +25,40 @@
  */
 package format
 
+/**
+ *  String Coder
+ *  ~~~~~~~~~~~~
+ *  UTF-8, UTF-16, GBK, GB2312, ...
+ *
+ *  1. encode string to binary data;
+ *  2. decode binary data to string.
+ */
+type StringCoder interface {
+
+	/**
+	 *  Encode local string to binary data
+	 *
+	 * @param string - local string
+	 * @return binary data
+	 */
+	Encode(string string) []byte
+
+	/**
+	 *  Decode binary data to local string
+	 *
+	 * @param bytes - binary data
+	 * @return local string
+	 */
+	Decode(bytes []byte) string
+}
+
 //
-//  Instance of StringCoder
+//  UTF-8
 //
+
 var utf8Coder StringCoder = nil
 
-func UTF8SetCoder(coder StringCoder) {
+func SetUTF8Coder(coder StringCoder) {
 	utf8Coder = coder
 }
 
@@ -39,10 +67,5 @@ func UTF8Encode(string string) []byte {
 }
 
 func UTF8Decode(bytes []byte) string {
-	str, ok := utf8Coder.Decode(bytes).(string)
-	if ok {
-		return str
-	} else {
-		return ""
-	}
+	return utf8Coder.Decode(bytes)
 }

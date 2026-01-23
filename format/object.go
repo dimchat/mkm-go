@@ -25,12 +25,42 @@
  */
 package format
 
+import . "github.com/dimchat/mkm-go/types"
+
+/**
+ *  Object Coder
+ *  ~~~~~~~~~~~~
+ *  JsON, XML, ...
+ *
+ *  1. encode object to string;
+ *  2. decode string to object.
+ */
+type ObjectCoder interface {
+
+	/**
+	 *  Encode Map/List object to string
+	 *
+	 * @param object - Map or List
+	 * @return serialized string
+	 */
+	Encode(object interface{}) string
+
+	/**
+	 *  Decode string to Map/List object
+	 *
+	 * @param string - serialized string
+	 * @return Map or List
+	 */
+	Decode(string string) interface{}
+}
+
 //
-//  Instance of ObjectCoder
+//  JsON
 //
+
 var jsonCoder ObjectCoder = nil
 
-func JSONSetCoder(coder ObjectCoder) {
+func SetJSONCoder(coder ObjectCoder) {
 	jsonCoder = coder
 }
 
@@ -46,26 +76,11 @@ func JSONDecode(string string) interface{} {
 //  JsON <-> Map
 //
 
-func JSONEncodeMap(dict map[string]interface{}) string {
+func JSONEncodeMap(dict StringKeyMap) string {
 	return jsonCoder.Encode(dict)
 }
 
-func JSONDecodeMap(str string) map[string]interface{} {
-	obj := jsonCoder.Decode(str)
-	dict, _ := obj.(map[string]interface{})
-	return dict
-}
-
-//
-//  JsON <-> List
-//
-
-func JSONEncodeList(array []interface{}) string {
-	return jsonCoder.Encode(array)
-}
-
-func JSONDecodeList(str string) []interface{} {
-	obj := jsonCoder.Decode(str)
-	arr, _ := obj.([]interface{})
-	return arr
+func JSONDecodeMap(str string) StringKeyMap {
+	dict := jsonCoder.Decode(str)
+	return FetchMap(dict)
 }

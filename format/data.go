@@ -25,36 +25,40 @@
  */
 package format
 
-import (
-	"encoding/base64"
-)
+/**
+ *  Data Coder
+ *  ~~~~~~~~~~
+ *  Hex, Base58, Base64, ...
+ *
+ *  1. encode binary data to string;
+ *  2. decode string to binary data.
+ */
+type DataCoder interface {
 
-type Base64Coder struct {}
+	/**
+	 *  Encode binary data to local string
+	 *
+	 * @param data - binary data
+	 * @return local string
+	 */
+	Encode(data []byte) string
 
-func (coder Base64Coder) Init() DataCoder {
-	return coder
-}
-
-//-------- IDataCoder
-
-func (coder Base64Coder) Encode(data []byte) string {
-	return base64.StdEncoding.EncodeToString(data)
-}
-
-func (coder Base64Coder) Decode(string string) []byte {
-	bytes, err := base64.StdEncoding.DecodeString(string)
-	if err != nil {
-		panic(err)
-	}
-	return bytes
+	/**
+	 *  Decode local string to binary data
+	 *
+	 * @param string - local string
+	 * @return binary data
+	 */
+	Decode(string string) []byte
 }
 
 //
-//  Instance of DataCoder
+//  Base-64
 //
-var base64Coder DataCoder = new(Base64Coder)
 
-func Base64SetCoder(coder DataCoder) {
+var base64Coder DataCoder = nil
+
+func SetBase64Coder(coder DataCoder) {
 	base64Coder = coder
 }
 
@@ -64,4 +68,40 @@ func Base64Encode(bytes []byte) string {
 
 func Base64Decode(b64 string) []byte {
 	return base64Coder.Decode(b64)
+}
+
+//
+//  Base-58
+//
+
+var base58Coder DataCoder = nil
+
+func SetBase58Coder(coder DataCoder) {
+	base58Coder = coder
+}
+
+func Base58Encode(bytes []byte) string {
+	return base58Coder.Encode(bytes)
+}
+
+func Base58Decode(b58 string) []byte {
+	return base58Coder.Decode(b58)
+}
+
+//
+//  Hex
+//
+
+var hexCoder DataCoder = nil
+
+func SetHexCoder(coder DataCoder) {
+	hexCoder = coder
+}
+
+func HexEncode(bytes []byte) string {
+	return hexCoder.Encode(bytes)
+}
+
+func HexDecode(h string) []byte {
+	return hexCoder.Decode(h)
 }
