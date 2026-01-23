@@ -26,11 +26,11 @@
 package digest
 
 /**
- *  Data Digest
- *  ~~~~~~~~~~~
+ *  Message Digest
+ *  ~~~~~~~~~~~~~~
  *  MD5, SHA1, SHA256, Keccak256, RipeMD160, ...
  */
-type DataDigester interface {
+type MessageDigester interface {
 
 	/**
 	 *  Get digest of binary data
@@ -39,4 +39,45 @@ type DataDigester interface {
 	 * @return binary data
 	 */
 	Digest(data []byte) []byte
+}
+
+//
+//  SHA-256
+//
+
+var sha256Digester MessageDigester = nil
+
+func SetSHA256Digester(digester MessageDigester) {
+	sha256Digester = digester
+}
+
+func SHA256(bytes []byte) []byte {
+	return sha256Digester.Digest(bytes)
+}
+
+//
+//  Keccak-256
+//
+
+var keccak256Digester MessageDigester = nil
+
+func SetKECCAK256Digester(digester MessageDigester) {
+	keccak256Digester = digester
+}
+
+func KECCAK256(bytes []byte) []byte {
+	return keccak256Digester.Digest(bytes)
+}
+
+//
+//  RipeMD-160
+//
+var ripemd160Digester MessageDigester = nil
+
+func SetRIPEMD160Digester(digester MessageDigester) {
+	ripemd160Digester = digester
+}
+
+func RIPEMD160(bytes []byte) []byte {
+	return ripemd160Digester.Digest(bytes)
 }
