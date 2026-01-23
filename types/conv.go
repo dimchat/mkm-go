@@ -66,11 +66,11 @@ func formatComplex(c complex128, bitSize int) string {
 }
 
 func (conv *DataConverter) GetString(value interface{}, defaultValue string) string {
-	value = ObjectValue(value)
-	if value == nil {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case string:
 		//if v == "" {
 		//	return defaultValue
@@ -110,7 +110,6 @@ func (conv *DataConverter) GetString(value interface{}, defaultValue string) str
 		return formatComplex(v, 128)
 	}
 	// other types
-	rv := reflect.ValueOf(value)
 	switch rv.Kind() {
 	case reflect.String:
 		s := rv.String()
@@ -172,11 +171,11 @@ func parseBool(s string) (bool, error) {
 }
 
 func (conv *DataConverter) GetBool(value interface{}, defaultValue bool) bool {
-	value = ObjectValue(value)
-	if value == nil {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case bool:
 		return v
 	case string:
@@ -194,7 +193,6 @@ func (conv *DataConverter) GetBool(value interface{}, defaultValue bool) bool {
 		return v != 0
 	}
 	// other types
-	rv := reflect.ValueOf(value)
 	switch rv.Kind() {
 	case reflect.Bool:
 		return rv.Bool()
@@ -219,11 +217,11 @@ func (conv *DataConverter) GetBool(value interface{}, defaultValue bool) bool {
 }
 
 func (conv *DataConverter) GetTime(value interface{}, defaultValue Time) Time {
-	value = ObjectValue(value)
-	if value == nil {
+	target := ObjectTargetValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case Time:
 		return v
 	}
@@ -274,11 +272,11 @@ func parseComplex(s string, bitSize int) (complex128, error) {
 }
 
 func (conv *DataConverter) GetFloat32(value interface{}, defaultValue float32) float32 {
-	value = ObjectValue(value)
-	if value == nil {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case float32:
 		return v
 	case float64:
@@ -300,7 +298,6 @@ func (conv *DataConverter) GetFloat32(value interface{}, defaultValue float32) f
 		return float32(f)
 	}
 	// other types
-	rv := reflect.ValueOf(value)
 	switch rv.Kind() {
 	case reflect.Float32, reflect.Float64:
 		return float32(rv.Float())
@@ -327,11 +324,11 @@ func (conv *DataConverter) GetFloat32(value interface{}, defaultValue float32) f
 }
 
 func (conv *DataConverter) GetFloat64(value interface{}, defaultValue float64) float64 {
-	value = ObjectValue(value)
-	if value == nil {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case float64:
 		return v
 	case float32:
@@ -353,7 +350,6 @@ func (conv *DataConverter) GetFloat64(value interface{}, defaultValue float64) f
 		return f
 	}
 	// other types
-	rv := reflect.ValueOf(value)
 	switch rv.Kind() {
 	case reflect.Float32, reflect.Float64:
 		return rv.Float()
@@ -380,11 +376,11 @@ func (conv *DataConverter) GetFloat64(value interface{}, defaultValue float64) f
 }
 
 func (conv *DataConverter) GetComplex64(value interface{}, defaultValue complex64) complex64 {
-	value = ObjectValue(value)
-	if value == nil {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case complex64:
 		return v
 	case complex128:
@@ -402,7 +398,6 @@ func (conv *DataConverter) GetComplex64(value interface{}, defaultValue complex6
 		return c
 	}
 	// other types
-	rv := reflect.ValueOf(value)
 	switch rv.Kind() {
 	case reflect.Complex64, reflect.Complex128:
 		return complex64(rv.Complex())
@@ -425,11 +420,11 @@ func (conv *DataConverter) GetComplex64(value interface{}, defaultValue complex6
 }
 
 func (conv *DataConverter) GetComplex128(value interface{}, defaultValue complex128) complex128 {
-	value = ObjectValue(value)
-	if value == nil {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case complex64:
 		return v
 	case complex128:
@@ -447,7 +442,6 @@ func (conv *DataConverter) GetComplex128(value interface{}, defaultValue complex
 		return c
 	}
 	// other types
-	rv := reflect.ValueOf(value)
 	switch rv.Kind() {
 	case reflect.Complex64, reflect.Complex128:
 		return rv.Complex()

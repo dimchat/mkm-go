@@ -42,11 +42,11 @@ func parseInt(s string, bitSize int) (int64, error) {
 }
 
 func (conv *DataConverter) GetInt(value interface{}, defaultValue int) int {
-	value = ObjectValue(value)
-	if value == nil {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case int:
 		return v
 	case int8:
@@ -86,7 +86,6 @@ func (conv *DataConverter) GetInt(value interface{}, defaultValue int) int {
 		return i
 	}
 	// other types
-	rv := reflect.ValueOf(value)
 	switch rv.Kind() {
 	case reflect.Int:
 		return int(rv.Int())
@@ -131,11 +130,11 @@ func (conv *DataConverter) GetInt(value interface{}, defaultValue int) int {
 }
 
 func (conv *DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
-	value = ObjectValue(value)
-	if value == nil {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case int8:
 		return v
 	case int, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
@@ -157,7 +156,6 @@ func (conv *DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
 		return int8(i)
 	}
 	// other types
-	rv := reflect.ValueOf(value)
 	switch rv.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return int8(rv.Int())
@@ -184,11 +182,11 @@ func (conv *DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
 }
 
 func (conv *DataConverter) GetInt16(value interface{}, defaultValue int16) int16 {
-	value = ObjectValue(value)
-	if value == nil {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case int16:
 		return v
 	case int, int8, int32, int64, uint, uint8, uint16, uint32, uint64:
@@ -210,7 +208,6 @@ func (conv *DataConverter) GetInt16(value interface{}, defaultValue int16) int16
 		return int16(i)
 	}
 	// other types
-	rv := reflect.ValueOf(value)
 	switch rv.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return int16(rv.Int())
@@ -237,11 +234,11 @@ func (conv *DataConverter) GetInt16(value interface{}, defaultValue int16) int16
 }
 
 func (conv *DataConverter) GetInt32(value interface{}, defaultValue int32) int32 {
-	value = ObjectValue(value)
-	if value == nil {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case int32:
 		return v
 	case int, int8, int16, int64, uint, uint8, uint16, uint32, uint64:
@@ -263,7 +260,6 @@ func (conv *DataConverter) GetInt32(value interface{}, defaultValue int32) int32
 		return int32(i)
 	}
 	// other types
-	rv := reflect.ValueOf(value)
 	switch rv.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return int32(rv.Int())
@@ -290,11 +286,11 @@ func (conv *DataConverter) GetInt32(value interface{}, defaultValue int32) int32
 }
 
 func (conv *DataConverter) GetInt64(value interface{}, defaultValue int64) int64 {
-	value = ObjectValue(value)
-	if value == nil {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
+	switch v := target.(type) {
 	case int64:
 		return v
 	case int, int8, int16, int32, uint, uint8, uint16, uint32, uint64:
@@ -316,7 +312,6 @@ func (conv *DataConverter) GetInt64(value interface{}, defaultValue int64) int64
 		return i
 	}
 	// other types
-	rv := reflect.ValueOf(value)
 	switch rv.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return rv.Int()

@@ -59,8 +59,8 @@ func (dict *Dictionary) Equal(other interface{}) bool {
 		// same object
 		return true
 	}
-	// check value
-	v := ObjectValue(other)
+	// check target value
+	v := ObjectTargetValue(other)
 	if v == nil {
 		return len(dict._dictionary) == 0
 	} else if p, ok := v.(Mapper); ok {

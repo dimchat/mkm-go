@@ -29,6 +29,9 @@ import (
 	"reflect"
 )
 
+/**
+ *  IObject
+ */
 type Object interface {
 
 	Equal(other interface{}) bool
@@ -61,8 +64,8 @@ func ObjectsEqual(i1, i2 interface{}) bool {
 		return false
 	}
 	// get values
-	v1 := ObjectValue(i1)
-	v2 := ObjectValue(i2)
+	v1 := ObjectTargetValue(i1)
+	v2 := ObjectTargetValue(i2)
 	if v1 == nil && v2 == nil {
 		return true
 	} else if v1 == nil || v2 == nil {
@@ -79,35 +82,45 @@ func ObjectsEqual(i1, i2 interface{}) bool {
 }
 
 /**
- *  Get object value from pointer
+ *  Get targeted value that the object pointer pointing to
  */
-func ObjectValue(i interface{}) interface{} {
+func ObjectTargetValue(i interface{}) interface{} {
+	v, _ := ObjectReflectValue(i)
+	return v
+}
+
+func ObjectReflectValue(i interface{}) (interface{}, reflect.Value) {
 	v := reflect.ValueOf(i)
 	if !v.IsValid() {
-		return nil
+		return nil, v
 	} else if v.Kind() != reflect.Ptr {
-		return i
+		return i, v
 	} else if v.IsNil() {
-		return nil
+		return nil, v
 	}
-	return v.Elem().Interface()
+	return v.Elem().Interface(), v
+}
+
+func ObjectReflectPointer(i interface{}) (interface{}, reflect.Value) {
+	v := reflect.ValueOf(i)
+	if !v.IsValid() {
+		return nil, v
+	} else if v.Kind() == reflect.Ptr {
+		return i, v
+	} else if v.CanAddr() {
+		return v.Addr().Interface(), v
+	}
+	ptr := reflect.New(v.Type())
+	ptr.Elem().Set(v)
+	return ptr.Interface(), v
 }
 
 /**
  *  Get address of the object value
  */
 func ObjectPointer(i interface{}) interface{} {
-	v := reflect.ValueOf(i)
-	if !v.IsValid() {
-		return nil
-	} else if v.Kind() == reflect.Ptr {
-		return i
-	} else if v.CanAddr() {
-		return v.Addr().Interface()
-	}
-	ptr := reflect.New(v.Type())
-	ptr.Elem().Set(v)
-	return ptr.Interface()
+	p, _ := ObjectReflectPointer(i)
+	return p
 }
 
 /**
