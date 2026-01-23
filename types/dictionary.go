@@ -38,13 +38,13 @@ import (
  */
 type Dictionary struct {
 
-	_dictionary map[string]interface{}
+	_dictionary StringKeyMap
 }
 
-func (dict *Dictionary) Init(dictionary map[string]interface{}) Mapper {
+func (dict *Dictionary) Init(dictionary StringKeyMap) Mapper {
 	if ValueIsNil(dictionary) {
 		// create empty map
-		dictionary = make(map[string]interface{})
+		dictionary = NewMap()
 	}
 	dict._dictionary = dictionary
 	return dict
@@ -59,14 +59,26 @@ func (dict *Dictionary) Equal(other interface{}) bool {
 		// same object
 		return true
 	}
-	// check target value
-	v := ObjectTargetValue(other)
-	if v == nil {
+	// check targeted value
+	target, rv := ObjectReflectValue(other)
+	if target == nil {
 		return len(dict._dictionary) == 0
-	} else if p, ok := v.(Mapper); ok {
-		other = p.Map()
-	//} else if p, ok := v.(map[string]interface{}); ok {
-	//	other = p
+	}
+	// check value types
+	switch v := target.(type) {
+	case Mapper:
+		other = v.Map()
+	case StringKeyMap:
+		other = v
+	default:
+		// other types
+		switch rv.Kind() {
+		case reflect.Map:
+			other = reflectMap(rv)
+		default:
+			// type not matched
+			return false
+		}
 	}
 	return reflect.DeepEqual(dict._dictionary, other)
 }
@@ -93,11 +105,11 @@ func (dict *Dictionary) Keys() []string {
 	return MapKeys(dict._dictionary)
 }
 
-func (dict *Dictionary) Map() map[string]interface{} {
+func (dict *Dictionary) Map() StringKeyMap {
 	return dict._dictionary
 }
 
-func (dict *Dictionary) CopyMap(deep bool) map[string]interface{} {
+func (dict *Dictionary) CopyMap(deep bool) StringKeyMap {
 	if deep {
 		return DeepCopyMap(dict._dictionary)
 	} else {

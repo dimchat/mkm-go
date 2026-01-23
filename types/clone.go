@@ -25,9 +25,44 @@
  */
 package types
 
+import "reflect"
+
 type Cloneable interface {
 
 	Clone() interface{}
+}
+
+/**
+ *  Data Copier
+ */
+type Copier interface {
+
+	//
+	//  Shallow Copy
+	//
+
+	Copy(object interface{}) interface{}
+
+	CopyMap(dictionary StringKeyMap) StringKeyMap
+
+	CopyList(array []interface{}) []interface{}
+
+	//
+	//  Deep Copy
+	//
+
+	DeepCopy(object interface{}) interface{}
+
+	DeepCopyMap(dictionary StringKeyMap) StringKeyMap
+
+	DeepCopyList(array []interface{}) []interface{}
+
+}
+
+var sharedCopier Copier = &DataCopier{}
+
+func SetCopier(copier Copier) {
+	sharedCopier = copier
 }
 
 /**
@@ -35,35 +70,15 @@ type Cloneable interface {
  *  ~~~~~~~~~~~~
  */
 func Copy(object interface{}) interface{} {
-	if ValueIsNil(object) {
-		return nil
-	} else if obj, ok := object.(Cloneable); ok {
-		return obj.Clone()
-	}
-	// collections
-	if dict, ok := object.(map[string]interface{}); ok {
-		return CopyMap(dict)
-	} else if arr, ok := object.([]interface{}); ok {
-		return CopyList(arr)
-	}
-	// others
-	return object
+	return sharedCopier.Copy(object)
 }
 
-func CopyMap(dictionary map[string]interface{}) map[string]interface{} {
-	clone := make(map[string]interface{})
-	for key, value := range dictionary {
-		clone[key] = value
-	}
-	return clone
+func CopyMap(dictionary StringKeyMap) StringKeyMap {
+	return sharedCopier.CopyMap(dictionary)
 }
 
 func CopyList(array []interface{}) []interface{} {
-	clone := make([]interface{}, len(array))
-	for key, value := range array {
-		clone[key] = value
-	}
-	return clone
+	return sharedCopier.CopyList(array)
 }
 
 /**
@@ -71,30 +86,99 @@ func CopyList(array []interface{}) []interface{} {
  *  ~~~~~~~~~
  */
 func DeepCopy(object interface{}) interface{} {
-	if ValueIsNil(object) {
-		return nil
-	} else if obj, ok := object.(Cloneable); ok {
-		return obj.Clone()
-	}
-	// collections
-	if dict, ok := object.(map[string]interface{}); ok {
-		return DeepCopyMap(dict)
-	} else if arr, ok := object.([]interface{}); ok {
-		return DeepCopyList(arr)
-	}
-	// others
-	return object
+	return sharedCopier.DeepCopy(object)
 }
 
-func DeepCopyMap(dictionary map[string]interface{}) map[string]interface{} {
-	clone := make(map[string]interface{})
+func DeepCopyMap(dictionary StringKeyMap) StringKeyMap {
+	return sharedCopier.DeepCopyMap(dictionary)
+}
+
+func DeepCopyList(array []interface{}) []interface{} {
+	return sharedCopier.DeepCopyList(array)
+}
+
+/**
+ *  Default Data Copier
+ */
+type DataCopier struct {}
+
+func (cp *DataCopier) Copy(object interface{}) interface{} {
+	target, rv := ObjectReflectValue(object)
+	if target == nil {
+		return nil
+	}
+	switch v := target.(type) {
+	case Cloneable:
+		return v.Clone()
+	case Mapper:
+		return CopyMap(v.Map())
+	case StringKeyMap:
+		return CopyMap(v)
+	case []interface{}:
+		return CopyList(v)
+	}
+	// other types
+	switch rv.Kind() {
+	case reflect.Map:
+		return CopyMap(reflectMap(rv))
+	case reflect.Array, reflect.Slice:
+		return CopyList(reflectList(rv))
+	}
+	// others
+	return target
+}
+
+func (cp *DataCopier) DeepCopy(object interface{}) interface{} {
+	target, rv := ObjectReflectValue(object)
+	if target == nil {
+		return nil
+	}
+	switch v := target.(type) {
+	case Cloneable:
+		return v.Clone()
+	case Mapper:
+		return DeepCopyMap(v.Map())
+	case StringKeyMap:
+		return DeepCopyMap(v)
+	case []interface{}:
+		return DeepCopyList(v)
+	}
+	// other types
+	switch rv.Kind() {
+	case reflect.Map:
+		return DeepCopyMap(reflectMap(rv))
+	case reflect.Array, reflect.Slice:
+		return DeepCopyList(reflectList(rv))
+	}
+	// others
+	return target
+}
+
+func (cp *DataCopier) CopyMap(dictionary StringKeyMap) StringKeyMap {
+	clone := NewMap()
+	for key, value := range dictionary {
+		clone[key] = value
+	}
+	return clone
+}
+
+func (cp *DataCopier) DeepCopyMap(dictionary StringKeyMap) StringKeyMap {
+	clone := NewMap()
 	for key, value := range dictionary {
 		clone[key] = DeepCopy(value)
 	}
 	return clone
 }
 
-func DeepCopyList(array []interface{}) []interface{} {
+func (cp *DataCopier) CopyList(array []interface{}) []interface{} {
+	clone := make([]interface{}, len(array))
+	for key, value := range array {
+		clone[key] = value
+	}
+	return clone
+}
+
+func (cp *DataCopier) DeepCopyList(array []interface{}) []interface{} {
 	clone := make([]interface{}, len(array))
 	for key, value := range array {
 		clone[key] = DeepCopy(value)

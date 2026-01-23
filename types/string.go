@@ -27,6 +27,7 @@ package types
 
 import (
 	"fmt"
+	"reflect"
 )
 
 type Stringer interface {
@@ -34,29 +35,17 @@ type Stringer interface {
 	fmt.Stringer
 }
 
-func FetchString(str interface{}) string {
-	wrapper, ok := str.(fmt.Stringer)
-	if ok {
-		return wrapper.String()
-	} else {
-		return str.(string)
-	}
-}
-
 /**
  *  Constant String Wrapper
  *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 type ConstantString struct {
-	BaseObject
 
 	_string string
 }
 
 func (str *ConstantString) Init(string string) Stringer {
-	if str.BaseObject.Init() != nil {
-		str._string = string
-	}
+	str._string = string
 	return str
 }
 
@@ -69,19 +58,32 @@ func (str *ConstantString) String() string {
 //-------- IObject
 
 func (str *ConstantString) Equal(other interface{}) bool {
-	// compare pointers
-	if str == other {
+	if other == nil {
+		return str._string == ""
+	} else if other == str {
+		// same object
 		return true
 	}
-	// compare inner strings
-	wrapper, ok := other.(fmt.Stringer)
-	if ok {
-		return str._string == wrapper.String()
+	// check targeted value
+	target, rv := ObjectReflectValue(other)
+	if target == nil {
+		return str._string == ""
 	}
-	text, ok := other.(string)
-	if ok {
-		return str._string == text
-	} else {
-		return str._string == other
+	// check value types
+	switch v := target.(type) {
+	case fmt.Stringer:
+		other = v.String()
+	case string:
+		other = v
+	default:
+		// other types
+		switch rv.Kind() {
+		case reflect.String:
+			other = rv.String()
+		default:
+			// type not matched
+			return false
+		}
 	}
+	return str._string == other
 }
