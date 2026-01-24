@@ -50,6 +50,13 @@ type Wrapper interface {
 	GetMap(dict interface{}) StringKeyMap
 
 	/**
+	 *  Get inner list
+	 *  ~~~~~~~~~~~~~~
+	 *  Remove first wrapper
+	 */
+	GetList(array interface{}) []interface{}
+
+	/**
 	 *  Unwrap recursively
 	 *  ~~~~~~~~~~~~~~~~~~
 	 *  Remove all wrappers
@@ -80,6 +87,10 @@ func FetchString(str interface{}) string {
 
 func FetchMap(dict interface{}) StringKeyMap {
 	return sharedWrapper.GetMap(dict)
+}
+
+func FetchList(array interface{}) []interface{} {
+	return sharedWrapper.GetList(array)
 }
 
 func Unwrap(object interface{}) interface{} {
@@ -137,7 +148,25 @@ func (wp *DataWrapper) GetMap(value interface{}) StringKeyMap {
 	case reflect.Map:
 		return reflectMap(rv)
 	}
-	panic(fmt.Sprintf("not a string value: %v", value))
+	panic(fmt.Sprintf("not a map value: %v", value))
+}
+
+func (wp *DataWrapper) GetList(value interface{}) []interface{} {
+	target, rv := ObjectReflectValue(value)
+	if target == nil {
+		panic(fmt.Sprintf("list value error: %v", value))
+		//return make([]interface{}, 0)
+	}
+	switch v := target.(type) {
+	case []interface{}:
+		return v
+	}
+	// other types
+	switch rv.Kind() {
+	case reflect.Array, reflect.Slice:
+		return reflectList(rv)
+	}
+	panic(fmt.Sprintf("not a list value: %v", value))
 }
 
 func (wp *DataWrapper) Unwrap(value interface{}) interface{} {
@@ -198,10 +227,9 @@ func (wp *DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {
 }
 
 func (wp *DataWrapper) UnwrapList(array []interface{}) []interface{} {
-	size := len(array)
-	result := make([]interface{}, size)
-	for i := 0; i < size; i++ {
-		result[i] = Unwrap(array[i])
+	result := make([]interface{}, len(array))
+	for index, item := range array {
+		result[index] = Unwrap(item)
 	}
 	return result
 }

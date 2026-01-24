@@ -32,25 +32,27 @@ package protocol
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
-	. "github.com/dimchat/mkm-go/format"
+	. "github.com/dimchat/mkm-go/ext"
 	. "github.com/dimchat/mkm-go/types"
-	"strconv"
 )
 
 /**
  *  User/Group Meta data
- *  ~~~~~~~~~~~~~~~~~~~~
- *  This class is used to generate entity ID
+ *  <p>
+ *      This class is used to generate entity meta
+ *  </p>
  *
- *      data format: {
- *          version: 1,         // algorithm version
- *          key: {public key},  // PK = secp256k1(SK);
- *          seed: "moKy",       // user/group name
- *          fingerprint: "..."  // CT = sign(seed, SK);
- *      }
+ *  <blockquote><pre>
+ *  data format: {
+ *      "type"        : i2s(1),         // algorithm version
+ *      "key"         : "{public key}", // PK = secp256k1(SK);
+ *      "seed"        : "moKy",         // user/group name
+ *      "fingerprint" : "..."           // CT = sign(seed, SK);
+ *  }
  *
- *      algorithm:
- *          fingerprint = sign(seed, SK);
+ *  algorithm:
+ *      fingerprint = sign(seed, SK);
+ *  </pre></blockquote>
  */
 type Meta interface {
 	Mapper
@@ -58,18 +60,21 @@ type Meta interface {
 	/**
 	 *  Meta algorithm version
 	 *
-	 *      0x01 - username@address
-	 *      0x02 - btc_address
-	 *      0x03 - username@btc_address
+	 *  <pre>
+	 *  1 = MKM : username@address (default)
+	 *  2 = BTC : btc_address
+	 *  4 = ETH : eth_address
+	 *  ...
+	 *  </pre>
 	 */
-	Type() MetaType
+	Type() string
 
 	/**
 	 *  Public key (used for signature)
 	 *
 	 *      RSA / ECC
 	 */
-	Key() VerifyKey
+	PublicKey() VerifyKey
 
 	/**
 	 *  Seed to generate fingerprint
@@ -84,7 +89,19 @@ type Meta interface {
 	 *      Build: fingerprint = sign(seed, privateKey)
 	 *      Check: verify(seed, fingerprint, publicKey)
 	 */
-	Fingerprint() []byte
+	Fingerprint() TransportableData
+
+	//
+	//  Validation
+	//
+
+	/**
+	 *  Check meta valid
+	 *  <p>(must call this when received a new meta from network)</p>
+	 *
+	 * @return true on valid
+	 */
+	IsValid() bool
 
 	/**
 	 *  Generate address with network(type)
@@ -92,69 +109,7 @@ type Meta interface {
 	 * @param network - ID.type
 	 * @return Address
 	 */
-	GenerateAddress(network NetworkType) Address
-}
-
-func MetaGetType(meta map[string]interface{}) MetaType {
-	version := meta["type"]
-	if version == nil {
-		// compatible with v1.0
-		version = meta["version"]
-	}
-	return MetaTypeParse(version)
-}
-
-/**
- *  Check meta valid
- *  (must call this when received a new meta from network)
- */
-func MetaCheck(meta Meta) bool {
-	key := meta.Key()
-	if key == nil {
-		// meta.key should not be empty
-		return false
-	}
-	if !MetaTypeHasSeed(meta.Type()) {
-		// this meta has no seed, so no signature too
-		return true
-	}
-	// check seed with signature
-	seed := meta.Seed()
-	fingerprint := meta.Fingerprint()
-	if seed == "" || fingerprint == nil {
-		// seed and fingerprint should not be empty
-		return false;
-	}
-	// verify fingerprint
-	return key.Verify(UTF8Encode(seed), fingerprint)
-}
-
-func MetaMatchID(meta Meta, identifier ID) bool {
-	// check ID.name
-	if identifier.Name() != meta.Seed() {
-		return false
-	}
-	// check ID.address
-	address := AddressGenerate(meta, identifier.Type())
-	return identifier.Address().Equal(address)
-}
-
-func MetaMatchKey(meta Meta, key VerifyKey) bool {
-	// check whether the public key equals to meta.key
-	if meta.Key().Equal(key) {
-		return true
-	}
-	// check with seed & fingerprint
-	if MetaTypeHasSeed(meta.Type()) {
-		// check whether keys equal by verifying signature
-		seed := meta.Seed()
-		fingerprint := meta.Fingerprint()
-		return key.Verify(UTF8Encode(seed), fingerprint)
-	} else {
-		// ID with BTC/ETH address has no username
-		// so we can just compare the key.data to check matching
-		return false
-	}
+	GenerateAddress(network EntityType) Address
 }
 
 /**
@@ -166,12 +121,12 @@ type MetaFactory interface {
 	/**
 	 *  Create meta
 	 *
-	 * @param key         - public key
+	 * @param pKey        - public key
 	 * @param seed        - ID.name
 	 * @param fingerprint - sKey.sign(seed)
 	 * @return Meta
 	 */
-	CreateMeta(key VerifyKey, seed string, fingerprint []byte) Meta
+	CreateMeta(pKey VerifyKey, seed string, fingerprint TransportableData) Meta
 
 	/**
 	 *  Generate meta
@@ -188,55 +143,34 @@ type MetaFactory interface {
 	 * @param meta - meta info
 	 * @return Meta
 	 */
-	ParseMeta(meta map[string]interface{}) Meta
-}
-
-//
-//  Instances of MetaFactory
-//
-var metaFactory = make(map[MetaType]MetaFactory)
-
-func MetaSetFactory(version MetaType, factory MetaFactory) {
-	metaFactory[version] = factory
-}
-
-func MetaGetFactory(version MetaType) MetaFactory {
-	return metaFactory[version]
+	ParseMeta(meta StringKeyMap) Meta
 }
 
 //
 //  Factory methods
 //
-func MetaCreate(version MetaType, key VerifyKey, seed string, fingerprint []byte) Meta {
-	factory := MetaGetFactory(version)
-	if factory == nil {
-		panic("meta type not found: " + strconv.Itoa(int(version)))
-	}
-	return factory.CreateMeta(key, seed, fingerprint)
+
+func CreateMeta(version string, pKey VerifyKey, seed string, fingerprint TransportableData) Meta {
+	helper := GetMetaHelper()
+	return helper.CreateMeta(version, pKey, seed, fingerprint)
 }
 
-func MetaGenerate(version MetaType, sKey SignKey, seed string) Meta {
-	factory := MetaGetFactory(version)
-	if factory == nil {
-		panic("meta type not found: " + strconv.Itoa(int(version)))
-	}
-	return factory.GenerateMeta(sKey, seed)
+func GenerateMeta(version string, sKey SignKey, seed string) Meta {
+	helper := GetMetaHelper()
+	return helper.GenerateMeta(version, sKey, seed)
 }
 
-func MetaParse(meta interface{}) Meta {
-	if ValueIsNil(meta) {
-		return nil
-	}
-	value, ok := meta.(Meta)
-	if ok {
-		return value
-	}
-	info := FetchMap(meta)
-	// get meta factory by type
-	version := MetaGetType(info)
-	factory := MetaGetFactory(version)
-	if factory == nil {
-		factory = MetaGetFactory(0)  // unknown
-	}
-	return factory.ParseMeta(info)
+func ParseMeta(meta interface{}) Meta {
+	helper := GetMetaHelper()
+	return helper.ParseMeta(meta)
+}
+
+func GetMetaFactory(version string) MetaFactory {
+	helper := GetMetaHelper()
+	return helper.GetMetaFactory(version)
+}
+
+func SetMetaFactory(version string, factory MetaFactory) {
+	helper := GetMetaHelper()
+	helper.SetMetaFactory(version, factory)
 }

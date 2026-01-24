@@ -32,44 +32,57 @@ package mkm
 
 import (
 	. "github.com/dimchat/mkm-go/protocol"
+	. "github.com/dimchat/mkm-go/types"
 )
+
+const (
+	Moky       = "moky"
+	Anyone     = "anyone"
+	Everyone   = "everyone"
+
+	Anywhere   = "anywhere"
+	Everywhere = "everywhere"
+)
+
+//
+//  Broadcast Address for User/Group
+//
+var ANYWHERE   = NewBroadcastAddress(Anywhere, ANY)      // "anywhere"
+var EVERYWHERE = NewBroadcastAddress(Everywhere, EVERY)  // "everywhere"
+
+//
+//  Broadcast ID for User/Group
+//
+var FOUNDER    = NewIdentifier(Moky, ANYWHERE, "")        // "moky@anywhere"
+var ANYONE     = NewIdentifier(Anyone, ANYWHERE, "")      // "anyone@anywhere"
+var EVERYONE   = NewIdentifier(Everyone, EVERYWHERE, "")  // "everyone@everywhere"
 
 /**
  *  Broadcast Address
  */
 type BroadcastAddress struct {
-	BaseAddress
+	ConstantString
+
+	_network EntityType
 }
 
-func NewBroadcastAddress(address string, network NetworkType) Address {
-	broadcast := new(BroadcastAddress)
-	broadcast.Init(address, network)
-	return broadcast
+func (address *BroadcastAddress) Init(s string, network EntityType) {
+	address.ConstantString.Init(s)
+	address._network = network
 }
-
-//func (address *BroadcastAddress) Init(string string, network NetworkType) Address {
-//	if address.BaseAddress.Init(string, network) != nil {
-//	}
-//	return address
-//}
 
 //-------- IAddress
 
-func (address *BroadcastAddress) IsBroadcast() bool {
-	return true
+func (address *BroadcastAddress) Network() EntityType {
+	return address._network
 }
 
-func CreateBroadcastAddresses() {
-	if ANYWHERE == nil {
-		ANYWHERE = NewBroadcastAddress(Anywhere, MAIN)
-	}
-	if EVERYWHERE == nil {
-		EVERYWHERE = NewBroadcastAddress(Everywhere, GROUP)
-	}
-}
+//
+//  Creation
+//
 
-func init() {
-	BuildGeneralIDFactory()
-	CreateBroadcastAddresses()
-	CreateBroadcastIdentifiers()
+func NewBroadcastAddress(address string, network EntityType) Address {
+	broadcast := &BroadcastAddress{}
+	broadcast.Init(address, network)
+	return broadcast
 }

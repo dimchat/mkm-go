@@ -32,15 +32,16 @@ package protocol
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
+	. "github.com/dimchat/mkm-go/ext"
 	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
- *  The Additional Information
+ *  The Additional Information (Profile)
  *
  *      'Meta' is the information for entity which never changed,
  *          which contains the key for verify signature;
- *      'TAI' is the variable part,
+ *      'TAI' is the variable part (signed by meta.key's private key),
  *          which could contain a public key for asymmetric encryption.
  */
 type TAI interface {
@@ -57,18 +58,18 @@ type TAI interface {
 	/**
 	 *  Verify 'data' and 'signature' with public key
 	 *
-	 * @param publicKey - public key as meta.key
+	 * @param metaKey - public key in meta.key
 	 * @return true on signature matched
 	 */
-	Verify(publicKey VerifyKey) bool
+	Verify(metaKey VerifyKey) bool
 
 	/**
 	 *  Encode properties to 'data' and sign it to 'signature'
 	 *
-	 * @param privateKey - private key match meta.key
+	 * @param sKey - private key match meta.key
 	 * @return signature
 	 */
-	Sign(privateKey SignKey) []byte
+	Sign(sKey SignKey) []byte
 
 	//-------- properties
 
@@ -77,7 +78,7 @@ type TAI interface {
 	 *
 	 * @return properties
 	 */
-	Properties() map[string]interface{}
+	Properties() StringKeyMap
 
 	/**
 	 *  Get property data with key
@@ -97,41 +98,31 @@ type TAI interface {
 	SetProperty(name string, value interface{})
 }
 
-const (
-	// Document types
-	VISA = "visa"          // for login/communication
-	PROFILE = "profile"    // for user info
-	BULLETIN = "bulletin"  // for group info
-)
-
 /**
  *  User/Group Profile
- *  ~~~~~~~~~~~~~~~~~~
- *  This class is used to generate entity profile
+ *  <p>
+ *      This class is used to generate entity profile
+ *  </p>
  *
- *      data format: {
- *          ID: "EntityID",   // entity ID
- *          data: "{JSON}",   // data = json_encode(info)
- *          signature: "..."  // signature = sign(data, SK);
- *      }
+ *  <blockquote><pre>
+ *  data format: {
+ *      "did"       : "{EntityID}",      // entity ID
+ *      "type"      : "visa",            // "bulletin", ...
+ *      "data"      : "{JSON}",          // data = json_encode(info)
+ *      "signature" : "{BASE64_ENCODE}"  // signature = sign(data, SK);
+ *  }
+ *  </pre></blockquote>
  */
 type Document interface {
 	Mapper
 	TAI
 
 	/**
-	 *  Get document type
-	 *
-	 * @return document type
-	 */
-	Type() string
-
-	/**
 	 *  Get entity ID
 	 *
 	 * @return entity ID
 	 */
-	ID() ID
+	//ID() ID
 
 	//---- properties getter/setter
 
@@ -145,87 +136,8 @@ type Document interface {
 	 *
 	 * @return name string
 	 */
-	Name() string
-
-	/**
-	 *  Set entity name
-	 *
-	 * @param name - nickname of user; title of group
-	 */
-	SetName(name string)
-}
-
-func DocumentGetType(doc map[string]interface{}) string {
-	text, ok := doc["type"].(string)
-	if ok {
-		return text
-	} else {
-		return ""
-	}
-}
-
-func DocumentGetID(doc map[string]interface{}) ID {
-	return IDParse(doc["ID"])
-}
-
-/**
- *  User Document
- *  ~~~~~~~~~~~~~
- *  This interface is defined for authorizing other apps to login,
- *  which can generate a temporary asymmetric key pair for messaging.
- */
-type Visa interface {
-	Document
-
-	/**
-	 *  Get public key to encrypt message for user
-	 *
-	 * @return public key as visa.key
-	 */
-	Key() EncryptKey
-
-	/**
-	 *  Set public key for other user to encrypt message
-	 *
-	 * @param publicKey - public key as visa.key
-	 */
-	SetKey(publicKey EncryptKey)
-
-	/**
-	 *  Get avatar URL
-	 *
-	 * @return URL string
-	 */
-	Avatar() string
-
-	/**
-	 *  Set avatar URL
-	 *
-	 * @param url - URL string
-	 */
-	SetAvatar(url string)
-}
-
-/**
- *  Group Document
- *  ~~~~~~~~~~~~~~
- */
-type Bulletin interface {
-	Document
-
-	/**
-	 *  Get group assistants
-	 *
-	 * @return bot ID list
-	 */
-	Assistants() []ID
-
-	/**
-	 *  Set group assistants
-	 *
-	 * @param assistants - bot ID list
-	 */
-	SetAssistants(assistants []ID)
+	//Name() string
+	//SetName(name string)
 }
 
 /**
@@ -235,15 +147,19 @@ type Bulletin interface {
 type DocumentFactory interface {
 
 	/**
-	 *  Create document with data & signature loaded from local storage
-	 *  (If data & signature empty, create a new empty document with entity ID)
+	 *  Create document
+	 *  <p>
+	 *      1. Create document with data &amp; signature loaded from local storage
+	 *  </p>
+	 *  <p>
+	 *      2. Create a new empty document with type
+	 *  </p>
 	 *
-	 * @param identifier - entity ID
-	 * @param data       - document data (JsON)
-	 * @param signature  - document signature (Base64)
+	 * @param data      - document data (JsON)
+	 * @param signature - document signature (Base64)
 	 * @return Document
 	 */
-	CreateDocument(identifier ID, data string, signature string) Document
+	CreateDocument(data string, signature TransportableData) Document
 
 	/**
 	 *  Parse map object to entity document
@@ -251,47 +167,55 @@ type DocumentFactory interface {
 	 * @param doc - info
 	 * @return Document
 	 */
-	ParseDocument(doc map[string]interface{}) Document
-}
-
-//
-//  Instances of DocumentFactory
-//
-var documentFactories = make(map[string]DocumentFactory)
-
-func DocumentSetFactory(docType string, factory DocumentFactory) {
-	documentFactories[docType] = factory
-}
-
-func DocumentGetFactory(docType string) DocumentFactory {
-	return documentFactories[docType]
+	ParseDocument(doc StringKeyMap) Document
 }
 
 //
 //  Factory methods
 //
-func DocumentCreate(docType string, identifier ID, data string, signature string) Document {
-	factory := DocumentGetFactory(docType)
-	if factory == nil {
-		panic("document type not found: " + docType)
-	}
-	return factory.CreateDocument(identifier, data, signature)
+
+func CreateDocument(docType string, data string, signature TransportableData) Document {
+	helper := GetDocumentHelper()
+	return helper.CreateDocument(docType, data, signature)
 }
 
-func DocumentParse(doc interface{}) Document {
-	if ValueIsNil(doc) {
-		return nil
+func ParseDocument(doc interface{}) Document {
+	helper := GetDocumentHelper()
+	return helper.ParseDocument(doc)
+}
+
+func GetDocumentFactory(docType string) DocumentFactory {
+	helper := GetDocumentHelper()
+	return helper.GetDocumentFactory(docType)
+}
+
+func SetDocumentFactory(docType string, factory DocumentFactory) {
+	helper := GetDocumentHelper()
+	helper.SetDocumentFactory(docType, factory)
+}
+
+//
+//  Conveniences
+//
+
+func DocumentConvert(array interface{}) []Document {
+	profiles := FetchList(array)
+	documents := make([]Document, 0, len(profiles))
+	var doc Document
+	for _, item := range profiles {
+		doc = ParseDocument(item)
+		if doc == nil {
+			continue
+		}
+		documents = append(documents, doc)
 	}
-	value, ok := doc.(Document)
-	if ok {
-		return value
+	return documents
+}
+
+func DocumentRevert(documents []Document) []StringKeyMap {
+	array := make([]StringKeyMap, len(documents))
+	for idx, doc := range documents {
+		array[idx] = doc.Map()
 	}
-	info := FetchMap(doc)
-	// get document factory by type
-	docType := DocumentGetType(info)
-	factory := DocumentGetFactory(docType)
-	if factory == nil {
-		factory = DocumentGetFactory("*")  // unknown
-	}
-	return factory.ParseDocument(info)
+	return array
 }

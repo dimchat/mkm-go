@@ -31,8 +31,8 @@
 package protocol
 
 import (
+	. "github.com/dimchat/mkm-go/ext"
 	. "github.com/dimchat/mkm-go/types"
-	"reflect"
 )
 
 /**
@@ -57,7 +57,7 @@ type ID interface {
 	 *
 	 * @return network type
 	 */
-	Type() NetworkType
+	Type() EntityType
 
 	IsUser() bool
 	IsGroup() bool
@@ -78,7 +78,7 @@ type IDFactory interface {
 	 * @param terminal - ID.terminal
 	 * @return ID
 	 */
-	GenerateID(meta Meta, network NetworkType, terminal string) ID
+	GenerateID(meta Meta, network EntityType, terminal string) ID
 
 	/**
 	 *  Create ID
@@ -93,110 +93,75 @@ type IDFactory interface {
 	/**
 	 *  Parse string object to ID
 	 *
-	 * @param identifier - ID string
+	 * @param did - ID string
 	 * @return ID
 	 */
-	ParseID(identifier string) ID
-}
-
-//
-//  Instance of IDFactory
-//
-var idFactory IDFactory = nil
-
-func IDSetFactory(factory IDFactory) {
-	idFactory = factory
-}
-
-func IDGetFactory() IDFactory {
-	return idFactory
+	ParseID(did string) ID
 }
 
 //
 //  Factory methods
 //
-func IDGenerate(meta Meta, network NetworkType, terminal string) ID {
-	factory := IDGetFactory()
-	return factory.GenerateID(meta, network, terminal)
+
+func GenerateID(meta Meta, network EntityType, terminal string) ID {
+	helper := GetIDHelper()
+	return helper.GenerateID(meta, network, terminal)
 }
 
-func IDCreate(name string, address Address, terminal string) ID {
-	factory := IDGetFactory()
-	return factory.CreateID(name, address, terminal)
+func CreateID(name string, address Address, terminal string) ID {
+	helper := GetIDHelper()
+	return helper.CreateID(name, address, terminal)
 }
 
-func IDParse(identifier interface{}) ID {
-	if ValueIsNil(identifier) {
-		return nil
-	}
-	value, ok := identifier.(ID)
-	if ok {
-		return value
-	}
-	str := FetchString(identifier)
-	factory := IDGetFactory()
-	return factory.ParseID(str)
+func ParseID(did interface{}) ID {
+	helper := GetIDHelper()
+	return helper.ParseID(did)
 }
 
-func IDConvert(members interface{}) []ID {
-	if reflect.TypeOf(members).Kind() != reflect.Slice {
-		panic(members)
-		return []ID{}
-	}
-	values := reflect.ValueOf(members)
-	count := values.Len()
-	res := make([]ID, 0, count)
-	var item ID
-	for index := 0; index < count; index++ {
-		item = IDParse(values.Index(index).Interface())
-		if item == nil {
-			continue
-		}
-		res = append(res, item)
-	}
-	return res
+func GetIDFactory() IDFactory {
+	helper := GetIDHelper()
+	return helper.GetIDFactory()
 }
 
-func IDRevert(members []ID) []string {
-	res := make([]string, len(members))
-	for index, item := range members {
-		res[index] = item.String()
-	}
-	return res
+func SetIDFactory(factory IDFactory) {
+	helper := GetIDHelper()
+	helper.SetIDFactory(factory)
 }
 
-//func IDEqual(id1, id2 ID) bool {
-//	if id1 == id2 {
-//		return true
-//	} else {
-//		return id1.Address().Equal(id2.Address()) && id1.Name() == id2.Name()
-//	}
-//}
+//
+//  Conveniences
+//
 
 /**
- *  ID for broadcast
+ *  Convert ID list from string array
+ *
+ * @param array - string array
+ * @return ID list
  */
-const (
-	Moky = "moky"
-	Anyone = "anyone"
-	Everyone = "everyone"
-)
+func IDConvert(array interface{}) []ID {
+	members := FetchList(array)
+	identifiers := make([]ID, 0, len(members))
+	var did ID
+	for _, item := range members {
+		did = ParseID(item)
+		if did == nil {
+			continue
+		}
+		identifiers = append(identifiers, did)
+	}
+	return identifiers
+}
 
-var FOUNDER ID = nil   // "moky@anywhere"
-var ANYONE ID = nil    // "anyone@anywhere"
-var EVERYONE ID = nil  // "everyone@everywhere"
-
-func CreateBroadcastIdentifiers() {
-	if IDGetFactory() == nil {
-		return
+/**
+ *  Revert ID list to string array
+ *
+ * @param identifiers - ID list
+ * @return string array
+ */
+func IDRevert(identifiers []ID) []string {
+	array := make([]string, len(identifiers))
+	for idx, did := range identifiers {
+		array[idx] = did.String()
 	}
-	if FOUNDER == nil {
-		FOUNDER = IDCreate(Moky, ANYWHERE, "")
-	}
-	if ANYONE == nil {
-		ANYONE = IDCreate(Anyone, ANYWHERE, "")
-	}
-	if EVERYONE == nil {
-		EVERYONE = IDCreate(Everyone, EVERYWHERE, "")
-	}
+	return array
 }

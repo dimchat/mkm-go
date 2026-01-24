@@ -33,7 +33,6 @@ package mkm
 import (
 	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
-	"strings"
 )
 
 /**
@@ -55,25 +54,14 @@ type Identifier struct {
 	_terminal string
 }
 
-func NewIdentifier(identifier string, name string, address Address, terminal string) ID {
-	return new(Identifier).Init(identifier, name, address, terminal)
+func (id *Identifier) Init(s string, name string, address Address, terminal string) {
+	id.ConstantString.Init(s)
+	id._name = name
+	id._address = address
+	id._terminal = terminal
 }
 
-func (id *Identifier) Init(string string, name string, address Address, terminal string) ID {
-	if id.ConstantString.Init(string) != nil {
-		id._name = name
-		id._address = address
-		id._terminal = terminal
-	}
-	return id
-}
-
-//func (id *Identifier) Equal(other interface{}) bool {
-//	var identifier = IDParse(other)
-//	return identifier != nil && IDEqual(id, identifier)
-//}
-
-//-------- IIdentifier
+//-------- ID
 
 func (id *Identifier) Name() string {
 	return id._name
@@ -87,65 +75,37 @@ func (id *Identifier) Terminal() string {
 	return id._terminal
 }
 
-func (id *Identifier) Type() NetworkType {
+func (id *Identifier) Type() EntityType {
 	return id._address.Network()
 }
 
 func (id *Identifier) IsUser() bool {
-	return id._address.IsUser()
+	network := id._address.Network()
+	return EntityTypeIsUser(network)
 }
 
 func (id *Identifier) IsGroup() bool {
-	return id._address.IsGroup()
+	network := id._address.Network()
+	return EntityTypeIsGroup(network)
 }
 
 func (id *Identifier) IsBroadcast() bool {
-	return id._address.IsBroadcast()
+	network := id._address.Network()
+	return EntityTypeIsBroadcast(network)
 }
 
-/**
- *  General ID Factory
- *  ~~~~~~~~~~~~~~~~~~
- */
-type GeneralIDFactory struct {
+//
+//  Creation
+//
 
-	_ids map[string]ID
-}
-
-func (factory *GeneralIDFactory) Init() IDFactory {
-	factory._ids = make(map[string]ID)
-	return factory
-}
-
-//-------- IIdentifierFactory
-
-func (factory *GeneralIDFactory) GenerateID(meta Meta, network NetworkType, terminal string) ID {
-	address := AddressGenerate(meta, network)
-	return IDCreate(meta.Seed(), address, terminal)
-}
-
-func (factory *GeneralIDFactory) CreateID(name string, address Address, terminal string) ID {
-	identifier := concat(name, address, terminal)
-	id := factory._ids[identifier]
-	if id == nil {
-		id = NewIdentifier(identifier, name, address, terminal)
-		factory._ids[identifier] = id
-	}
+func NewIdentifier(name string, address Address, terminal string) ID {
+	identifier := IdentifierConcat(name, address, terminal)
+	id := new(Identifier)
+	id.Init(identifier, name, address, terminal)
 	return id
 }
 
-func (factory *GeneralIDFactory) ParseID(identifier string) ID {
-	id := factory._ids[identifier]
-	if id == nil {
-		id = parse(identifier)
-		if id != nil {
-			factory._ids[identifier] = id
-		}
-	}
-	return id
-}
-
-func concat(name string, address Address, terminal string) string {
+func IdentifierConcat(name string, address Address, terminal string) string {
 	str := address.String()
 	if name != "" {
 		str = name + "@" + str
@@ -154,43 +114,4 @@ func concat(name string, address Address, terminal string) string {
 		str = str + "/" + terminal
 	}
 	return str
-}
-
-func parse(identifier string) ID {
-	var name string
-	var address Address
-	var terminal string
-	// split ID string
-	pair := strings.Split(identifier, "/")
-	if len(pair) == 1 {
-		// no terminal
-		terminal = ""
-	} else {
-		// got terminal
-		terminal = pair[1]
-	}
-	// split name & address
-	pair = strings.Split(pair[0], "@")
-	if len(pair) == 1 {
-		// got address without name
-		name = ""
-		address = AddressParse(pair[0])
-	} else {
-		// got name & address
-		name = pair[0]
-		address = AddressParse(pair[1])
-	}
-	if address == nil {
-		return nil
-	}
-	return NewIdentifier(identifier, name, address, terminal)
-}
-
-func BuildGeneralIDFactory() IDFactory {
-	factory := IDGetFactory()
-	if factory == nil {
-		factory = new(GeneralIDFactory).Init()
-		IDSetFactory(factory)
-	}
-	return factory
 }

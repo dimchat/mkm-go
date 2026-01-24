@@ -31,6 +31,7 @@
 package protocol
 
 import (
+	. "github.com/dimchat/mkm-go/ext"
 	. "github.com/dimchat/mkm-go/types"
 )
 
@@ -47,11 +48,7 @@ type Address interface {
 	 *
 	 * @return network type
 	 */
-	Network() NetworkType
-
-	IsUser() bool
-	IsGroup() bool
-	IsBroadcast() bool
+	Network() EntityType
 }
 
 /**
@@ -67,15 +64,7 @@ type AddressFactory interface {
 	 * @param network - address type
 	 @ @return Address
 	 */
-	GenerateAddress(meta Meta, network NetworkType) Address
-
-	/**
-	 *  Create address from string
-	 *
-	 * @param address - address string
-	 * @return Address
-	 */
-	CreateAddress(address string) Address
+	GenerateAddress(meta Meta, network EntityType) Address
 
 	/**
 	 *  Parse string object to address
@@ -87,54 +76,25 @@ type AddressFactory interface {
 }
 
 //
-//  Instance of AddressFactory
-//
-var addressFactory AddressFactory = nil
-
-func AddressSetFactory(factory AddressFactory) {
-	addressFactory = factory
-}
-
-func AddressGetFactory() AddressFactory {
-	return addressFactory
-}
-
-//
 //  Factory methods
 //
-func AddressGenerate(meta Meta, network NetworkType) Address {
-	factory := AddressGetFactory()
-	return factory.GenerateAddress(meta, network)
+
+func GenerateAddress(meta Meta, network EntityType) Address {
+	helper := GetAddressHelper()
+	return helper.GenerateAddress(meta, network)
 }
 
-func AddressCreate(address string) Address {
-	factory := AddressGetFactory()
-	return factory.CreateAddress(address)
+func ParseAddress(address interface{}) Address {
+	helper := GetAddressHelper()
+	return helper.ParseAddress(address)
 }
 
-func AddressParse(address interface{}) Address {
-	if ValueIsNil(address) {
-		return nil
-	}
-	value, ok := address.(Address)
-	if ok {
-		return value
-	}
-	str := FetchString(address)
-	factory := AddressGetFactory()
-	return factory.ParseAddress(str)
+func GetAddressFactory() AddressFactory {
+	helper := GetAddressHelper()
+	return helper.GetAddressFactory()
 }
 
-/**
- *  Address for broadcast
- */
-const (
-	Anywhere = "anywhere"
-	Everywhere = "everywhere"
-)
-
-//
-//  Broadcast addresses for User/Group
-//
-var ANYWHERE Address = nil    // "anywhere"
-var EVERYWHERE Address = nil  // "everywhere"
+func SetAddressFactory(factory AddressFactory) {
+	helper := GetAddressHelper()
+	helper.SetAddressFactory(factory)
+}
