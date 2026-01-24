@@ -66,15 +66,15 @@ type BroadcastAddress struct {
 	_network EntityType
 }
 
-func (address *BroadcastAddress) Init(s string, network EntityType) {
-	address.ConstantString.Init(s)
-	address._network = network
+func (addr *BroadcastAddress) Init(address string, network EntityType) {
+	addr.ConstantString.Init(address)
+	addr._network = network
 }
 
 //-------- IAddress
 
-func (address *BroadcastAddress) Network() EntityType {
-	return address._network
+func (addr *BroadcastAddress) Network() EntityType {
+	return addr._network
 }
 
 //

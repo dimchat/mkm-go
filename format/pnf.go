@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package protocol
+package format
 
 import (
 	. "github.com/dimchat/mkm-go/crypto"
@@ -153,12 +153,12 @@ func ParseTransportableFile(pnf StringKeyMap) TransportableFile {
 	return helper.ParseTransportableFile(pnf)
 }
 
-func SetTransportableFileFactory(factory TransportableFileFactory) {
-	helper := GetTransportableFileHelper()
-	helper.SetTransportableFileFactory(factory)
-}
-
 func GetTransportableFileFactory() TransportableFileFactory {
 	helper := GetTransportableFileHelper()
 	return helper.GetTransportableFileFactory()
+}
+
+func SetTransportableFileFactory(factory TransportableFileFactory) {
+	helper := GetTransportableFileHelper()
+	helper.SetTransportableFileFactory(factory)
 }

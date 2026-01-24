@@ -44,8 +44,8 @@ type ConstantString struct {
 	_string string
 }
 
-func (str *ConstantString) Init(string string) {
-	str._string = string
+func (str *ConstantString) Init(text string) {
+	str._string = text
 }
 
 //-------- fmt.Stringer

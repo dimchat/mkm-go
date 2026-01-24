@@ -54,8 +54,8 @@ type Identifier struct {
 	_terminal string
 }
 
-func (id *Identifier) Init(s string, name string, address Address, terminal string) {
-	id.ConstantString.Init(s)
+func (id *Identifier) Init(identifier string, name string, address Address, terminal string) {
+	id.ConstantString.Init(identifier)
 	id._name = name
 	id._address = address
 	id._terminal = terminal
@@ -100,7 +100,7 @@ func (id *Identifier) IsBroadcast() bool {
 
 func NewIdentifier(name string, address Address, terminal string) ID {
 	identifier := IdentifierConcat(name, address, terminal)
-	id := new(Identifier)
+	id := &Identifier{}
 	id.Init(identifier, name, address, terminal)
 	return id
 }

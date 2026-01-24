@@ -23,7 +23,7 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package protocol
+package format
 
 import (
 	. "github.com/dimchat/mkm-go/ext"
@@ -149,12 +149,12 @@ func ParseTransportableData(ted interface{}) TransportableData {
 	return helper.ParseTransportableData(ted)
 }
 
-func SetTransportableDataFactory(factory TransportableDataFactory) {
-	helper := GetTransportableDataHelper()
-	helper.SetTransportableDataFactory(factory)
-}
-
 func GetTransportableDataFactory() TransportableDataFactory {
 	helper := GetTransportableDataHelper()
 	return helper.GetTransportableDataFactory()
+}
+
+func SetTransportableDataFactory(factory TransportableDataFactory) {
+	helper := GetTransportableDataHelper()
+	helper.SetTransportableDataFactory(factory)
 }
