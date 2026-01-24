@@ -25,22 +25,21 @@
  */
 package crypto
 
-import . "github.com/dimchat/mkm-go/types"
-
-const (
-	RSA = "RSA"  //-- "RSA/ECB/PKCS1Padding", "SHA256withRSA"
-	ECC = "ECC"
+import (
+	. "github.com/dimchat/mkm-go/ext"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
  *  Asymmetric Cryptography Public Key
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *
+ *  <blockquote><pre>
  *  key data format: {
- *      algorithm : "RSA", // "ECC", ...
- *      data      : "{BASE64_ENCODE}",
+ *      "algorithm" : "RSA", // "ECC", ...
+ *      "data"      : "{BASE64_ENCODE}",
  *      ...
  *  }
+ *  </pre></blockquote>
  */
 type PublicKey interface {
 	AsymmetricKey
@@ -59,39 +58,24 @@ type PublicKeyFactory interface {
 	 * @param key - key info
 	 * @return PublicKey
 	 */
-	ParsePublicKey(key map[string]interface{}) PublicKey
-}
-
-//
-//  Instances of PublicKeyFactory
-//
-var publicFactories = make(map[string]PublicKeyFactory)
-
-func PublicKeySetFactory(algorithm string, factory PublicKeyFactory) {
-	publicFactories[algorithm] = factory
-}
-
-func PublicKeyGetFactory(algorithm string) PublicKeyFactory {
-	return publicFactories[algorithm]
+	ParsePublicKey(key StringKeyMap) PublicKey
 }
 
 //
 //  Factory method
 //
-func PublicKeyParse(key interface{}) PublicKey {
-	if ValueIsNil(key) {
-		return nil
-	}
-	value, ok := key.(PublicKey)
-	if ok {
-		return value
-	}
-	info := FetchMap(key)
-	// get key factory by algorithm
-	algorithm := CryptographyKeyGetAlgorithm(info)
-	factory := PublicKeyGetFactory(algorithm)
-	if factory == nil {
-		factory = PublicKeyGetFactory("*")  // unknown
-	}
-	return factory.ParsePublicKey(info)
+
+func ParsePublicKey(key interface{}) PublicKey {
+	helper := GetPublicKeyHelper()
+	return helper.ParsePublicKey(key)
+}
+
+func GetPublicKeyFactory(algorithm string) PublicKeyFactory {
+	helper := GetPublicKeyHelper()
+	return helper.GetPublicKeyFactory(algorithm)
+}
+
+func SetPublicKeyFactory(algorithm string, factory PublicKeyFactory) {
+	helper := GetPublicKeyHelper()
+	helper.SetPublicKeyFactory(algorithm, factory)
 }

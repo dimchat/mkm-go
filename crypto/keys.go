@@ -26,19 +26,23 @@
 package crypto
 
 import (
+	. "github.com/dimchat/mkm-go/protocol"
 	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
  *  Cryptography Key
- *  ~~~~~~~~~~~~~~~~
- *  Cryptography key with designated algorithm
+ *  <p>
+ *      Cryptography key with designated algorithm
+ *  </p>
  *
+ *  <blockquote><pre>
  *  key data format: {
- *      algorithm : "RSA", // ECC, AES, ...
- *      data      : "{BASE64_ENCODE}",
+ *      "algorithm" : "RSA", // ECC, AES, ...
+ *      "data"      : "{BASE64_ENCODE}",
  *      ...
  *  }
+ *  </pre></blockquote>
  */
 type CryptographyKey interface {
 	Mapper
@@ -55,7 +59,7 @@ type CryptographyKey interface {
 	 *
 	 * @return key data
 	 */
-	Data() []byte
+	Data() TransportableData
 }
 
 type EncryptKey interface {
@@ -65,13 +69,25 @@ type EncryptKey interface {
 type IEncryptKey interface {
 
 	/**
-	 *  ciphertext = encrypt(plaintext, PW)
-	 *  ciphertext = encrypt(plaintext, PK)
+	 *  1. Symmetric Key:
+	 *     <blockquote><pre>
+	 *         ciphertext = encrypt(plaintext, PW)
+	 *     </pre></blockquote>
 	 *
-	 * @param plaintext - plain data
+	 *  2. Asymmetric Public Key:
+	 *     <blockquote><pre>
+	 *         ciphertext = encrypt(plaintext, PK);
+	 *     </pre></blockquote>
+	 *
+	 * @param plaintext
+	 *        plain data
+	 *
+	 * @param extra
+	 *        store extra variables ('IV' for 'AES')
+	 *
 	 * @return ciphertext
 	 */
-	Encrypt(plaintext []byte) []byte
+	Encrypt(plaintext []byte, extra StringKeyMap) []byte
 }
 
 type DecryptKey interface {
@@ -81,21 +97,39 @@ type DecryptKey interface {
 type IDecryptKey interface {
 
 	/**
-	 *  plaintext = decrypt(ciphertext, PW);
-	 *  plaintext = decrypt(ciphertext, SK);
+	 *  1. Symmetric Key:
+	 *     <blockquote><pre>
+	 *         plaintext = decrypt(ciphertext, PW);
+	 *     </pre></blockquote>
 	 *
-	 * @param ciphertext - encrypted data
+	 *  2. Asymmetric Private Key:
+	 *     <blockquote><pre>
+	 *         plaintext = decrypt(ciphertext, SK);
+	 *     </pre></blockquote>
+	 *
+	 * @param ciphertext
+	 *        encrypted data
+	 *
+	 * @param params
+	 *        extra params ('IV' for 'AES')
+	 *
 	 * @return plaintext
 	 */
-	Decrypt(ciphertext []byte) []byte
+	Decrypt(ciphertext []byte, params StringKeyMap) []byte
 
 	/**
-	 *  OK = decrypt(encrypt(data, SK), PK) == data
+	 *  Check symmetric keys by encryption.
+	 *  <blockquote><pre>
+	 *      CT = encrypt(data, PK);
+	 *      OK = decrypt(CT, SK) == data;
+	 *  </pre></blockquote>
 	 *
-	 * @param pKey - public key
+	 * @param pKey
+	 *        encrypt (public) key
+	 *
 	 * @return true on signature matched
 	 */
-	Match(pKey EncryptKey) bool
+	MatchEncryptKey(pKey EncryptKey) bool
 }
 
 type SignKey interface {
@@ -105,9 +139,14 @@ type SignKey interface {
 type ISignKey interface {
 
 	/**
-	 *  signature = sign(data, SK);
+	 *  Get signature for data
+	 *  <blockquote><pre>
+	 *      signature = sign(data, SK);
+	 *  </pre></blockquote>
 	 *
-	 * @param data - data to be signed
+	 * @param data
+	 *        data to be signed
+	 *
 	 * @return signature
 	 */
 	Sign(data []byte) []byte
@@ -120,21 +159,34 @@ type VerifyKey interface {
 type IVerifyKey interface {
 
 	/**
-	 *  OK = verify(data, signature, PK)
+	 *  Verify signature with data
+	 *  <blockquote><pre>
+	 *      OK = verify(data, signature, PK);
+	 *  </pre></blockquote>
 	 *
-	 * @param data - data
-	 * @param signature - signature of data
+	 * @param data
+	 *        data
+	 *
+	 * @param signature
+	 *        signature of data
+	 *
 	 * @return true on signature matched
 	 */
 	Verify(data []byte, signature []byte) bool
 
 	/**
-	 *  OK = verify(data, sign(data, SK), PK)
+	 *  Check asymmetric keys by signature.
+	 *  <blockquote><pre>
+	 *      signature = sign(data, SK);
+	 *      OK = verify(data, signature, PK);
+	 *  </pre></blockquote>
 	 *
-	 * @param sKey - private key
+	 * @param sKey
+	 *        private key
+	 *
 	 * @return true on signature matched
 	 */
-	Match(sKey SignKey) bool
+	MatchSignKey(sKey SignKey) bool
 }
 
 /**
@@ -145,27 +197,7 @@ type AsymmetricKey interface {
 	CryptographyKey
 }
 
-/**
- *  Check asymmetric keys
- *
- * @param sKey - private key
- * @param pKey - public key
- * @return true on keys matched
- */
-func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
-	// try to verify with signature
-	signature := sKey.Sign(promise)
-	return pKey.Verify(promise, signature)
-}
-
-const _promise = "Moky loves May Lee forever!"
-var promise = []byte(_promise)
-
-func CryptographyKeyGetAlgorithm(key map[string]interface{}) string {
-	text, ok := key["algorithm"].(string)
-	if ok {
-		return text
-	} else {
-		return ""
-	}
-}
+//const (
+//	RSA = "RSA"  //-- "RSA/ECB/PKCS1Padding", "SHA256withRSA"
+//	ECC = "ECC"
+//)

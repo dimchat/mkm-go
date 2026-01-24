@@ -26,25 +26,23 @@
 package crypto
 
 import (
-	"bytes"
+	. "github.com/dimchat/mkm-go/ext"
 	. "github.com/dimchat/mkm-go/types"
-)
-
-const (
-	AES = "AES"  //-- "AES/CBC/PKCS7Padding"
-	DES = "DES"
 )
 
 /**
  *  Symmetric Cryptography Key
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~
- *  This class is used to encrypt or decrypt message data
+ *  <p>
+ *      This class is used to encrypt or decrypt message data
+ *  </p>
  *
+ *  <blockquote><pre>
  *  key data format: {
- *      algorithm : "AES", // "DES", ...
- *      data      : "{BASE64_ENCODE}",
+ *      "algorithm" : "AES", // "DES", ...
+ *      "data"      : "{BASE64_ENCODE}",
  *      ...
  *  }
+ *  </pre></blockquote>
  */
 type SymmetricKey interface {
 	CryptographyKey
@@ -52,19 +50,10 @@ type SymmetricKey interface {
 	IDecryptKey
 }
 
-/**
- *  Check symmetric keys
- *
- * @param pKey - symmetric key1
- * @param sKey - symmetric key2
- * @return true on keys equal
- */
-func SymmetricKeysMatch(pKey EncryptKey, sKey DecryptKey) bool {
-	// check by encryption
-	ciphertext := pKey.Encrypt(promise)
-	plaintext := sKey.Decrypt(ciphertext)
-	return bytes.Equal(plaintext, promise)
-}
+//const (
+//	AES = "AES"  //-- "AES/CBC/PKCS7Padding"
+//	DES = "DES"
+//)
 
 /**
  *  Symmetric Key Factory
@@ -85,47 +74,29 @@ type SymmetricKeyFactory interface {
 	 * @param key - key info
 	 * @return SymmetricKey
 	 */
-	ParseSymmetricKey(key map[string]interface{}) SymmetricKey
-}
-
-//
-//  Instances of SymmetricKeyFactory
-//
-var symmetricFactories = make(map[string]SymmetricKeyFactory)
-
-func SymmetricKeySetFactory(algorithm string, factory SymmetricKeyFactory) {
-	symmetricFactories[algorithm] = factory
-}
-
-func SymmetricKeyGetFactory(algorithm string) SymmetricKeyFactory {
-	return symmetricFactories[algorithm]
+	ParseSymmetricKey(key StringKeyMap) SymmetricKey
 }
 
 //
 //  Factory methods
 //
-func SymmetricKeyGenerate(algorithm string) SymmetricKey {
-	factory := SymmetricKeyGetFactory(algorithm)
-	if factory == nil {
-		panic("key algorithm not support: " + algorithm)
-	}
-	return factory.GenerateSymmetricKey()
+
+func GenerateSymmetricKey(algorithm string) SymmetricKey {
+	helper := GetSymmetricKeyHelper()
+	return helper.GenerateSymmetricKey(algorithm)
 }
 
-func SymmetricKeyParse(key interface{}) SymmetricKey {
-	if ValueIsNil(key) {
-		return nil
-	}
-	value, ok := key.(SymmetricKey)
-	if ok {
-		return value
-	}
-	info := FetchMap(key)
-	// get key factory by algorithm
-	algorithm := CryptographyKeyGetAlgorithm(info)
-	factory := SymmetricKeyGetFactory(algorithm)
-	if factory == nil {
-		factory = SymmetricKeyGetFactory("*")  // unknown
-	}
-	return factory.ParseSymmetricKey(info)
+func ParseSymmetricKey(key interface{}) SymmetricKey {
+	helper := GetSymmetricKeyHelper()
+	return helper.ParseSymmetricKey(key)
+}
+
+func GetSymmetricKeyFactory(algorithm string) SymmetricKeyFactory {
+	helper := GetSymmetricKeyHelper()
+	return helper.GetSymmetricKeyFactory(algorithm)
+}
+
+func SetSymmetricKeyFactory(algorithm string, factory SymmetricKeyFactory) {
+	helper := GetSymmetricKeyHelper()
+	helper.SetSymmetricKeyFactory(algorithm, factory)
 }

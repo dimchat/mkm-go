@@ -25,18 +25,24 @@
  */
 package crypto
 
-import . "github.com/dimchat/mkm-go/types"
+import (
+	. "github.com/dimchat/mkm-go/ext"
+	. "github.com/dimchat/mkm-go/types"
+)
 
 /**
  *  Asymmetric Cryptography Private Key
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- *  This class is used to decrypt symmetric key or sign message data
+ *  <p>
+ *      This class is used to decrypt symmetric key or sign message data
+ *  </p>
  *
+ *  <blockquote><pre>
  *  key data format: {
- *      algorithm : "RSA", // "ECC", ...
- *      data      : "{BASE64_ENCODE}",
+ *      "algorithm" : "RSA", // "ECC", ...
+ *      "data"      : "{BASE64_ENCODE}",
  *      ...
  *  }
+ *  </pre></blockquote>
  */
 type PrivateKey interface {
 	AsymmetricKey
@@ -69,47 +75,29 @@ type PrivateKeyFactory interface {
 	 * @param key - key info
 	 * @return PrivateKey
 	 */
-	ParsePrivateKey(key map[string]interface{}) PrivateKey
-}
-
-//
-//  Instances of PrivateKeyFactory
-//
-var privateFactories = make(map[string]PrivateKeyFactory)
-
-func PrivateKeySetFactory(algorithm string, factory PrivateKeyFactory) {
-	privateFactories[algorithm] = factory
-}
-
-func PrivateKeyGetFactory(algorithm string) PrivateKeyFactory {
-	return privateFactories[algorithm]
+	ParsePrivateKey(key StringKeyMap) PrivateKey
 }
 
 //
 //  Factory methods
 //
-func PrivateKeyGenerate(algorithm string) PrivateKey {
-	factory := PrivateKeyGetFactory(algorithm)
-	if factory == nil {
-		panic("key algorithm not support: " + algorithm)
-	}
-	return factory.GeneratePrivateKey()
+
+func GeneratePrivateKey(algorithm string) PrivateKey {
+	helper := GetPrivateKeyHelper()
+	return helper.GeneratePrivateKey(algorithm)
 }
 
-func PrivateKeyParse(key interface{}) PrivateKey {
-	if ValueIsNil(key) {
-		return nil
-	}
-	value, ok := key.(PrivateKey)
-	if ok {
-		return value
-	}
-	info := FetchMap(key)
-	// get key factory by algorithm
-	algorithm := CryptographyKeyGetAlgorithm(info)
-	factory := PrivateKeyGetFactory(algorithm)
-	if factory == nil {
-		factory = PrivateKeyGetFactory("*")  // unknown
-	}
-	return factory.ParsePrivateKey(info)
+func ParsePrivateKey(key interface{}) PrivateKey {
+	helper := GetPrivateKeyHelper()
+	return helper.ParsePrivateKey(key)
+}
+
+func GetPrivateKeyFactory(algorithm string) PrivateKeyFactory {
+	helper := GetPrivateKeyHelper()
+	return helper.GetPrivateKeyFactory(algorithm)
+}
+
+func SetPrivateKeyFactory(algorithm string, factory PrivateKeyFactory) {
+	helper := GetPrivateKeyHelper()
+	helper.SetPrivateKeyFactory(algorithm, factory)
 }
