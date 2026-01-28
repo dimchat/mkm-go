@@ -28,7 +28,6 @@ package types
 import "reflect"
 
 type Cloneable interface {
-
 	Clone() interface{}
 }
 
@@ -56,7 +55,6 @@ type Copier interface {
 	DeepCopyMap(dictionary StringKeyMap) StringKeyMap
 
 	DeepCopyList(array []interface{}) []interface{}
-
 }
 
 var sharedCopier Copier = &DataCopier{}
@@ -100,7 +98,7 @@ func DeepCopyList(array []interface{}) []interface{} {
 /**
  *  Default Data Copier
  */
-type DataCopier struct {}
+type DataCopier struct{}
 
 func (cp *DataCopier) Copy(object interface{}) interface{} {
 	target, rv := ObjectReflectValue(object)
@@ -123,9 +121,9 @@ func (cp *DataCopier) Copy(object interface{}) interface{} {
 		return CopyMap(reflectMap(rv))
 	case reflect.Array, reflect.Slice:
 		return CopyList(reflectList(rv))
+	default:
+		return target
 	}
-	// others
-	return target
 }
 
 func (cp *DataCopier) DeepCopy(object interface{}) interface{} {
@@ -149,9 +147,9 @@ func (cp *DataCopier) DeepCopy(object interface{}) interface{} {
 		return DeepCopyMap(reflectMap(rv))
 	case reflect.Array, reflect.Slice:
 		return DeepCopyList(reflectList(rv))
+	default:
+		return target
 	}
-	// others
-	return target
 }
 
 func (cp *DataCopier) CopyMap(dictionary StringKeyMap) StringKeyMap {

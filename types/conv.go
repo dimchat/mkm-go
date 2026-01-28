@@ -147,8 +147,9 @@ func (conv *DataConverter) GetString(value interface{}, defaultValue string) str
 		return formatComplex(rv.Complex(), 64)
 	case reflect.Complex128:
 		return formatComplex(rv.Complex(), 128)
+	default:
+		//panic(fmt.Sprintf("string value error: %v", value))
 	}
-	//panic(fmt.Sprintf("string value error: %v", value))
 	//return defaultValue
 	return fmt.Sprintf("%v", value)
 }
@@ -211,8 +212,9 @@ func (conv *DataConverter) GetBool(value interface{}, defaultValue bool) bool {
 		return rv.Float() != 0
 	case reflect.Complex64, reflect.Complex128:
 		return rv.Complex() != 0
+	default:
+		//panic(fmt.Sprintf("bool value error: %v", value))
 	}
-	//panic(fmt.Sprintf("bool value error: %v", value))
 	return defaultValue
 }
 
@@ -258,11 +260,10 @@ func parseComplex(s string, bitSize int) (complex128, error) {
 					return complex(0, 1), nil
 				} else if im == "-" {
 					return complex(0, -1), nil
-				} else {
-					b, err := strconv.ParseFloat(im, 64)
-					if err == nil {
-						return complex(0, b), nil
-					}
+				}
+				b, err := strconv.ParseFloat(im, 64)
+				if err == nil {
+					return complex(0, b), nil
 				}
 			}
 		}
@@ -286,9 +287,8 @@ func (conv *DataConverter) GetFloat32(value interface{}, defaultValue float32) f
 	case bool:
 		if v {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case string:
 		f, err := parseFloat(v, 32)
 		if err != nil {
@@ -308,9 +308,8 @@ func (conv *DataConverter) GetFloat32(value interface{}, defaultValue float32) f
 	case reflect.Bool:
 		if rv.Bool() {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case reflect.String:
 		f, err := parseFloat(rv.String(), 64)
 		if err != nil {
@@ -318,8 +317,9 @@ func (conv *DataConverter) GetFloat32(value interface{}, defaultValue float32) f
 			return defaultValue
 		}
 		return float32(f)
+	default:
+		//panic(fmt.Sprintf("float32 value error: %v", value))
 	}
-	//panic(fmt.Sprintf("float32 value error: %v", value))
 	return defaultValue
 }
 
@@ -338,9 +338,8 @@ func (conv *DataConverter) GetFloat64(value interface{}, defaultValue float64) f
 	case bool:
 		if v {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case string:
 		f, err := parseFloat(v, 64)
 		if err != nil {
@@ -360,9 +359,8 @@ func (conv *DataConverter) GetFloat64(value interface{}, defaultValue float64) f
 	case reflect.Bool:
 		if rv.Bool() {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case reflect.String:
 		f, err := parseFloat(rv.String(), 64)
 		if err != nil {
@@ -370,8 +368,9 @@ func (conv *DataConverter) GetFloat64(value interface{}, defaultValue float64) f
 			return defaultValue
 		}
 		return f
+	default:
+		//panic(fmt.Sprintf("float64 value error: %v", value))
 	}
-	//panic(fmt.Sprintf("float64 value error: %v", value))
 	return defaultValue
 }
 
@@ -414,8 +413,9 @@ func (conv *DataConverter) GetComplex64(value interface{}, defaultValue complex6
 			return defaultValue
 		}
 		return complex64(c)
+	default:
+		//panic(fmt.Sprintf("complex64 value error: %v", value))
 	}
-	//panic(fmt.Sprintf("complex64 value error: %v", value))
 	return defaultValue
 }
 
@@ -458,7 +458,8 @@ func (conv *DataConverter) GetComplex128(value interface{}, defaultValue complex
 			return defaultValue
 		}
 		return c
+	default:
+		//panic(fmt.Sprintf("complex128 value error: %v", value))
 	}
-	//panic(fmt.Sprintf("complex128 value error: %v", value))
 	return defaultValue
 }

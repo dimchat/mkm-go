@@ -68,7 +68,6 @@ type Wrapper interface {
 
 	// Unwrap values in the array
 	UnwrapList(array []interface{}) []interface{}
-
 }
 
 var sharedWrapper Wrapper = &DataWrapper{}
@@ -108,7 +107,7 @@ func UnwrapList(array []interface{}) []interface{} {
 /**
  *  Default Data Wrapper
  */
-type DataWrapper struct {}
+type DataWrapper struct{}
 
 func (wp *DataWrapper) GetString(value interface{}) string {
 	target, rv := ObjectReflectValue(value)
@@ -126,8 +125,9 @@ func (wp *DataWrapper) GetString(value interface{}) string {
 	switch rv.Kind() {
 	case reflect.String:
 		return rv.String()
+	default:
+		panic(fmt.Sprintf("not a string value: %v", value))
 	}
-	panic(fmt.Sprintf("not a string value: %v", value))
 	//return fmt.Sprintf("%v", value)
 }
 
@@ -147,8 +147,9 @@ func (wp *DataWrapper) GetMap(value interface{}) StringKeyMap {
 	switch rv.Kind() {
 	case reflect.Map:
 		return reflectMap(rv)
+	default:
+		panic(fmt.Sprintf("not a map value: %v", value))
 	}
-	panic(fmt.Sprintf("not a map value: %v", value))
 }
 
 func (wp *DataWrapper) GetList(value interface{}) []interface{} {
@@ -165,8 +166,9 @@ func (wp *DataWrapper) GetList(value interface{}) []interface{} {
 	switch rv.Kind() {
 	case reflect.Array, reflect.Slice:
 		return reflectList(rv)
+	default:
+		panic(fmt.Sprintf("not a list value: %v", value))
 	}
-	panic(fmt.Sprintf("not a list value: %v", value))
 }
 
 func (wp *DataWrapper) Unwrap(value interface{}) interface{} {
@@ -192,9 +194,9 @@ func (wp *DataWrapper) Unwrap(value interface{}) interface{} {
 		return UnwrapList(reflectList(rv))
 	case reflect.String:
 		return rv.String()
+	default:
+		return target
 	}
-	// others
-	return target
 }
 
 func (wp *DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {

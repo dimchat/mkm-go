@@ -74,9 +74,8 @@ func (conv *DataConverter) GetInt(value interface{}, defaultValue int) int {
 	case bool:
 		if v {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case string:
 		i, err := a2i(v)
 		if err != nil {
@@ -114,9 +113,8 @@ func (conv *DataConverter) GetInt(value interface{}, defaultValue int) int {
 	case reflect.Bool:
 		if rv.Bool() {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case reflect.String:
 		i, err := a2i(rv.String())
 		if err != nil {
@@ -124,8 +122,9 @@ func (conv *DataConverter) GetInt(value interface{}, defaultValue int) int {
 			return defaultValue
 		}
 		return i
+	default:
+		//panic(fmt.Sprintf("int value error: %v", value))
 	}
-	//panic(fmt.Sprintf("int value error: %v", value))
 	return defaultValue
 }
 
@@ -144,9 +143,8 @@ func (conv *DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
 	case bool:
 		if v {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case string:
 		i, err := parseInt(v, 8)
 		if err != nil {
@@ -166,9 +164,8 @@ func (conv *DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
 	case reflect.Bool:
 		if rv.Bool() {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case reflect.String:
 		i, err := parseInt(rv.String(), 8)
 		if err != nil {
@@ -176,8 +173,9 @@ func (conv *DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
 			return defaultValue
 		}
 		return int8(i)
+	default:
+		//panic(fmt.Sprintf("int8 value error: %v", value))
 	}
-	//panic(fmt.Sprintf("int8 value error: %v", value))
 	return defaultValue
 }
 
@@ -196,9 +194,8 @@ func (conv *DataConverter) GetInt16(value interface{}, defaultValue int16) int16
 	case bool:
 		if v {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case string:
 		i, err := parseInt(v, 16)
 		if err != nil {
@@ -218,9 +215,8 @@ func (conv *DataConverter) GetInt16(value interface{}, defaultValue int16) int16
 	case reflect.Bool:
 		if rv.Bool() {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case reflect.String:
 		i, err := parseInt(rv.String(), 16)
 		if err != nil {
@@ -228,8 +224,9 @@ func (conv *DataConverter) GetInt16(value interface{}, defaultValue int16) int16
 			return defaultValue
 		}
 		return int16(i)
+	default:
+		//panic(fmt.Sprintf("int16 value error: %v", value))
 	}
-	//panic(fmt.Sprintf("int16 value error: %v", value))
 	return defaultValue
 }
 
@@ -248,9 +245,8 @@ func (conv *DataConverter) GetInt32(value interface{}, defaultValue int32) int32
 	case bool:
 		if v {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case string:
 		i, err := parseInt(v, 32)
 		if err != nil {
@@ -270,9 +266,8 @@ func (conv *DataConverter) GetInt32(value interface{}, defaultValue int32) int32
 	case reflect.Bool:
 		if rv.Bool() {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case reflect.String:
 		i, err := parseInt(rv.String(), 32)
 		if err != nil {
@@ -280,8 +275,9 @@ func (conv *DataConverter) GetInt32(value interface{}, defaultValue int32) int32
 			return defaultValue
 		}
 		return int32(i)
+	default:
+		//panic(fmt.Sprintf("int32 value error: %v", value))
 	}
-	//panic(fmt.Sprintf("int32 value error: %v", value))
 	return defaultValue
 }
 
@@ -300,9 +296,8 @@ func (conv *DataConverter) GetInt64(value interface{}, defaultValue int64) int64
 	case bool:
 		if v {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case string:
 		i, err := parseInt(v, 64)
 		if err != nil {
@@ -322,9 +317,8 @@ func (conv *DataConverter) GetInt64(value interface{}, defaultValue int64) int64
 	case reflect.Bool:
 		if rv.Bool() {
 			return 1
-		} else {
-			return 0
 		}
+		return 0
 	case reflect.String:
 		i, err := parseInt(rv.String(), 64)
 		if err != nil {
@@ -332,7 +326,8 @@ func (conv *DataConverter) GetInt64(value interface{}, defaultValue int64) int64
 			return defaultValue
 		}
 		return i
+	default:
+		//panic(fmt.Sprintf("int64 value error: %v", value))
 	}
-	//panic(fmt.Sprintf("int64 value error: %v", value))
 	return defaultValue
 }

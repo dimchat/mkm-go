@@ -37,7 +37,6 @@ import (
  *      Map<string, *>
  */
 type Dictionary struct {
-
 	_dictionary StringKeyMap
 }
 
@@ -115,9 +114,8 @@ func (dict *Dictionary) Map() StringKeyMap {
 func (dict *Dictionary) CopyMap(deep bool) StringKeyMap {
 	if deep {
 		return DeepCopyMap(dict._dictionary)
-	} else {
-		return CopyMap(dict._dictionary)
 	}
+	return CopyMap(dict._dictionary)
 }
 
 //-------- Convert values
