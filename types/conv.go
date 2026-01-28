@@ -35,7 +35,7 @@ import (
 /**
  *  Default Converter
  */
-type DataConverter struct {}
+type DataConverter struct{}
 
 //
 //  String
@@ -104,7 +104,7 @@ func (conv *DataConverter) GetString(value interface{}, defaultValue string) str
 		return formatFloat(v, 64)
 	case complex64:
 		//return fmt.Sprintf("%g", v)
-		return formatComplex(v, 64)
+		return formatComplex(complex128(v), 64)
 	case complex128:
 		//return fmt.Sprintf("%g", v)
 		return formatComplex(v, 128)
@@ -395,7 +395,7 @@ func (conv *DataConverter) GetComplex64(value interface{}, defaultValue complex6
 			//panic(err)
 			return defaultValue
 		}
-		return c
+		return complex64(c)
 	}
 	// other types
 	switch rv.Kind() {
@@ -413,7 +413,7 @@ func (conv *DataConverter) GetComplex64(value interface{}, defaultValue complex6
 			//panic(err)
 			return defaultValue
 		}
-		return c
+		return complex64(c)
 	}
 	//panic(fmt.Sprintf("complex64 value error: %v", value))
 	return defaultValue
@@ -426,7 +426,7 @@ func (conv *DataConverter) GetComplex128(value interface{}, defaultValue complex
 	}
 	switch v := target.(type) {
 	case complex64:
-		return v
+		return complex128(v)
 	case complex128:
 		return v
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:

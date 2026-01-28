@@ -31,7 +31,6 @@
 package protocol
 
 import (
-	. "github.com/dimchat/mkm-go/ext"
 	. "github.com/dimchat/mkm-go/types"
 )
 
@@ -62,7 +61,7 @@ type AddressFactory interface {
 	 *
 	 * @param meta - meta info
 	 * @param network - address type
-	 @ @return Address
+	 * @return Address
 	 */
 	GenerateAddress(meta Meta, network EntityType) Address
 

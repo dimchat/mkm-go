@@ -26,7 +26,6 @@
 package format
 
 import (
-	. "github.com/dimchat/mkm-go/ext"
 	. "github.com/dimchat/mkm-go/types"
 )
 
@@ -118,12 +117,12 @@ type TransportableData interface {
 	 * @return "{BASE64_ENCODE}", or
 	 *         "data:image/png;base64,{BASE64_ENCODE}"
 	 */
-	String() string
+	//String() string
 
 	/**
 	 *  String()
 	 */
-	Serialize() interface{}
+	//Serialize() interface{}
 }
 
 /**

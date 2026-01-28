@@ -23,13 +23,14 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package format
+package protocol
 
 import (
-	. "github.com/dimchat/mkm-go/crypto"
-	. "github.com/dimchat/mkm-go/ext"
-	. "github.com/dimchat/mkm-go/types"
 	"net/url"
+
+	. "github.com/dimchat/mkm-go/crypto"
+	. "github.com/dimchat/mkm-go/format"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -91,7 +92,7 @@ type TransportableFile interface {
 	 *
 	 * @return inner map
 	 */
-	Map() StringKeyMap
+	//Map() StringKeyMap
 
 	/**
 	 *  if contains "URL" and "filename" only,
@@ -99,7 +100,7 @@ type TransportableFile interface {
 	 *  else,
 	 *      Map();
 	 */
-	Serialize() interface{}
+	//Serialize() interface{}
 }
 
 /**
@@ -124,8 +125,10 @@ type TransportableFileFactory interface {
 	 *
 	 * @return PNF object
 	 */
-	CreateTransportableFile(data TransportableData, filename string,
-		                    url url.URL, password DecryptKey) TransportableFile
+	CreateTransportableFile(
+		data TransportableData, filename string,
+		url url.URL, password DecryptKey,
+	) TransportableFile
 
 	/**
 	 *  Parse string/map object to PNF

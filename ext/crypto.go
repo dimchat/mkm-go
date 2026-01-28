@@ -27,74 +27,42 @@ package ext
 
 import (
 	"bytes"
+
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/types"
 )
 
+// Sample data for checking keys
+const _promise = "Moky loves May Lee forever!"
+
+var promise = []byte(_promise)
+
 /**
- * SymmetricKey Helper
+ *  Check asymmetric keys
+ *
+ * @param sKey - private key
+ * @param pKey - public key
+ * @return true on keys matched
  */
-type SymmetricKeyHelper interface {
-
-	SetSymmetricKeyFactory(algorithm string, factory SymmetricKeyFactory)
-	GetSymmetricKeyFactory(algorithm string) SymmetricKeyFactory
-
-	GenerateSymmetricKey(algorithm string) SymmetricKey
-
-	ParseSymmetricKey(key interface{}) SymmetricKey
-}
-
-var sharedSymmetricKeyHelper SymmetricKeyHelper = nil
-
-func SetSymmetricKeyHelper(helper SymmetricKeyHelper) {
-	sharedSymmetricKeyHelper = helper
-}
-
-func GetSymmetricKeyHelper() SymmetricKeyHelper {
-	return sharedSymmetricKeyHelper
+func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
+	// try to verify with signature
+	signature := sKey.Sign(promise)
+	return pKey.Verify(promise, signature)
 }
 
 /**
- *  PublicKey Helper
+ *  Check symmetric keys
+ *
+ * @param pKey - symmetric key1
+ * @param sKey - symmetric key2
+ * @return true on keys equal
  */
-type PublicKeyHelper interface {
-
-	SetPublicKeyFactory(algorithm string, factory PublicKeyFactory)
-	GetPublicKeyFactory(algorithm string) PublicKeyFactory
-
-	ParsePublicKey(key interface{}) PublicKey
-}
-
-var sharedPublicKeyHelper PublicKeyHelper = nil
-
-func SetPublicKeyHelper(helper PublicKeyHelper) {
-	sharedPublicKeyHelper = helper
-}
-
-func GetPublicKeyHelper() PublicKeyHelper {
-	return sharedPublicKeyHelper
-}
-
-/**
- *  PrivateKey Helper
- */
-type PrivateKeyHelper interface {
-
-	SetPrivateKeyFactory(algorithm string, factory PrivateKeyFactory)
-	GetPrivateKeyFactory(algorithm string) PrivateKeyFactory
-
-	GeneratePrivateKey(algorithm string) PrivateKey
-	ParsePrivateKey(key interface{}) PrivateKey
-}
-
-var sharedPrivateKeyHelper PrivateKeyHelper = nil
-
-func SetPrivateKeyHelper(helper PrivateKeyHelper) {
-	sharedPrivateKeyHelper = helper
-}
-
-func GetPrivateKeyHelper() PrivateKeyHelper {
-	return sharedPrivateKeyHelper
+func SymmetricKeysMatch(pKey EncryptKey, sKey DecryptKey) bool {
+	// check by encryption
+	params := NewMap()
+	ciphertext := pKey.Encrypt(promise, params)
+	plaintext := sKey.Decrypt(ciphertext, params)
+	return bytes.Equal(plaintext, promise)
 }
 
 /**
@@ -119,38 +87,4 @@ func SetGeneralCryptoHelper(helper GeneralCryptoHelper) {
 
 func GetGeneralCryptoHelper() GeneralCryptoHelper {
 	return sharedGeneralCryptoHelper
-}
-
-//
-//  Sample data for checking keys
-//
-const _promise = "Moky loves May Lee forever!"
-var promise = []byte(_promise)
-
-/**
-*  Check asymmetric keys
-*
-* @param sKey - private key
-* @param pKey - public key
-* @return true on keys matched
- */
-func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
-	// try to verify with signature
-	signature := sKey.Sign(promise)
-	return pKey.Verify(promise, signature)
-}
-
-/**
-*  Check symmetric keys
-*
-* @param pKey - symmetric key1
-* @param sKey - symmetric key2
-* @return true on keys equal
- */
-func SymmetricKeysMatch(pKey EncryptKey, sKey DecryptKey) bool {
-	// check by encryption
-	params := NewMap()
-	ciphertext := pKey.Encrypt(promise, params)
-	plaintext := sKey.Decrypt(ciphertext, params)
-	return bytes.Equal(plaintext, promise)
 }

@@ -23,19 +23,12 @@
  * SOFTWARE.
  * ==============================================================================
  */
-package ext
-
-import (
-	. "github.com/dimchat/mkm-go/crypto"
-	. "github.com/dimchat/mkm-go/format"
-	"net/url"
-)
+package format
 
 /**
  *  TED Helper
  */
 type TransportableDataHelper interface {
-
 	SetTransportableDataFactory(factory TransportableDataFactory)
 	GetTransportableDataFactory() TransportableDataFactory
 
@@ -50,28 +43,4 @@ func SetTransportableDataHelper(helper TransportableDataHelper) {
 
 func GetTransportableDataHelper() TransportableDataHelper {
 	return sharedTransportableDataHelper
-}
-
-/**
- *  PNF Helper
- */
-type TransportableFileHelper interface {
-
-	SetTransportableFileFactory(factory TransportableFileFactory)
-	GetTransportableFileFactory() TransportableFileFactory
-
-	ParseTransportableFile(pnf interface{}) TransportableFile
-
-	CreateTransportableFile(data TransportableData, filename string,
-		                    url url.URL, password DecryptKey) TransportableFile
-}
-
-var sharedTransportableFileHelper TransportableFileHelper = nil
-
-func SetTransportableFileHelper(helper TransportableFileHelper) {
-	sharedTransportableFileHelper = helper
-}
-
-func GetTransportableFileHelper() TransportableFileHelper {
-	return sharedTransportableFileHelper
 }
