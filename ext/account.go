@@ -90,12 +90,12 @@ func GetIDHelper() IDHelper {
  */
 type MetaHelper interface {
 
-	SetMetaFactory(version string, factory MetaFactory)
-	GetMetaFactory(version string) MetaFactory
+	SetMetaFactory(version MetaType, factory MetaFactory)
+	GetMetaFactory(version MetaType) MetaFactory
 
-	CreateMeta(version string, pKey VerifyKey, seed string, fingerprint TransportableData) Meta
+	CreateMeta(version MetaType, pKey VerifyKey, seed string, fingerprint TransportableData) Meta
 
-	GenerateMeta(version string, sKey SignKey, seed string) Meta
+	GenerateMeta(version MetaType, sKey SignKey, seed string) Meta
 
 	ParseMeta(meta interface{}) Meta
 }
@@ -115,10 +115,10 @@ func GetMetaHelper() MetaHelper {
  */
 type DocumentHelper interface {
 
-	SetDocumentFactory(docType string, factory DocumentFactory)
-	GetDocumentFactory(docType string) DocumentFactory
+	SetDocumentFactory(docType DocumentType, factory DocumentFactory)
+	GetDocumentFactory(docType DocumentType) DocumentFactory
 
-	CreateDocument(docType string, data string, signature TransportableData) Document
+	CreateDocument(docType DocumentType, data string, signature TransportableData) Document
 
 	ParseDocument(doc interface{}) Document
 }
@@ -146,9 +146,9 @@ type GeneralAccountHelper interface {
 	//  Algorithm Version
 	//
 
-	GetMetaType(meta StringKeyMap, defaultValue string) string
+	GetMetaType(meta StringKeyMap, defaultValue MetaType) MetaType
 
-	GetDocumentType(doc StringKeyMap, defaultValue string) string
+	GetDocumentType(doc StringKeyMap, defaultValue DocumentType) DocumentType
 
 	GetDocumentID(doc StringKeyMap) ID
 }

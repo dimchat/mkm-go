@@ -99,6 +99,8 @@ type TAI interface {
 	SetProperty(name string, value interface{})
 }
 
+type DocumentType = string
+
 /**
  *  User/Group Profile
  *  <p>
@@ -175,7 +177,7 @@ type DocumentFactory interface {
 //  Factory methods
 //
 
-func CreateDocument(docType string, data string, signature TransportableData) Document {
+func CreateDocument(docType DocumentType, data string, signature TransportableData) Document {
 	helper := GetDocumentHelper()
 	return helper.CreateDocument(docType, data, signature)
 }
@@ -185,12 +187,12 @@ func ParseDocument(doc interface{}) Document {
 	return helper.ParseDocument(doc)
 }
 
-func GetDocumentFactory(docType string) DocumentFactory {
+func GetDocumentFactory(docType DocumentType) DocumentFactory {
 	helper := GetDocumentHelper()
 	return helper.GetDocumentFactory(docType)
 }
 
-func SetDocumentFactory(docType string, factory DocumentFactory) {
+func SetDocumentFactory(docType DocumentType, factory DocumentFactory) {
 	helper := GetDocumentHelper()
 	helper.SetDocumentFactory(docType, factory)
 }

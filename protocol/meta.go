@@ -37,6 +37,8 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
+type MetaType = string
+
 /**
  *  User/Group Meta data
  *  <p>
@@ -68,7 +70,7 @@ type Meta interface {
 	 *  ...
 	 *  </pre>
 	 */
-	Type() string
+	Type() MetaType
 
 	/**
 	 *  Public key (used for signature)
@@ -151,12 +153,12 @@ type MetaFactory interface {
 //  Factory methods
 //
 
-func CreateMeta(version string, pKey VerifyKey, seed string, fingerprint TransportableData) Meta {
+func CreateMeta(version MetaType, pKey VerifyKey, seed string, fingerprint TransportableData) Meta {
 	helper := GetMetaHelper()
 	return helper.CreateMeta(version, pKey, seed, fingerprint)
 }
 
-func GenerateMeta(version string, sKey SignKey, seed string) Meta {
+func GenerateMeta(version MetaType, sKey SignKey, seed string) Meta {
 	helper := GetMetaHelper()
 	return helper.GenerateMeta(version, sKey, seed)
 }
@@ -166,12 +168,12 @@ func ParseMeta(meta interface{}) Meta {
 	return helper.ParseMeta(meta)
 }
 
-func GetMetaFactory(version string) MetaFactory {
+func GetMetaFactory(version MetaType) MetaFactory {
 	helper := GetMetaHelper()
 	return helper.GetMetaFactory(version)
 }
 
-func SetMetaFactory(version string, factory MetaFactory) {
+func SetMetaFactory(version MetaType, factory MetaFactory) {
 	helper := GetMetaHelper()
 	helper.SetMetaFactory(version, factory)
 }
