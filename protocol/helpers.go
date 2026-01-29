@@ -31,10 +31,9 @@
 package protocol
 
 import (
-	"net/url"
-
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
+	. "github.com/dimchat/mkm-go/types"
 )
 
 /**
@@ -139,7 +138,7 @@ type TransportableFileHelper interface {
 	ParseTransportableFile(pnf interface{}) TransportableFile
 
 	CreateTransportableFile(data TransportableData, filename string,
-		url url.URL, password DecryptKey) TransportableFile
+		url URL, password DecryptKey) TransportableFile
 }
 
 var sharedTransportableFileHelper TransportableFileHelper = nil

@@ -33,6 +33,10 @@ import (
 type Stringer interface {
 	Object
 	fmt.Stringer
+
+	//Length() int
+
+	IsEmpty() bool // Length() == 0
 }
 
 /**
@@ -40,7 +44,6 @@ type Stringer interface {
  *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 type ConstantString struct {
-
 	_string string
 }
 
@@ -48,14 +51,26 @@ func (str *ConstantString) Init(text string) {
 	str._string = text
 }
 
+//// Override
+//func (str *ConstantString) Length() int {
+//	return len(str._string)
+//}
+
+// Override
+func (str *ConstantString) IsEmpty() bool {
+	return len(str._string) == 0
+}
+
 //-------- fmt.Stringer
 
+// Override
 func (str *ConstantString) String() string {
 	return str._string
 }
 
 //-------- IObject
 
+// Override
 func (str *ConstantString) Equal(other interface{}) bool {
 	if other == nil {
 		return str._string == ""

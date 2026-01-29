@@ -26,8 +26,6 @@
 package protocol
 
 import (
-	"net/url"
-
 	. "github.com/dimchat/mkm-go/crypto"
 	. "github.com/dimchat/mkm-go/format"
 	. "github.com/dimchat/mkm-go/types"
@@ -71,8 +69,8 @@ type TransportableFile interface {
 
 	/** Download URL
 	 */
-	URL() url.URL
-	SetURL(url url.URL)
+	URL() URL
+	SetURL(url URL)
 
 	/** Password for decrypting the downloaded data from CDN,
 	 *  default is a plain key, which just return the same data when decrypting.
@@ -127,7 +125,7 @@ type TransportableFileFactory interface {
 	 */
 	CreateTransportableFile(
 		data TransportableData, filename string,
-		url url.URL, password DecryptKey,
+		url URL, password DecryptKey,
 	) TransportableFile
 
 	/**
@@ -146,7 +144,7 @@ type TransportableFileFactory interface {
 //
 
 func CreateTransportableFile(data TransportableData, filename string,
-	url url.URL, password DecryptKey) TransportableFile {
+	url URL, password DecryptKey) TransportableFile {
 	helper := GetTransportableFileHelper()
 	return helper.CreateTransportableFile(data, filename, url, password)
 }

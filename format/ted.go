@@ -112,6 +112,13 @@ type TransportableData interface {
 	Bytes() []byte
 
 	/**
+	 *  Get length of bytes
+	 *
+	 * @return len(plaintext)
+	 */
+	Size() int
+
+	/**
 	 *  Get encoded string
 	 *
 	 * @return "{BASE64_ENCODE}", or

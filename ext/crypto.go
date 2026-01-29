@@ -44,7 +44,7 @@ var promise = []byte(_promise)
  * @param pKey - public key
  * @return true on keys matched
  */
-func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
+func MatchAsymmetricKeys(sKey SignKey, pKey VerifyKey) bool {
 	// try to verify with signature
 	signature := sKey.Sign(promise)
 	return pKey.Verify(promise, signature)
@@ -57,7 +57,7 @@ func AsymmetricKeysMatch(sKey SignKey, pKey VerifyKey) bool {
  * @param sKey - symmetric key2
  * @return true on keys equal
  */
-func SymmetricKeysMatch(pKey EncryptKey, sKey DecryptKey) bool {
+func MatchSymmetricKeys(pKey EncryptKey, sKey DecryptKey) bool {
 	// check by encryption
 	params := NewMap()
 	ciphertext := pKey.Encrypt(promise, params)

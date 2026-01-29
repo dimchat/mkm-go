@@ -109,6 +109,7 @@ func UnwrapList(array []interface{}) []interface{} {
  */
 type DataWrapper struct{}
 
+// Override
 func (wp *DataWrapper) GetString(value interface{}) string {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
@@ -131,6 +132,7 @@ func (wp *DataWrapper) GetString(value interface{}) string {
 	//return fmt.Sprintf("%v", value)
 }
 
+// Override
 func (wp *DataWrapper) GetMap(value interface{}) StringKeyMap {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
@@ -148,10 +150,12 @@ func (wp *DataWrapper) GetMap(value interface{}) StringKeyMap {
 	case reflect.Map:
 		return reflectMap(rv)
 	default:
-		panic(fmt.Sprintf("not a map value: %v", value))
+		//panic(fmt.Sprintf("not a map value: %v", value))
 	}
+	return nil
 }
 
+// Override
 func (wp *DataWrapper) GetList(value interface{}) []interface{} {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
@@ -167,10 +171,12 @@ func (wp *DataWrapper) GetList(value interface{}) []interface{} {
 	case reflect.Array, reflect.Slice:
 		return reflectList(rv)
 	default:
-		panic(fmt.Sprintf("not a list value: %v", value))
+		//panic(fmt.Sprintf("not a list value: %v", value))
 	}
+	return nil
 }
 
+// Override
 func (wp *DataWrapper) Unwrap(value interface{}) interface{} {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
@@ -199,6 +205,7 @@ func (wp *DataWrapper) Unwrap(value interface{}) interface{} {
 	}
 }
 
+// Override
 func (wp *DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
@@ -217,7 +224,8 @@ func (wp *DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {
 		case reflect.Map:
 			dict = reflectMap(rv)
 		default:
-			panic(fmt.Sprintf("map value error: %v", value))
+			//panic(fmt.Sprintf("map value error: %v", value))
+			return nil
 		}
 	}
 	// unwrap recursively
@@ -228,6 +236,7 @@ func (wp *DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {
 	return result
 }
 
+// Override
 func (wp *DataWrapper) UnwrapList(array []interface{}) []interface{} {
 	result := make([]interface{}, len(array))
 	for index, item := range array {
