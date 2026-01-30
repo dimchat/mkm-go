@@ -36,6 +36,8 @@ type Mapper interface {
 	Set(key string, value interface{})
 	Remove(key string)
 
+	Contains(key string) bool
+
 	IsEmpty() bool
 
 	/**

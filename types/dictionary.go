@@ -37,6 +37,8 @@ import (
  *      Map<string, *>
  */
 type Dictionary struct {
+	//Mapper
+
 	_dictionary StringKeyMap
 }
 
@@ -50,6 +52,7 @@ func (dict *Dictionary) Init(dictionary StringKeyMap) {
 
 //-------- IObject
 
+// Override
 func (dict *Dictionary) Equal(other interface{}) bool {
 	if other == nil {
 		return dict.IsEmpty()
@@ -83,10 +86,16 @@ func (dict *Dictionary) Equal(other interface{}) bool {
 
 //-------- IMap
 
+// Override
 func (dict *Dictionary) Get(key string) interface{} {
-	return dict._dictionary[key]
+	value, exists := dict._dictionary[key]
+	if !exists {
+		return nil
+	}
+	return value
 }
 
+// Override
 func (dict *Dictionary) Set(key string, value interface{}) {
 	if ValueIsNil(value) {
 		delete(dict._dictionary, key)
@@ -95,22 +104,33 @@ func (dict *Dictionary) Set(key string, value interface{}) {
 	}
 }
 
+// Override
 func (dict *Dictionary) Remove(key string) {
 	delete(dict._dictionary, key)
 }
 
+// Override
+func (dict *Dictionary) Contains(key string) bool {
+	_, exists := dict._dictionary[key]
+	return exists
+}
+
+// Override
 func (dict *Dictionary) IsEmpty() bool {
 	return len(dict._dictionary) == 0
 }
 
+// Override
 func (dict *Dictionary) Keys() []string {
 	return MapKeys(dict._dictionary)
 }
 
+// Override
 func (dict *Dictionary) Map() StringKeyMap {
 	return dict._dictionary
 }
 
+// Override
 func (dict *Dictionary) CopyMap(deep bool) StringKeyMap {
 	if deep {
 		return DeepCopyMap(dict._dictionary)
@@ -120,80 +140,109 @@ func (dict *Dictionary) CopyMap(deep bool) StringKeyMap {
 
 //-------- Convert values
 
+// Override
 func (dict *Dictionary) GetString(key string, defaultValue string) string {
 	value := dict.Get(key)
 	return ConvertString(value, defaultValue)
 }
 
+// Override
 func (dict *Dictionary) GetBool(key string, defaultValue bool) bool {
 	value := dict.Get(key)
 	return ConvertBool(value, defaultValue)
 }
 
+// Override
 func (dict *Dictionary) GetInt(key string, defaultValue int) int {
 	value := dict.Get(key)
 	return ConvertInt(value, defaultValue)
 }
+
+// Override
 func (dict *Dictionary) GetInt8(key string, defaultValue int8) int8 {
 	value := dict.Get(key)
 	return ConvertInt8(value, defaultValue)
 }
+
+// Override
 func (dict *Dictionary) GetInt16(key string, defaultValue int16) int16 {
 	value := dict.Get(key)
 	return ConvertInt16(value, defaultValue)
 }
+
+// Override
 func (dict *Dictionary) GetInt32(key string, defaultValue int32) int32 {
 	value := dict.Get(key)
 	return ConvertInt32(value, defaultValue)
 }
+
+// Override
 func (dict *Dictionary) GetInt64(key string, defaultValue int64) int64 {
 	value := dict.Get(key)
 	return ConvertInt64(value, defaultValue)
 }
 
+// Override
 func (dict *Dictionary) GetUInt(key string, defaultValue uint) uint {
 	value := dict.Get(key)
 	return ConvertUInt(value, defaultValue)
 }
+
+// Override
 func (dict *Dictionary) GetUInt8(key string, defaultValue uint8) uint8 {
 	value := dict.Get(key)
 	return ConvertUInt8(value, defaultValue)
 }
+
+// Override
 func (dict *Dictionary) GetUInt16(key string, defaultValue uint16) uint16 {
 	value := dict.Get(key)
 	return ConvertUInt16(value, defaultValue)
 }
+
+// Override
 func (dict *Dictionary) GetUInt32(key string, defaultValue uint32) uint32 {
 	value := dict.Get(key)
 	return ConvertUInt32(value, defaultValue)
 }
+
+// Override
 func (dict *Dictionary) GetUInt64(key string, defaultValue uint64) uint64 {
 	value := dict.Get(key)
 	return ConvertUInt64(value, defaultValue)
 }
 
+// Override
 func (dict *Dictionary) GetFloat32(key string, defaultValue float32) float32 {
 	value := dict.Get(key)
 	return ConvertFloat32(value, defaultValue)
 }
+
+// Override
 func (dict *Dictionary) GetFloat64(key string, defaultValue float64) float64 {
 	value := dict.Get(key)
 	return ConvertFloat64(value, defaultValue)
 }
 
+// Override
 func (dict *Dictionary) GetComplex64(key string, defaultValue complex64) complex64 {
 	value := dict.Get(key)
 	return ConvertComplex64(value, defaultValue)
 }
+
+// Override
 func (dict *Dictionary) GetComplex128(key string, defaultValue complex128) complex128 {
 	value := dict.Get(key)
 	return ConvertComplex128(value, defaultValue)
 }
 
+// Override
 func (dict *Dictionary) GetTime(key string, defaultValue Time) Time {
 	value := dict.Get(key)
 	return ConvertTime(value, defaultValue)
 }
+
+// Override
 func (dict *Dictionary) SetTime(key string, value Time) {
 	if ValueIsNil(value) {
 		dict.Remove(key)
@@ -202,6 +251,7 @@ func (dict *Dictionary) SetTime(key string, value Time) {
 	}
 }
 
+// Override
 func (dict *Dictionary) SetStringer(key string, value Stringer) {
 	if ValueIsNil(value) {
 		dict.Remove(key)
@@ -210,6 +260,7 @@ func (dict *Dictionary) SetStringer(key string, value Stringer) {
 	}
 }
 
+// Override
 func (dict *Dictionary) SetMapper(key string, value Mapper) {
 	if ValueIsNil(value) {
 		dict.Remove(key)
