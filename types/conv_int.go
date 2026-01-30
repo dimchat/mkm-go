@@ -41,7 +41,8 @@ func parseInt(s string, bitSize int) (int64, error) {
 	return strconv.ParseInt(s, 10, bitSize)
 }
 
-func (conv *DataConverter) GetInt(value interface{}, defaultValue int) int {
+// Override
+func (conv DataConverter) GetInt(value interface{}, defaultValue int) int {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -128,7 +129,8 @@ func (conv *DataConverter) GetInt(value interface{}, defaultValue int) int {
 	return defaultValue
 }
 
-func (conv *DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
+// Override
+func (conv DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -179,7 +181,8 @@ func (conv *DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
 	return defaultValue
 }
 
-func (conv *DataConverter) GetInt16(value interface{}, defaultValue int16) int16 {
+// Override
+func (conv DataConverter) GetInt16(value interface{}, defaultValue int16) int16 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -230,7 +233,8 @@ func (conv *DataConverter) GetInt16(value interface{}, defaultValue int16) int16
 	return defaultValue
 }
 
-func (conv *DataConverter) GetInt32(value interface{}, defaultValue int32) int32 {
+// Override
+func (conv DataConverter) GetInt32(value interface{}, defaultValue int32) int32 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -281,7 +285,8 @@ func (conv *DataConverter) GetInt32(value interface{}, defaultValue int32) int32
 	return defaultValue
 }
 
-func (conv *DataConverter) GetInt64(value interface{}, defaultValue int64) int64 {
+// Override
+func (conv DataConverter) GetInt64(value interface{}, defaultValue int64) int64 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue

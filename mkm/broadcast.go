@@ -47,8 +47,8 @@ const (
 //
 //  Broadcast Address for User/Group
 //
-var ANYWHERE   = NewBroadcastAddress(Anywhere, ANY)      // "anywhere"
-var EVERYWHERE = NewBroadcastAddress(Everywhere, EVERY)  // "everywhere"
+var ANYWHERE   = NewBroadcastAddress(Anywhere, ANY)       // "anywhere"
+var EVERYWHERE = NewBroadcastAddress(Everywhere, EVERY)   // "everywhere"
 
 //
 //  Broadcast ID for User/Group
@@ -61,18 +61,21 @@ var EVERYONE   = NewIdentifier(Everyone, EVERYWHERE, "")  // "everyone@everywher
  *  Broadcast Address
  */
 type BroadcastAddress struct {
+	//Address
 	ConstantString
 
 	_network EntityType
 }
 
-func (addr *BroadcastAddress) Init(address string, network EntityType) {
+func (addr *BroadcastAddress) Init(address string, network EntityType) Address {
 	addr.ConstantString.Init(address)
 	addr._network = network
+	return addr
 }
 
 //-------- IAddress
 
+// Override
 func (addr *BroadcastAddress) Network() EntityType {
 	return addr._network
 }

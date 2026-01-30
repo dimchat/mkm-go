@@ -47,48 +47,57 @@ import (
  *          terminal - entity login resource(device), OPTIONAL
  */
 type Identifier struct {
+	//ID
 	ConstantString
 
-	_name string
-	_address Address
+	_name     string
+	_address  Address
 	_terminal string
 }
 
-func (id *Identifier) Init(identifier string, name string, address Address, terminal string) {
+func (id *Identifier) Init(identifier string, name string, address Address, terminal string) ID {
 	id.ConstantString.Init(identifier)
 	id._name = name
 	id._address = address
 	id._terminal = terminal
+	return id
 }
 
 //-------- ID
 
+// Override
 func (id *Identifier) Name() string {
 	return id._name
 }
 
+// Override
 func (id *Identifier) Address() Address {
 	return id._address
 }
 
+// Override
 func (id *Identifier) Terminal() string {
 	return id._terminal
 }
 
+// Override
 func (id *Identifier) Type() EntityType {
 	return id._address.Network()
 }
 
+// Override
 func (id *Identifier) IsUser() bool {
 	network := id._address.Network()
 	return EntityTypeIsUser(network)
 }
 
+// Override
 func (id *Identifier) IsGroup() bool {
 	network := id._address.Network()
 	return EntityTypeIsGroup(network)
 }
 
+// Override
 func (id *Identifier) IsBroadcast() bool {
 	network := id._address.Network()
 	return EntityTypeIsBroadcast(network)

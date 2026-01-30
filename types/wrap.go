@@ -107,10 +107,12 @@ func UnwrapList(array []interface{}) []interface{} {
 /**
  *  Default Data Wrapper
  */
-type DataWrapper struct{}
+type DataWrapper struct {
+	//Wrapper
+}
 
 // Override
-func (wp *DataWrapper) GetString(value interface{}) string {
+func (wp DataWrapper) GetString(value interface{}) string {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		panic(fmt.Sprintf("string value error: %v", value))
@@ -133,7 +135,7 @@ func (wp *DataWrapper) GetString(value interface{}) string {
 }
 
 // Override
-func (wp *DataWrapper) GetMap(value interface{}) StringKeyMap {
+func (wp DataWrapper) GetMap(value interface{}) StringKeyMap {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		panic(fmt.Sprintf("map value error: %v", value))
@@ -156,7 +158,7 @@ func (wp *DataWrapper) GetMap(value interface{}) StringKeyMap {
 }
 
 // Override
-func (wp *DataWrapper) GetList(value interface{}) []interface{} {
+func (wp DataWrapper) GetList(value interface{}) []interface{} {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		panic(fmt.Sprintf("list value error: %v", value))
@@ -177,7 +179,7 @@ func (wp *DataWrapper) GetList(value interface{}) []interface{} {
 }
 
 // Override
-func (wp *DataWrapper) Unwrap(value interface{}) interface{} {
+func (wp DataWrapper) Unwrap(value interface{}) interface{} {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return nil
@@ -206,7 +208,7 @@ func (wp *DataWrapper) Unwrap(value interface{}) interface{} {
 }
 
 // Override
-func (wp *DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {
+func (wp DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return nil
@@ -237,7 +239,7 @@ func (wp *DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {
 }
 
 // Override
-func (wp *DataWrapper) UnwrapList(array []interface{}) []interface{} {
+func (wp DataWrapper) UnwrapList(array []interface{}) []interface{} {
 	result := make([]interface{}, len(array))
 	for index, item := range array {
 		result[index] = Unwrap(item)

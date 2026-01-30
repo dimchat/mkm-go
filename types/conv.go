@@ -35,7 +35,9 @@ import (
 /**
  *  Default Converter
  */
-type DataConverter struct{}
+type DataConverter struct {
+	//Converter
+}
 
 //
 //  String
@@ -65,7 +67,8 @@ func formatComplex(c complex128, bitSize int) string {
 	return strconv.FormatComplex(c, 'f', -1, bitSize)
 }
 
-func (conv *DataConverter) GetString(value interface{}, defaultValue string) string {
+// Override
+func (conv DataConverter) GetString(value interface{}, defaultValue string) string {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -171,7 +174,8 @@ func parseBool(s string) (bool, error) {
 	return state, nil
 }
 
-func (conv *DataConverter) GetBool(value interface{}, defaultValue bool) bool {
+// Override
+func (conv DataConverter) GetBool(value interface{}, defaultValue bool) bool {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -218,7 +222,8 @@ func (conv *DataConverter) GetBool(value interface{}, defaultValue bool) bool {
 	return defaultValue
 }
 
-func (conv *DataConverter) GetTime(value interface{}, defaultValue Time) Time {
+// Override
+func (conv DataConverter) GetTime(value interface{}, defaultValue Time) Time {
 	target := ObjectTargetValue(value)
 	if target == nil {
 		return defaultValue
@@ -272,7 +277,8 @@ func parseComplex(s string, bitSize int) (complex128, error) {
 	return c, nil
 }
 
-func (conv *DataConverter) GetFloat32(value interface{}, defaultValue float32) float32 {
+// Override
+func (conv DataConverter) GetFloat32(value interface{}, defaultValue float32) float32 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -323,7 +329,8 @@ func (conv *DataConverter) GetFloat32(value interface{}, defaultValue float32) f
 	return defaultValue
 }
 
-func (conv *DataConverter) GetFloat64(value interface{}, defaultValue float64) float64 {
+// Override
+func (conv DataConverter) GetFloat64(value interface{}, defaultValue float64) float64 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -374,7 +381,8 @@ func (conv *DataConverter) GetFloat64(value interface{}, defaultValue float64) f
 	return defaultValue
 }
 
-func (conv *DataConverter) GetComplex64(value interface{}, defaultValue complex64) complex64 {
+// Override
+func (conv DataConverter) GetComplex64(value interface{}, defaultValue complex64) complex64 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -419,7 +427,8 @@ func (conv *DataConverter) GetComplex64(value interface{}, defaultValue complex6
 	return defaultValue
 }
 
-func (conv *DataConverter) GetComplex128(value interface{}, defaultValue complex128) complex128 {
+// Override
+func (conv DataConverter) GetComplex128(value interface{}, defaultValue complex128) complex128 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue

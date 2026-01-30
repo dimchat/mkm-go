@@ -98,9 +98,12 @@ func DeepCopyList(array []interface{}) []interface{} {
 /**
  *  Default Data Copier
  */
-type DataCopier struct{}
+type DataCopier struct {
+	//Copier
+}
 
-func (cp *DataCopier) Copy(object interface{}) interface{} {
+// Override
+func (cp DataCopier) Copy(object interface{}) interface{} {
 	target, rv := ObjectReflectValue(object)
 	if target == nil {
 		return nil
@@ -126,7 +129,8 @@ func (cp *DataCopier) Copy(object interface{}) interface{} {
 	}
 }
 
-func (cp *DataCopier) DeepCopy(object interface{}) interface{} {
+// Override
+func (cp DataCopier) DeepCopy(object interface{}) interface{} {
 	target, rv := ObjectReflectValue(object)
 	if target == nil {
 		return nil
@@ -152,7 +156,8 @@ func (cp *DataCopier) DeepCopy(object interface{}) interface{} {
 	}
 }
 
-func (cp *DataCopier) CopyMap(dictionary StringKeyMap) StringKeyMap {
+// Override
+func (cp DataCopier) CopyMap(dictionary StringKeyMap) StringKeyMap {
 	clone := NewMap()
 	for key, value := range dictionary {
 		clone[key] = value
@@ -160,7 +165,8 @@ func (cp *DataCopier) CopyMap(dictionary StringKeyMap) StringKeyMap {
 	return clone
 }
 
-func (cp *DataCopier) DeepCopyMap(dictionary StringKeyMap) StringKeyMap {
+// Override
+func (cp DataCopier) DeepCopyMap(dictionary StringKeyMap) StringKeyMap {
 	clone := NewMap()
 	for key, value := range dictionary {
 		clone[key] = DeepCopy(value)
@@ -168,7 +174,8 @@ func (cp *DataCopier) DeepCopyMap(dictionary StringKeyMap) StringKeyMap {
 	return clone
 }
 
-func (cp *DataCopier) CopyList(array []interface{}) []interface{} {
+// Override
+func (cp DataCopier) CopyList(array []interface{}) []interface{} {
 	clone := make([]interface{}, len(array))
 	for key, value := range array {
 		clone[key] = value
@@ -176,7 +183,8 @@ func (cp *DataCopier) CopyList(array []interface{}) []interface{} {
 	return clone
 }
 
-func (cp *DataCopier) DeepCopyList(array []interface{}) []interface{} {
+// Override
+func (cp DataCopier) DeepCopyList(array []interface{}) []interface{} {
 	clone := make([]interface{}, len(array))
 	for key, value := range array {
 		clone[key] = DeepCopy(value)

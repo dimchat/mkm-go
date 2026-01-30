@@ -42,28 +42,26 @@ type Dictionary struct {
 	_dictionary StringKeyMap
 }
 
-func (dict *Dictionary) Init(dictionary StringKeyMap) {
+func (dict *Dictionary) Init(dictionary StringKeyMap) Mapper {
 	if ValueIsNil(dictionary) {
 		// create empty map
 		dictionary = NewMap()
 	}
 	dict._dictionary = dictionary
+	return dict
 }
 
 //-------- IObject
 
 // Override
 func (dict *Dictionary) Equal(other interface{}) bool {
-	if other == nil {
-		return dict.IsEmpty()
-	} else if other == dict {
-		// same object
-		return true
-	}
 	// check targeted value
 	target, rv := ObjectReflectValue(other)
 	if target == nil {
 		return dict.IsEmpty()
+	} else if other == dict {
+		// same object
+		return true
 	}
 	// check value types
 	switch v := target.(type) {

@@ -44,11 +44,14 @@ type Stringer interface {
  *  ~~~~~~~~~~~~~~~~~~~~~~~
  */
 type ConstantString struct {
+	//Stringer
+
 	_string string
 }
 
-func (str *ConstantString) Init(text string) {
+func (str *ConstantString) Init(text string) Stringer {
 	str._string = text
+	return str
 }
 
 //// Override
@@ -72,16 +75,13 @@ func (str *ConstantString) String() string {
 
 // Override
 func (str *ConstantString) Equal(other interface{}) bool {
-	if other == nil {
-		return str._string == ""
-	} else if other == str {
-		// same object
-		return true
-	}
 	// check targeted value
 	target, rv := ObjectReflectValue(other)
 	if target == nil {
 		return str._string == ""
+	} else if other == str {
+		// same object
+		return true
 	}
 	// check value types
 	switch v := target.(type) {
