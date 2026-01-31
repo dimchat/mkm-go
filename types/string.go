@@ -49,7 +49,7 @@ type ConstantString struct {
 	_string string
 }
 
-func (str *ConstantString) Init(text string) Stringer {
+func (str *ConstantString) InitWithString(text string) Stringer {
 	str._string = text
 	return str
 }

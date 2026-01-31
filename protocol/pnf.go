@@ -149,7 +149,7 @@ func CreateTransportableFile(data TransportableData, filename string,
 	return helper.CreateTransportableFile(data, filename, url, password)
 }
 
-func ParseTransportableFile(pnf StringKeyMap) TransportableFile {
+func ParseTransportableFile(pnf interface{}) TransportableFile {
 	helper := GetTransportableFileHelper()
 	return helper.ParseTransportableFile(pnf)
 }

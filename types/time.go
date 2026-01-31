@@ -68,7 +68,7 @@ type Time interface {
 	Nanosecond() int
 
 	// Unix returns t as a Unix time, the number of seconds elapsed
-	// since January 1, 1970 UTC. The result does not depend on the
+	// since January 1, 1970, UTC. The result does not depend on the
 	// location associated with t.
 	// Unix-like operating systems often record time as a 32-bit
 	// count of seconds, but since the method here returns a 64-bit
@@ -76,7 +76,7 @@ type Time interface {
 	Unix() int64
 
 	// UnixNano returns t as a Unix time, the number of nanoseconds elapsed
-	// since January 1, 1970 UTC. The result is undefined if the Unix time
+	// since January 1, 1970, UTC. The result is undefined if the Unix time
 	// in nanoseconds cannot be represented by an int64 (a date before the year
 	// 1678 or after 2262). Note that this means the result of calling UnixNano
 	// on the zero Time is undefined. The result does not depend on the
@@ -174,9 +174,14 @@ func TimeFromFloat64(seconds float64) Time {
 }
 
 // parse from timestamp in seconds
-func TimeParse(timestamp interface{}) Time {
+func ParseTime(timestamp interface{}) Time {
 	if ValueIsNil(timestamp) {
-		return TimeNil()
+		return nil // TimeNil()
 	}
-	return TimeFromFloat64(timestamp.(float64))
+	seconds := ConvertFloat64(timestamp, 0)
+	if seconds > 0 {
+		return TimeFromFloat64(seconds)
+	}
+	//panic(fmt.Sprintf("invalid timestamp: %v", timestamp))
+	return TimeNil()
 }

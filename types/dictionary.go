@@ -42,11 +42,12 @@ type Dictionary struct {
 	_dictionary StringKeyMap
 }
 
-func (dict *Dictionary) Init(dictionary StringKeyMap) Mapper {
-	if ValueIsNil(dictionary) {
-		// create empty map
-		dictionary = NewMap()
-	}
+func (dict *Dictionary) Init() Mapper {
+	dict._dictionary = NewMap()
+	return dict
+}
+
+func (dict *Dictionary) InitWithMap(dictionary StringKeyMap) Mapper {
 	dict._dictionary = dictionary
 	return dict
 }

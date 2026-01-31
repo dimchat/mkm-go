@@ -47,15 +47,15 @@ const (
 //
 //  Broadcast Address for User/Group
 //
-var ANYWHERE   = NewBroadcastAddress(Anywhere, ANY)       // "anywhere"
-var EVERYWHERE = NewBroadcastAddress(Everywhere, EVERY)   // "everywhere"
+var ANYWHERE   = NewBroadcastAddress(Anywhere, ANY)      // "anywhere"
+var EVERYWHERE = NewBroadcastAddress(Everywhere, EVERY)  // "everywhere"
 
 //
 //  Broadcast ID for User/Group
 //
-var FOUNDER    = NewIdentifier(Moky, ANYWHERE, "")        // "moky@anywhere"
-var ANYONE     = NewIdentifier(Anyone, ANYWHERE, "")      // "anyone@anywhere"
-var EVERYONE   = NewIdentifier(Everyone, EVERYWHERE, "")  // "everyone@everywhere"
+var FOUNDER    = NewID(Moky, ANYWHERE, "")        // "moky@anywhere"
+var ANYONE     = NewID(Anyone, ANYWHERE, "")      // "anyone@anywhere"
+var EVERYONE   = NewID(Everyone, EVERYWHERE, "")  // "everyone@everywhere"
 
 /**
  *  Broadcast Address
@@ -68,8 +68,9 @@ type BroadcastAddress struct {
 }
 
 func (addr *BroadcastAddress) Init(address string, network EntityType) Address {
-	addr.ConstantString.Init(address)
-	addr._network = network
+	if addr.ConstantString.InitWithString(address) != nil {
+		addr._network = network
+	}
 	return addr
 }
 
@@ -86,6 +87,5 @@ func (addr *BroadcastAddress) Network() EntityType {
 
 func NewBroadcastAddress(address string, network EntityType) Address {
 	broadcast := &BroadcastAddress{}
-	broadcast.Init(address, network)
-	return broadcast
+	return broadcast.Init(address, network)
 }

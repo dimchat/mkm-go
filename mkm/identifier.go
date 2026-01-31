@@ -55,51 +55,52 @@ type Identifier struct {
 	_terminal string
 }
 
-func (id *Identifier) Init(identifier string, name string, address Address, terminal string) ID {
-	id.ConstantString.Init(identifier)
-	id._name = name
-	id._address = address
-	id._terminal = terminal
-	return id
+func (did *Identifier) Init(identifier string, name string, address Address, terminal string) ID {
+	if did.ConstantString.InitWithString(identifier) != nil {
+		did._name = name
+		did._address = address
+		did._terminal = terminal
+	}
+	return did
 }
 
 //-------- ID
 
 // Override
-func (id *Identifier) Name() string {
-	return id._name
+func (did *Identifier) Name() string {
+	return did._name
 }
 
 // Override
-func (id *Identifier) Address() Address {
-	return id._address
+func (did *Identifier) Address() Address {
+	return did._address
 }
 
 // Override
-func (id *Identifier) Terminal() string {
-	return id._terminal
+func (did *Identifier) Terminal() string {
+	return did._terminal
 }
 
 // Override
-func (id *Identifier) Type() EntityType {
-	return id._address.Network()
+func (did *Identifier) Type() EntityType {
+	return did._address.Network()
 }
 
 // Override
-func (id *Identifier) IsUser() bool {
-	network := id._address.Network()
+func (did *Identifier) IsUser() bool {
+	network := did._address.Network()
 	return EntityTypeIsUser(network)
 }
 
 // Override
-func (id *Identifier) IsGroup() bool {
-	network := id._address.Network()
+func (did *Identifier) IsGroup() bool {
+	network := did._address.Network()
 	return EntityTypeIsGroup(network)
 }
 
 // Override
-func (id *Identifier) IsBroadcast() bool {
-	network := id._address.Network()
+func (did *Identifier) IsBroadcast() bool {
+	network := did._address.Network()
 	return EntityTypeIsBroadcast(network)
 }
 
@@ -107,14 +108,13 @@ func (id *Identifier) IsBroadcast() bool {
 //  Creation
 //
 
-func NewIdentifier(name string, address Address, terminal string) ID {
-	identifier := IdentifierConcat(name, address, terminal)
-	id := &Identifier{}
-	id.Init(identifier, name, address, terminal)
-	return id
+func NewID(name string, address Address, terminal string) ID {
+	identifier := IDConcat(name, address, terminal)
+	did := &Identifier{}
+	return did.Init(identifier, name, address, terminal)
 }
 
-func IdentifierConcat(name string, address Address, terminal string) string {
+func IDConcat(name string, address Address, terminal string) string {
 	str := address.String()
 	if name != "" {
 		str = name + "@" + str
