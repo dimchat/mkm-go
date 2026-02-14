@@ -43,10 +43,6 @@ type DataConverter struct {
 //  String
 //
 
-func i2a(i int) string {
-	return strconv.Itoa(i)
-}
-
 func formatBool(b bool) string {
 	return strconv.FormatBool(b)
 }
@@ -82,7 +78,7 @@ func (conv DataConverter) GetString(value interface{}, defaultValue string) stri
 	case bool:
 		return formatBool(v)
 	case int:
-		return i2a(v)
+		return formatInt(int64(v))
 	case int8:
 		return formatInt(int64(v))
 	case int16:
@@ -122,25 +118,9 @@ func (conv DataConverter) GetString(value interface{}, defaultValue string) stri
 		return s
 	case reflect.Bool:
 		return formatBool(rv.Bool())
-	case reflect.Int:
-		return i2a(int(rv.Int()))
-	case reflect.Int8:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return formatInt(rv.Int())
-	case reflect.Int16:
-		return formatInt(rv.Int())
-	case reflect.Int32:
-		return formatInt(rv.Int())
-	case reflect.Int64:
-		return formatInt(rv.Int())
-	case reflect.Uint:
-		return formatUint(rv.Uint())
-	case reflect.Uint8:
-		return formatUint(rv.Uint())
-	case reflect.Uint16:
-		return formatUint(rv.Uint())
-	case reflect.Uint32:
-		return formatUint(rv.Uint())
-	case reflect.Uint64:
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return formatUint(rv.Uint())
 	case reflect.Float32:
 		return formatFloat(rv.Float(), 32)
@@ -193,9 +173,9 @@ func (conv DataConverter) GetBool(value interface{}, defaultValue bool) bool {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return v != 0
 	case float32, float64:
-		return v != 0
+		return v != 0.0
 	case complex64, complex128:
-		return v != 0
+		return v != 0+0i
 	}
 	// other types
 	switch rv.Kind() {
@@ -213,9 +193,9 @@ func (conv DataConverter) GetBool(value interface{}, defaultValue bool) bool {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return rv.Uint() != 0
 	case reflect.Float32, reflect.Float64:
-		return rv.Float() != 0
+		return rv.Float() != 0.0
 	case reflect.Complex64, reflect.Complex128:
-		return rv.Complex() != 0
+		return rv.Complex() != 0+0i
 	default:
 		//panic(fmt.Sprintf("bool value error: %v", value))
 	}
@@ -232,9 +212,9 @@ func (conv DataConverter) GetTime(value interface{}, defaultValue Time) Time {
 	case Time:
 		return v
 	}
-	ts := ConvertFloat64(value, 0)
-	if ts > 0 {
-		return TimeFromFloat64(ts)
+	seconds := ConvertFloat64(value, 0)
+	if seconds > 0 {
+		return TimeFromFloat64(seconds)
 	}
 	//panic("Timestamp error: " + ConvertString(value, ""))
 	return defaultValue
@@ -288,13 +268,31 @@ func (conv DataConverter) GetFloat32(value interface{}, defaultValue float32) fl
 		return v
 	case float64:
 		return float32(v)
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return v.(float32)
+	case int:
+		return float32(v)
+	case int8:
+		return float32(v)
+	case int16:
+		return float32(v)
+	case int32:
+		return float32(v)
+	case int64:
+		return float32(v)
+	case uint:
+		return float32(v)
+	case uint8:
+		return float32(v)
+	case uint16:
+		return float32(v)
+	case uint32:
+		return float32(v)
+	case uint64:
+		return float32(v)
 	case bool:
 		if v {
-			return 1
+			return 1.0
 		}
-		return 0
+		return 0.0
 	case string:
 		f, err := parseFloat(v, 32)
 		if err != nil {
@@ -313,9 +311,9 @@ func (conv DataConverter) GetFloat32(value interface{}, defaultValue float32) fl
 		return float32(rv.Uint())
 	case reflect.Bool:
 		if rv.Bool() {
-			return 1
+			return 1.0
 		}
-		return 0
+		return 0.0
 	case reflect.String:
 		f, err := parseFloat(rv.String(), 64)
 		if err != nil {
@@ -340,13 +338,31 @@ func (conv DataConverter) GetFloat64(value interface{}, defaultValue float64) fl
 		return v
 	case float32:
 		return float64(v)
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return v.(float64)
+	case int:
+		return float64(v)
+	case int8:
+		return float64(v)
+	case int16:
+		return float64(v)
+	case int32:
+		return float64(v)
+	case int64:
+		return float64(v)
+	case uint:
+		return float64(v)
+	case uint8:
+		return float64(v)
+	case uint16:
+		return float64(v)
+	case uint32:
+		return float64(v)
+	case uint64:
+		return float64(v)
 	case bool:
 		if v {
-			return 1
+			return 1.0
 		}
-		return 0
+		return 0.0
 	case string:
 		f, err := parseFloat(v, 64)
 		if err != nil {
@@ -365,9 +381,9 @@ func (conv DataConverter) GetFloat64(value interface{}, defaultValue float64) fl
 		return float64(rv.Uint())
 	case reflect.Bool:
 		if rv.Bool() {
-			return 1
+			return 1.0
 		}
-		return 0
+		return 0.0
 	case reflect.String:
 		f, err := parseFloat(rv.String(), 64)
 		if err != nil {
@@ -392,10 +408,30 @@ func (conv DataConverter) GetComplex64(value interface{}, defaultValue complex64
 		return v
 	case complex128:
 		return complex64(v)
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return complex64(complex(v.(float64), 0))
-	case float32, float64:
-		return complex64(complex(v.(float64), 0))
+	case int:
+		return complex(float32(v), 0)
+	case int8:
+		return complex(float32(v), 0)
+	case int16:
+		return complex(float32(v), 0)
+	case int32:
+		return complex64(complex(float64(v), 0))
+	case int64:
+		return complex64(complex(float64(v), 0))
+	case uint:
+		return complex(float32(v), 0)
+	case uint8:
+		return complex(float32(v), 0)
+	case uint16:
+		return complex(float32(v), 0)
+	case uint32:
+		return complex64(complex(float64(v), 0))
+	case uint64:
+		return complex64(complex(float64(v), 0))
+	case float32:
+		return complex(v, 0)
+	case float64:
+		return complex64(complex(v, 0))
 	case string:
 		c, err := parseComplex(v, 64)
 		if err != nil {
@@ -438,10 +474,30 @@ func (conv DataConverter) GetComplex128(value interface{}, defaultValue complex1
 		return complex128(v)
 	case complex128:
 		return v
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
-		return complex(v.(float64), 0)
-	case float32, float64:
-		return complex(v.(float64), 0)
+	case int:
+		return complex128(complex(float32(v), 0))
+	case int8:
+		return complex128(complex(float32(v), 0))
+	case int16:
+		return complex128(complex(float32(v), 0))
+	case int32:
+		return complex(float64(v), 0)
+	case int64:
+		return complex(float64(v), 0)
+	case uint:
+		return complex128(complex(float32(v), 0))
+	case uint8:
+		return complex128(complex(float32(v), 0))
+	case uint16:
+		return complex128(complex(float32(v), 0))
+	case uint32:
+		return complex(float64(v), 0)
+	case uint64:
+		return complex(float64(v), 0)
+	case float32:
+		return complex128(complex(v, 0))
+	case float64:
+		return complex(v, 0)
 	case string:
 		c, err := parseComplex(v, 128)
 		if err != nil {

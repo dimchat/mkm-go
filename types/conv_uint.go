@@ -43,12 +43,30 @@ func (conv DataConverter) GetUInt(value interface{}, defaultValue uint) uint {
 		return defaultValue
 	}
 	switch v := target.(type) {
+	case int:
+		return uint(v)
+	case int8:
+		return uint(v)
+	case int16:
+		return uint(v)
+	case int32:
+		return uint(v)
+	case int64:
+		return uint(v)
 	case uint:
 		return v
-	case int, int8, int16, int32, int64, uint8, uint16, uint32, uint64:
-		return v.(uint)
-	case float32, float64:
-		return v.(uint)
+	case uint8:
+		return uint(v)
+	case uint16:
+		return uint(v)
+	case uint32:
+		return uint(v)
+	case uint64:
+		return uint(v)
+	case float32:
+		return uint(v)
+	case float64:
+		return uint(v)
 	case bool:
 		if v {
 			return 1
@@ -95,12 +113,30 @@ func (conv DataConverter) GetUInt8(value interface{}, defaultValue uint8) uint8 
 		return defaultValue
 	}
 	switch v := target.(type) {
+	case int:
+		return uint8(v)
+	case int8:
+		return uint8(v)
+	case int16:
+		return uint8(v)
+	case int32:
+		return uint8(v)
+	case int64:
+		return uint8(v)
+	case uint:
+		return uint8(v)
 	case uint8:
 		return v
-	case int, int8, int16, int32, int64, uint, uint16, uint32, uint64:
-		return v.(uint8)
-	case float32, float64:
-		return v.(uint8)
+	case uint16:
+		return uint8(v)
+	case uint32:
+		return uint8(v)
+	case uint64:
+		return uint8(v)
+	case float32:
+		return uint8(v)
+	case float64:
+		return uint8(v)
 	case bool:
 		if v {
 			return 1
@@ -147,12 +183,30 @@ func (conv DataConverter) GetUInt16(value interface{}, defaultValue uint16) uint
 		return defaultValue
 	}
 	switch v := target.(type) {
+	case int:
+		return uint16(v)
+	case int8:
+		return uint16(v)
+	case int16:
+		return uint16(v)
+	case int32:
+		return uint16(v)
+	case int64:
+		return uint16(v)
+	case uint:
+		return uint16(v)
+	case uint8:
+		return uint16(v)
 	case uint16:
 		return v
-	case int, int8, int16, int32, int64, uint, uint8, uint32, uint64:
-		return v.(uint16)
-	case float32, float64:
-		return v.(uint16)
+	case uint32:
+		return uint16(v)
+	case uint64:
+		return uint16(v)
+	case float32:
+		return uint16(v)
+	case float64:
+		return uint16(v)
 	case bool:
 		if v {
 			return 1
@@ -199,12 +253,30 @@ func (conv DataConverter) GetUInt32(value interface{}, defaultValue uint32) uint
 		return defaultValue
 	}
 	switch v := target.(type) {
+	case int:
+		return uint32(v)
+	case int8:
+		return uint32(v)
+	case int16:
+		return uint32(v)
+	case int32:
+		return uint32(v)
+	case int64:
+		return uint32(v)
+	case uint:
+		return uint32(v)
+	case uint8:
+		return uint32(v)
+	case uint16:
+		return uint32(v)
 	case uint32:
 		return v
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint64:
-		return v.(uint32)
-	case float32, float64:
-		return v.(uint32)
+	case uint64:
+		return uint32(v)
+	case float32:
+		return uint32(v)
+	case float64:
+		return uint32(v)
 	case bool:
 		if v {
 			return 1
@@ -251,12 +323,30 @@ func (conv DataConverter) GetUInt64(value interface{}, defaultValue uint64) uint
 		return defaultValue
 	}
 	switch v := target.(type) {
+	case int:
+		return uint64(v)
+	case int8:
+		return uint64(v)
+	case int16:
+		return uint64(v)
+	case int32:
+		return uint64(v)
+	case int64:
+		return uint64(v)
+	case uint:
+		return uint64(v)
+	case uint8:
+		return uint64(v)
+	case uint16:
+		return uint64(v)
+	case uint32:
+		return uint64(v)
 	case uint64:
 		return v
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32:
-		return v.(uint64)
-	case float32, float64:
-		return v.(uint64)
+	case float32:
+		return uint64(v)
+	case float64:
+		return uint64(v)
 	case bool:
 		if v {
 			return 1
