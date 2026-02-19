@@ -39,55 +39,41 @@ import (
 type Dictionary struct {
 	//Mapper
 
-	_dictionary StringKeyMap
+	dictionary StringKeyMap
 }
 
-func (dict *Dictionary) Init() Mapper {
-	dict._dictionary = NewMap()
-	return dict
-}
-
-func (dict *Dictionary) InitWithMap(dictionary StringKeyMap) Mapper {
-	dict._dictionary = dictionary
-	return dict
+func NewDictionary(dict StringKeyMap) *Dictionary {
+	if dict == nil {
+		dict = NewMap()
+	}
+	return &Dictionary{dictionary: dict}
 }
 
 //-------- IObject
 
 // Override
 func (dict *Dictionary) Equal(other interface{}) bool {
-	// check targeted value
-	target, rv := ObjectReflectValue(other)
-	if target == nil {
+	if other == nil {
 		return dict.IsEmpty()
-	} else if other == dict {
-		// same object
-		return true
 	}
-	// check value types
-	switch v := target.(type) {
+	var dictionary StringKeyMap
+	switch v := other.(type) {
 	case Mapper:
-		other = v.Map()
+		dictionary = v.Map()
 	case StringKeyMap:
-		other = v
+		dictionary = v
 	default:
-		// other types
-		switch rv.Kind() {
-		case reflect.Map:
-			other = reflectMap(rv)
-		default:
-			// type not matched
-			return false
-		}
+		// type not matched
+		return false
 	}
-	return reflect.DeepEqual(dict._dictionary, other)
+	return reflect.DeepEqual(dict.dictionary, dictionary)
 }
 
 //-------- IMap
 
 // Override
 func (dict *Dictionary) Get(key string) interface{} {
-	value, exists := dict._dictionary[key]
+	value, exists := dict.dictionary[key]
 	if !exists {
 		return nil
 	}
@@ -97,44 +83,44 @@ func (dict *Dictionary) Get(key string) interface{} {
 // Override
 func (dict *Dictionary) Set(key string, value interface{}) {
 	if ValueIsNil(value) {
-		delete(dict._dictionary, key)
+		delete(dict.dictionary, key)
 	} else {
-		dict._dictionary[key] = value
+		dict.dictionary[key] = value
 	}
 }
 
 // Override
 func (dict *Dictionary) Remove(key string) {
-	delete(dict._dictionary, key)
+	delete(dict.dictionary, key)
 }
 
 // Override
 func (dict *Dictionary) Contains(key string) bool {
-	_, exists := dict._dictionary[key]
+	_, exists := dict.dictionary[key]
 	return exists
 }
 
 // Override
 func (dict *Dictionary) IsEmpty() bool {
-	return len(dict._dictionary) == 0
+	return len(dict.dictionary) == 0
 }
 
 // Override
 func (dict *Dictionary) Keys() []string {
-	return MapKeys(dict._dictionary)
+	return MapKeys(dict.dictionary)
 }
 
 // Override
 func (dict *Dictionary) Map() StringKeyMap {
-	return dict._dictionary
+	return dict.dictionary
 }
 
 // Override
 func (dict *Dictionary) CopyMap(deep bool) StringKeyMap {
 	if deep {
-		return DeepCopyMap(dict._dictionary)
+		return DeepCopyMap(dict.dictionary)
 	}
-	return CopyMap(dict._dictionary)
+	return CopyMap(dict.dictionary)
 }
 
 //-------- Convert values

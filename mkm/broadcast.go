@@ -36,26 +36,22 @@ import (
 )
 
 const (
-	Moky       = "moky"
-	Anyone     = "anyone"
-	Everyone   = "everyone"
+	Moky     = "moky"
+	Anyone   = "anyone"
+	Everyone = "everyone"
 
 	Anywhere   = "anywhere"
 	Everywhere = "everywhere"
 )
 
-//
-//  Broadcast Address for User/Group
-//
-var ANYWHERE   = NewBroadcastAddress(Anywhere, ANY)      // "anywhere"
-var EVERYWHERE = NewBroadcastAddress(Everywhere, EVERY)  // "everywhere"
+// Broadcast Address for User/Group
+var ANYWHERE Address = NewBroadcastAddress(Anywhere, ANY)       // "anywhere"
+var EVERYWHERE Address = NewBroadcastAddress(Everywhere, EVERY) // "everywhere"
 
-//
-//  Broadcast ID for User/Group
-//
-var FOUNDER    = NewID(Moky, ANYWHERE, "")        // "moky@anywhere"
-var ANYONE     = NewID(Anyone, ANYWHERE, "")      // "anyone@anywhere"
-var EVERYONE   = NewID(Everyone, EVERYWHERE, "")  // "everyone@everywhere"
+// Broadcast ID for User/Group
+var FOUNDER = NewID(Moky, ANYWHERE, "")        // "moky@anywhere"
+var ANYONE = NewID(Anyone, ANYWHERE, "")       // "anyone@anywhere"
+var EVERYONE = NewID(Everyone, EVERYWHERE, "") // "everyone@everywhere"
 
 /**
  *  Broadcast Address
@@ -64,28 +60,19 @@ type BroadcastAddress struct {
 	//Address
 	ConstantString
 
-	_network EntityType
+	network EntityType
 }
 
-func (addr *BroadcastAddress) Init(address string, network EntityType) Address {
-	if addr.ConstantString.InitWithString(address) != nil {
-		addr._network = network
+func NewBroadcastAddress(s string, network EntityType) *BroadcastAddress {
+	return &BroadcastAddress{
+		ConstantString: *NewConstantString(s),
+		network:        network,
 	}
-	return addr
 }
 
-//-------- IAddress
+//-------- Address
 
 // Override
-func (addr *BroadcastAddress) Network() EntityType {
-	return addr._network
-}
-
-//
-//  Creation
-//
-
-func NewBroadcastAddress(address string, network EntityType) Address {
-	broadcast := &BroadcastAddress{}
-	return broadcast.Init(address, network)
+func (address BroadcastAddress) Network() EntityType {
+	return address.network
 }

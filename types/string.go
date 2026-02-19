@@ -27,7 +27,6 @@ package types
 
 import (
 	"fmt"
-	"reflect"
 )
 
 type Stringer interface {
@@ -46,58 +45,46 @@ type Stringer interface {
 type ConstantString struct {
 	//Stringer
 
-	_string string
+	text string
 }
 
-func (str *ConstantString) InitWithString(text string) Stringer {
-	str._string = text
-	return str
+func NewConstantString(s string) *ConstantString {
+	return &ConstantString{text: s}
 }
 
 //// Override
-//func (str *ConstantString) Length() int {
-//	return len(str._string)
+//func (cs ConstantString) Length() int {
+//	return len(cs.text)
 //}
 
 // Override
-func (str *ConstantString) IsEmpty() bool {
-	return len(str._string) == 0
+func (cs ConstantString) IsEmpty() bool {
+	return len(cs.text) == 0
 }
 
 //-------- fmt.Stringer
 
 // Override
-func (str *ConstantString) String() string {
-	return str._string
+func (cs ConstantString) String() string {
+	return cs.text
 }
 
 //-------- IObject
 
 // Override
-func (str *ConstantString) Equal(other interface{}) bool {
-	// check targeted value
-	target, rv := ObjectReflectValue(other)
-	if target == nil {
-		return str._string == ""
-	} else if other == str {
-		// same object
-		return true
+func (cs ConstantString) Equal(other interface{}) bool {
+	if other == nil {
+		return cs.text == ""
 	}
-	// check value types
-	switch v := target.(type) {
+	var text string
+	switch v := other.(type) {
 	case fmt.Stringer:
-		other = v.String()
+		text = v.String()
 	case string:
-		other = v
+		text = v
 	default:
-		// other types
-		switch rv.Kind() {
-		case reflect.String:
-			other = rv.String()
-		default:
-			// type not matched
-			return false
-		}
+		// type not matched
+		return false
 	}
-	return str._string == other
+	return cs.text == text
 }

@@ -50,57 +50,57 @@ type Identifier struct {
 	//ID
 	ConstantString
 
-	_name     string
-	_address  Address
-	_terminal string
+	name     string
+	address  Address
+	terminal string
 }
 
-func (did *Identifier) Init(identifier string, name string, address Address, terminal string) ID {
-	if did.ConstantString.InitWithString(identifier) != nil {
-		did._name = name
-		did._address = address
-		did._terminal = terminal
+func NewIdentifier(s string, name string, address Address, terminal string) *Identifier {
+	return &Identifier{
+		ConstantString: *NewConstantString(s),
+		name:           name,
+		address:        address,
+		terminal:       terminal,
 	}
-	return did
 }
 
 //-------- ID
 
 // Override
-func (did *Identifier) Name() string {
-	return did._name
+func (did Identifier) Name() string {
+	return did.name
 }
 
 // Override
-func (did *Identifier) Address() Address {
-	return did._address
+func (did Identifier) Address() Address {
+	return did.address
 }
 
 // Override
-func (did *Identifier) Terminal() string {
-	return did._terminal
+func (did Identifier) Terminal() string {
+	return did.terminal
 }
 
 // Override
-func (did *Identifier) Type() EntityType {
-	return did._address.Network()
+func (did Identifier) Type() EntityType {
+	return did.address.Network()
 }
 
 // Override
-func (did *Identifier) IsUser() bool {
-	network := did._address.Network()
+func (did Identifier) IsUser() bool {
+	network := did.address.Network()
 	return EntityTypeIsUser(network)
 }
 
 // Override
-func (did *Identifier) IsGroup() bool {
-	network := did._address.Network()
+func (did Identifier) IsGroup() bool {
+	network := did.address.Network()
 	return EntityTypeIsGroup(network)
 }
 
 // Override
-func (did *Identifier) IsBroadcast() bool {
-	network := did._address.Network()
+func (did Identifier) IsBroadcast() bool {
+	network := did.address.Network()
 	return EntityTypeIsBroadcast(network)
 }
 
@@ -110,8 +110,7 @@ func (did *Identifier) IsBroadcast() bool {
 
 func NewID(name string, address Address, terminal string) ID {
 	identifier := IDConcat(name, address, terminal)
-	did := &Identifier{}
-	return did.Init(identifier, name, address, terminal)
+	return NewIdentifier(identifier, name, address, terminal)
 }
 
 func IDConcat(name string, address Address, terminal string) string {

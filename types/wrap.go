@@ -80,10 +80,22 @@ func SetWrapper(wrapper Wrapper) {
 //  Interfaces
 //
 
+/**
+ *  Get inner String
+ *  <p>
+ *      Remove first wrapper
+ *  </p>
+ */
 func FetchString(str interface{}) string {
 	return sharedWrapper.GetString(str)
 }
 
+/**
+ *  Get inner Map
+ *  <p>
+ *      Remove first wrapper
+ *  </p>
+ */
 func FetchMap(dict interface{}) StringKeyMap {
 	return sharedWrapper.GetMap(dict)
 }
@@ -92,6 +104,12 @@ func FetchList(array interface{}) []interface{} {
 	return sharedWrapper.GetList(array)
 }
 
+/**
+ *  Unwrap recursively
+ *  <p>
+ *      Remove all wrappers
+ *  </p>
+ */
 func Unwrap(object interface{}) interface{} {
 	return sharedWrapper.Unwrap(object)
 }
@@ -112,7 +130,7 @@ type DataWrapper struct {
 }
 
 // Override
-func (wp DataWrapper) GetString(value interface{}) string {
+func (DataWrapper) GetString(value interface{}) string {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		panic(fmt.Sprintf("string value error: %v", value))
@@ -135,7 +153,7 @@ func (wp DataWrapper) GetString(value interface{}) string {
 }
 
 // Override
-func (wp DataWrapper) GetMap(value interface{}) StringKeyMap {
+func (DataWrapper) GetMap(value interface{}) StringKeyMap {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		panic(fmt.Sprintf("map value error: %v", value))
@@ -158,7 +176,7 @@ func (wp DataWrapper) GetMap(value interface{}) StringKeyMap {
 }
 
 // Override
-func (wp DataWrapper) GetList(value interface{}) []interface{} {
+func (DataWrapper) GetList(value interface{}) []interface{} {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		panic(fmt.Sprintf("list value error: %v", value))
@@ -179,7 +197,7 @@ func (wp DataWrapper) GetList(value interface{}) []interface{} {
 }
 
 // Override
-func (wp DataWrapper) Unwrap(value interface{}) interface{} {
+func (DataWrapper) Unwrap(value interface{}) interface{} {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return nil
@@ -208,7 +226,7 @@ func (wp DataWrapper) Unwrap(value interface{}) interface{} {
 }
 
 // Override
-func (wp DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {
+func (DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return nil
@@ -239,7 +257,7 @@ func (wp DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {
 }
 
 // Override
-func (wp DataWrapper) UnwrapList(array []interface{}) []interface{} {
+func (DataWrapper) UnwrapList(array []interface{}) []interface{} {
 	result := make([]interface{}, len(array))
 	for index, item := range array {
 		result[index] = Unwrap(item)

@@ -37,7 +37,7 @@ func parseUint(s string, bitSize int) (uint64, error) {
 }
 
 // Override
-func (conv DataConverter) GetUInt(value interface{}, defaultValue uint) uint {
+func (DataConverter) GetUInt(value interface{}, defaultValue uint) uint {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -107,7 +107,7 @@ func (conv DataConverter) GetUInt(value interface{}, defaultValue uint) uint {
 }
 
 // Override
-func (conv DataConverter) GetUInt8(value interface{}, defaultValue uint8) uint8 {
+func (DataConverter) GetUInt8(value interface{}, defaultValue uint8) uint8 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -177,7 +177,7 @@ func (conv DataConverter) GetUInt8(value interface{}, defaultValue uint8) uint8 
 }
 
 // Override
-func (conv DataConverter) GetUInt16(value interface{}, defaultValue uint16) uint16 {
+func (DataConverter) GetUInt16(value interface{}, defaultValue uint16) uint16 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -247,7 +247,7 @@ func (conv DataConverter) GetUInt16(value interface{}, defaultValue uint16) uint
 }
 
 // Override
-func (conv DataConverter) GetUInt32(value interface{}, defaultValue uint32) uint32 {
+func (DataConverter) GetUInt32(value interface{}, defaultValue uint32) uint32 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
@@ -317,7 +317,7 @@ func (conv DataConverter) GetUInt32(value interface{}, defaultValue uint32) uint
 }
 
 // Override
-func (conv DataConverter) GetUInt64(value interface{}, defaultValue uint64) uint64 {
+func (DataConverter) GetUInt64(value interface{}, defaultValue uint64) uint64 {
 	target, rv := ObjectReflectValue(value)
 	if target == nil {
 		return defaultValue
