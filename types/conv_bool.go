@@ -26,91 +26,66 @@
 package types
 
 import (
-	"fmt"
-	"strconv"
+	"errors"
+	"strings"
 )
 
-/**
- *  Default Converter
- */
-type DataConverter struct {
-	//Converter
+//
+//  Boolean
+//
+
+//goland:noinspection GoSnakeCaseUsage
+var BOOLEAN_STATES = map[string]bool{
+	"1": true, "yes": true, "true": true, "on": true,
+
+	"0": false, "no": false, "false": false, "off": false,
+	//"+0": false, "-0": false, "0.0": false, "+0.0": false, "-0.0": false,
+	"null": false, "none": false, "undefined": false,
 }
 
-//
-//  String
-//
+//goland:noinspection GoSnakeCaseUsage
+var MAX_BOOLEAN_LEN = len("undefined")
+
+func parseBool(s string) (bool, error) {
+	text := strings.TrimSpace(s)
+	size := len(text)
+	if size == 0 {
+		return false, errors.New("string empty")
+	} else if size > MAX_BOOLEAN_LEN {
+		return false, errors.New("string too long")
+	}
+	text = strings.ToLower(text)
+	state, exists := BOOLEAN_STATES[text]
+	if !exists {
+		return false, errors.New("unknown boolean state")
+	}
+	return state, nil
+}
 
 // Override
-func (DataConverter) GetString(value interface{}, defaultValue string) string {
+func (DataConverter) GetBool(value interface{}, defaultValue bool) bool {
 	if value == nil {
 		return defaultValue
 	}
 	switch v := value.(type) {
-	// string
-	case string:
-		if v == "" {
-			return defaultValue
-		}
-		return v
 	// boolean
 	case bool:
-		return strconv.FormatBool(v)
+		return v
+	// string
+	case string:
+		b, err := parseBool(v)
+		if err != nil {
+			return defaultValue
+		}
+		return b
 	// integer
-	case int:
-		return strconv.FormatInt(int64(v), 10)
-	case int8:
-		return strconv.FormatInt(int64(v), 10)
-	case int16:
-		return strconv.FormatInt(int64(v), 10)
-	case int32:
-		return strconv.FormatInt(int64(v), 10)
-	case int64:
-		return strconv.FormatInt(v, 10)
-	// unsigned integer
-	case uint:
-		return strconv.FormatUint(uint64(v), 10)
-	case uint8:
-		return strconv.FormatUint(uint64(v), 10)
-	case uint16:
-		return strconv.FormatUint(uint64(v), 10)
-	case uint32:
-		return strconv.FormatUint(uint64(v), 10)
-	case uint64:
-		return strconv.FormatUint(v, 10)
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		return v != 0
 	// float number
-	case float32:
-		return formatFloat(float64(v), 32)
-	case float64:
-		return formatFloat(v, 64)
+	case float32, float64:
+		return v != 0.0
 	default:
 		// unknown type
-		return fmt.Sprintf("%v", value)
-		//return defaultValue
-	}
-}
-
-func formatFloat(f float64, bitSize int) string {
-	return strconv.FormatFloat(f, 'f', -1, bitSize)
-}
-
-//
-//  Date Time
-//
-
-// Override
-func (DataConverter) GetTime(value interface{}, defaultValue Time) Time {
-	if value == nil {
 		return defaultValue
 	}
-	switch v := value.(type) {
-	case Time:
-		return v
-	}
-	seconds := ConvertFloat64(value, 0)
-	if seconds > 0 {
-		return TimeFromFloat64(seconds)
-	}
-	//panic("Timestamp error: " + ConvertString(value, ""))
-	return defaultValue
 }

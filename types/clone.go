@@ -25,8 +25,6 @@
  */
 package types
 
-import "reflect"
-
 type Cloneable interface {
 	Clone() interface{}
 }
@@ -104,11 +102,10 @@ type DataCopier struct {
 
 // Override
 func (DataCopier) Copy(object interface{}) interface{} {
-	target, rv := ObjectReflectValue(object)
-	if target == nil {
+	if object == nil {
 		return nil
 	}
-	switch v := target.(type) {
+	switch v := object.(type) {
 	case Cloneable:
 		return v.Clone()
 	case Mapper:
@@ -117,25 +114,17 @@ func (DataCopier) Copy(object interface{}) interface{} {
 		return CopyMap(v)
 	case []interface{}:
 		return CopyList(v)
-	}
-	// other types
-	switch rv.Kind() {
-	case reflect.Map:
-		return CopyMap(reflectMap(rv))
-	case reflect.Array, reflect.Slice:
-		return CopyList(reflectList(rv))
 	default:
-		return target
+		return object
 	}
 }
 
 // Override
 func (DataCopier) DeepCopy(object interface{}) interface{} {
-	target, rv := ObjectReflectValue(object)
-	if target == nil {
+	if object == nil {
 		return nil
 	}
-	switch v := target.(type) {
+	switch v := object.(type) {
 	case Cloneable:
 		return v.Clone()
 	case Mapper:
@@ -144,21 +133,14 @@ func (DataCopier) DeepCopy(object interface{}) interface{} {
 		return DeepCopyMap(v)
 	case []interface{}:
 		return DeepCopyList(v)
-	}
-	// other types
-	switch rv.Kind() {
-	case reflect.Map:
-		return DeepCopyMap(reflectMap(rv))
-	case reflect.Array, reflect.Slice:
-		return DeepCopyList(reflectList(rv))
 	default:
-		return target
+		return object
 	}
 }
 
 // Override
 func (DataCopier) CopyMap(dictionary StringKeyMap) StringKeyMap {
-	clone := NewMap()
+	clone := make(StringKeyMap, len(dictionary))
 	for key, value := range dictionary {
 		clone[key] = value
 	}
@@ -167,7 +149,7 @@ func (DataCopier) CopyMap(dictionary StringKeyMap) StringKeyMap {
 
 // Override
 func (DataCopier) DeepCopyMap(dictionary StringKeyMap) StringKeyMap {
-	clone := NewMap()
+	clone := make(StringKeyMap, len(dictionary))
 	for key, value := range dictionary {
 		clone[key] = DeepCopy(value)
 	}
@@ -177,8 +159,8 @@ func (DataCopier) DeepCopyMap(dictionary StringKeyMap) StringKeyMap {
 // Override
 func (DataCopier) CopyList(array []interface{}) []interface{} {
 	clone := make([]interface{}, len(array))
-	for key, value := range array {
-		clone[key] = value
+	for index, item := range array {
+		clone[index] = item
 	}
 	return clone
 }
@@ -186,8 +168,8 @@ func (DataCopier) CopyList(array []interface{}) []interface{} {
 // Override
 func (DataCopier) DeepCopyList(array []interface{}) []interface{} {
 	clone := make([]interface{}, len(array))
-	for key, value := range array {
-		clone[key] = DeepCopy(value)
+	for index, item := range array {
+		clone[index] = DeepCopy(item)
 	}
 	return clone
 }

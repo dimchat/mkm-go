@@ -25,10 +25,7 @@
  */
 package types
 
-import (
-	"fmt"
-	"reflect"
-)
+import "reflect"
 
 /**
  *  Data Wrapper
@@ -122,145 +119,53 @@ func UnwrapList(array []interface{}) []interface{} {
 	return sharedWrapper.UnwrapList(array)
 }
 
-/**
- *  Default Data Wrapper
- */
-type DataWrapper struct {
-	//Wrapper
+//
+//  Reflect Value
+//
+
+func reflectMap(rv reflect.Value) StringKeyMap {
+	// check type
+	dict, ok := rv.Interface().(StringKeyMap)
+	if ok {
+		return dict
+	}
+	size := rv.Len()
+	dict = make(StringKeyMap, size)
+	// copy map entries from reflection
+	iter := rv.MapRange()
+	for iter.Next() {
+		key := iter.Key()
+		//if key.Kind() != reflect.String {
+		//	//panic(fmt.Sprintf("map key error: %v", key))
+		//	continue
+		//}
+		dict[key.String()] = reflectItemValue(iter.Value())
+	}
+	return dict
 }
 
-// Override
-func (DataWrapper) GetString(value interface{}) string {
-	target, rv := ObjectReflectValue(value)
-	if target == nil {
-		panic(fmt.Sprintf("string value error: %v", value))
-		//return ""
+func reflectList(rv reflect.Value) []interface{} {
+	// check type
+	array, ok := rv.Interface().([]interface{})
+	if ok {
+		return array
 	}
-	switch v := target.(type) {
-	case fmt.Stringer:
-		return v.String()
-	case string:
-		return v
+	size := rv.Len()
+	array = make([]interface{}, size)
+	// copy list items from reflection
+	for index := 0; index < size; index++ {
+		array[index] = reflectItemValue(rv.Index(index))
 	}
-	// other types
-	switch rv.Kind() {
-	case reflect.String:
-		return rv.String()
-	default:
-		panic(fmt.Sprintf("not a string value: %v", value))
-	}
-	//return fmt.Sprintf("%v", value)
+	return array
 }
 
-// Override
-func (DataWrapper) GetMap(value interface{}) StringKeyMap {
-	target, rv := ObjectReflectValue(value)
-	if target == nil {
-		panic(fmt.Sprintf("map value error: %v", value))
-		//return NewMap()
-	}
-	switch v := target.(type) {
-	case Mapper:
-		return v.Map()
-	case StringKeyMap:
-		return v
-	}
-	// other types
-	switch rv.Kind() {
+func reflectItemValue(value reflect.Value) interface{} {
+	switch value.Kind() {
 	case reflect.Map:
-		return reflectMap(rv)
-	default:
-		//panic(fmt.Sprintf("not a map value: %v", value))
-	}
-	return nil
-}
-
-// Override
-func (DataWrapper) GetList(value interface{}) []interface{} {
-	target, rv := ObjectReflectValue(value)
-	if target == nil {
-		panic(fmt.Sprintf("list value error: %v", value))
-		//return make([]interface{}, 0)
-	}
-	switch v := target.(type) {
-	case []interface{}:
-		return v
-	}
-	// other types
-	switch rv.Kind() {
+		return reflectMap(value)
 	case reflect.Array, reflect.Slice:
-		return reflectList(rv)
+		return reflectList(value)
 	default:
-		//panic(fmt.Sprintf("not a list value: %v", value))
+		return value.Interface()
 	}
-	return nil
-}
-
-// Override
-func (DataWrapper) Unwrap(value interface{}) interface{} {
-	target, rv := ObjectReflectValue(value)
-	if target == nil {
-		return nil
-	}
-	switch v := target.(type) {
-	case Mapper:
-		return UnwrapMap(v.Map())
-	case StringKeyMap:
-		return UnwrapMap(v)
-	case []interface{}:
-		return UnwrapList(v)
-	case fmt.Stringer:
-		return v.String()
-	}
-	// other types
-	switch rv.Kind() {
-	case reflect.Map:
-		return UnwrapMap(reflectMap(rv))
-	case reflect.Array, reflect.Slice:
-		return UnwrapList(reflectList(rv))
-	case reflect.String:
-		return rv.String()
-	default:
-		return target
-	}
-}
-
-// Override
-func (DataWrapper) UnwrapMap(value StringKeyMap) StringKeyMap {
-	target, rv := ObjectReflectValue(value)
-	if target == nil {
-		return nil
-	}
-	// convert to string key map
-	var dict StringKeyMap
-	switch v := target.(type) {
-	case Mapper:
-		dict = v.Map()
-	case StringKeyMap:
-		dict = v
-	default:
-		// other types
-		switch rv.Kind() {
-		case reflect.Map:
-			dict = reflectMap(rv)
-		default:
-			//panic(fmt.Sprintf("map value error: %v", value))
-			return nil
-		}
-	}
-	// unwrap recursively
-	result := NewMap()
-	for key, value := range dict {
-		result[FetchString(key)] = Unwrap(value)
-	}
-	return result
-}
-
-// Override
-func (DataWrapper) UnwrapList(array []interface{}) []interface{} {
-	result := make([]interface{}, len(array))
-	for index, item := range array {
-		result[index] = Unwrap(item)
-	}
-	return result
 }

@@ -25,9 +25,7 @@
  */
 package types
 
-import (
-	"reflect"
-)
+import "reflect"
 
 /**
  *  IObject
@@ -62,8 +60,12 @@ func ObjectsEqual(i1, i2 interface{}) bool {
 		return true
 	} else if i1 == nil || i2 == nil {
 		return false
+	} else if p1, ok := i1.(Object); ok {
+		return p1.Equal(i2)
+	//} else if p2, ok := i2.(Object); ok {
+	//	return p2.Equal(i1)
 	}
-	// get values
+	// check values
 	v1 := ObjectTargetValue(i1)
 	v2 := ObjectTargetValue(i2)
 	if v1 == nil && v2 == nil {
@@ -71,14 +73,8 @@ func ObjectsEqual(i1, i2 interface{}) bool {
 	} else if v1 == nil || v2 == nil {
 		return false
 	}
-	// check type
-	if p1, ok := v1.(Object); ok {
-		return p1.Equal(v2)
-	//} else if p2, ok := v2.(Object); ok {
-	//	return p2.Equal(v1)
-	}
 	// other types
-	return reflect.DeepEqual(v1, v2)
+	return reflect.DeepEqual(i1, i2)
 }
 
 /**

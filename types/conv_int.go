@@ -26,367 +26,108 @@
 package types
 
 import (
-	"reflect"
+	"errors"
 	"strconv"
 	"strings"
 )
 
-func a2i(s string) (int, error) {
-	s = strings.TrimSpace(s)
-	return strconv.Atoi(s)
-}
-
-func parseInt(s string, bitSize int) (int64, error) {
-	s = strings.TrimSpace(s)
-	return strconv.ParseInt(s, 10, bitSize)
-}
+//
+//  Signed Integer
+//
 
 // Override
 func (DataConverter) GetInt(value interface{}, defaultValue int) int {
-	target, rv := ObjectReflectValue(value)
-	if target == nil {
+	v, err := convInt64(value)
+	if err != nil {
 		return defaultValue
 	}
-	switch v := target.(type) {
-	case int:
-		return v
-	case int8:
-		return int(v)
-	case int16:
-		return int(v)
-	case int32:
-		return int(v)
-	case int64:
-		return int(v)
-	case uint:
-		return int(v)
-	case uint8:
-		return int(v)
-	case uint16:
-		return int(v)
-	case uint32:
-		return int(v)
-	case uint64:
-		return int(v)
-	case float32:
-		return int(v)
-	case float64:
-		return int(v)
-	case bool:
-		if v {
-			return 1
-		}
-		return 0
-	case string:
-		i, err := a2i(v)
-		if err != nil {
-			//panic(err)
-			return defaultValue
-		}
-		return i
-	}
-	// other types
-	switch rv.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return int(rv.Int())
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return int(rv.Uint())
-	case reflect.Float32, reflect.Float64:
-		return int(rv.Float())
-	case reflect.Bool:
-		if rv.Bool() {
-			return 1
-		}
-		return 0
-	case reflect.String:
-		i, err := a2i(rv.String())
-		if err != nil {
-			//panic(err)
-			return defaultValue
-		}
-		return i
-	default:
-		//panic(fmt.Sprintf("int value error: %v", value))
-	}
-	return defaultValue
+	return int(v)
 }
 
 // Override
 func (DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
-	target, rv := ObjectReflectValue(value)
-	if target == nil {
+	v, err := convInt64(value)
+	if err != nil {
 		return defaultValue
 	}
-	switch v := target.(type) {
-	case int:
-		return int8(v)
-	case int8:
-		return v
-	case int16:
-		return int8(v)
-	case int32:
-		return int8(v)
-	case int64:
-		return int8(v)
-	case uint:
-		return int8(v)
-	case uint8:
-		return int8(v)
-	case uint16:
-		return int8(v)
-	case uint32:
-		return int8(v)
-	case uint64:
-		return int8(v)
-	case float32:
-		return int8(v)
-	case float64:
-		return int8(v)
-	case bool:
-		if v {
-			return 1
-		}
-		return 0
-	case string:
-		i, err := parseInt(v, 8)
-		if err != nil {
-			//panic(err)
-			return defaultValue
-		}
-		return int8(i)
-	}
-	// other types
-	switch rv.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return int8(rv.Int())
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return int8(rv.Uint())
-	case reflect.Float32, reflect.Float64:
-		return int8(rv.Float())
-	case reflect.Bool:
-		if rv.Bool() {
-			return 1
-		}
-		return 0
-	case reflect.String:
-		i, err := parseInt(rv.String(), 8)
-		if err != nil {
-			//panic(err)
-			return defaultValue
-		}
-		return int8(i)
-	default:
-		//panic(fmt.Sprintf("int8 value error: %v", value))
-	}
-	return defaultValue
+	return int8(v)
 }
 
 // Override
 func (DataConverter) GetInt16(value interface{}, defaultValue int16) int16 {
-	target, rv := ObjectReflectValue(value)
-	if target == nil {
+	v, err := convInt64(value)
+	if err != nil {
 		return defaultValue
 	}
-	switch v := target.(type) {
-	case int:
-		return int16(v)
-	case int8:
-		return int16(v)
-	case int16:
-		return v
-	case int32:
-		return int16(v)
-	case int64:
-		return int16(v)
-	case uint:
-		return int16(v)
-	case uint8:
-		return int16(v)
-	case uint16:
-		return int16(v)
-	case uint32:
-		return int16(v)
-	case uint64:
-		return int16(v)
-	case float32:
-		return int16(v)
-	case float64:
-		return int16(v)
-	case bool:
-		if v {
-			return 1
-		}
-		return 0
-	case string:
-		i, err := parseInt(v, 16)
-		if err != nil {
-			//panic(err)
-			return defaultValue
-		}
-		return int16(i)
-	}
-	// other types
-	switch rv.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return int16(rv.Int())
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return int16(rv.Uint())
-	case reflect.Float32, reflect.Float64:
-		return int16(rv.Float())
-	case reflect.Bool:
-		if rv.Bool() {
-			return 1
-		}
-		return 0
-	case reflect.String:
-		i, err := parseInt(rv.String(), 16)
-		if err != nil {
-			//panic(err)
-			return defaultValue
-		}
-		return int16(i)
-	default:
-		//panic(fmt.Sprintf("int16 value error: %v", value))
-	}
-	return defaultValue
+	return int16(v)
 }
 
 // Override
 func (DataConverter) GetInt32(value interface{}, defaultValue int32) int32 {
-	target, rv := ObjectReflectValue(value)
-	if target == nil {
+	v, err := convInt64(value)
+	if err != nil {
 		return defaultValue
 	}
-	switch v := target.(type) {
-	case int:
-		return int32(v)
-	case int8:
-		return int32(v)
-	case int16:
-		return int32(v)
-	case int32:
-		return v
-	case int64:
-		return int32(v)
-	case uint:
-		return int32(v)
-	case uint8:
-		return int32(v)
-	case uint16:
-		return int32(v)
-	case uint32:
-		return int32(v)
-	case uint64:
-		return int32(v)
-	case float32:
-		return int32(v)
-	case float64:
-		return int32(v)
-	case bool:
-		if v {
-			return 1
-		}
-		return 0
-	case string:
-		i, err := parseInt(v, 32)
-		if err != nil {
-			//panic(err)
-			return defaultValue
-		}
-		return int32(i)
-	}
-	// other types
-	switch rv.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return int32(rv.Int())
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return int32(rv.Uint())
-	case reflect.Float32, reflect.Float64:
-		return int32(rv.Float())
-	case reflect.Bool:
-		if rv.Bool() {
-			return 1
-		}
-		return 0
-	case reflect.String:
-		i, err := parseInt(rv.String(), 32)
-		if err != nil {
-			//panic(err)
-			return defaultValue
-		}
-		return int32(i)
-	default:
-		//panic(fmt.Sprintf("int32 value error: %v", value))
-	}
-	return defaultValue
+	return int32(v)
 }
 
 // Override
 func (DataConverter) GetInt64(value interface{}, defaultValue int64) int64 {
-	target, rv := ObjectReflectValue(value)
-	if target == nil {
+	v, err := convInt64(value)
+	if err != nil {
 		return defaultValue
 	}
-	switch v := target.(type) {
+	return v
+}
+
+func convInt64(value interface{}) (int64, error) {
+	if value == nil {
+		return 0, errors.New("nil value")
+	}
+	switch v := value.(type) {
+	// integer
 	case int:
-		return int64(v)
+		return int64(v), nil
 	case int8:
-		return int64(v)
+		return int64(v), nil
 	case int16:
-		return int64(v)
+		return int64(v), nil
 	case int32:
-		return int64(v)
+		return int64(v), nil
 	case int64:
-		return v
+		return v, nil
+	// unsigned integer
 	case uint:
-		return int64(v)
+		return int64(v), nil
 	case uint8:
-		return int64(v)
+		return int64(v), nil
 	case uint16:
-		return int64(v)
+		return int64(v), nil
 	case uint32:
-		return int64(v)
+		return int64(v), nil
 	case uint64:
-		return int64(v)
+		return int64(v), nil
+	// float number
 	case float32:
-		return int64(v)
+		return int64(v), nil
 	case float64:
-		return int64(v)
+		return int64(v), nil
+	// boolean
 	case bool:
 		if v {
-			return 1
+			return 1, nil
 		}
-		return 0
+		return 0, nil
+	// string
 	case string:
-		i, err := parseInt(v, 64)
+		s := strings.TrimSpace(v)
+		i, err := strconv.ParseInt(s, 10, 64)
 		if err != nil {
-			//panic(err)
-			return defaultValue
+			return 0, err
 		}
-		return i
-	}
-	// other types
-	switch rv.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return rv.Int()
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return int64(rv.Uint())
-	case reflect.Float32, reflect.Float64:
-		return int64(rv.Float())
-	case reflect.Bool:
-		if rv.Bool() {
-			return 1
-		}
-		return 0
-	case reflect.String:
-		i, err := parseInt(rv.String(), 64)
-		if err != nil {
-			//panic(err)
-			return defaultValue
-		}
-		return i
+		return i, nil
 	default:
-		//panic(fmt.Sprintf("int64 value error: %v", value))
+		// unknown type
+		return 0, errors.New("invalid type")
 	}
-	return defaultValue
 }

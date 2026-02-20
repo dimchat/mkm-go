@@ -25,9 +25,7 @@
  */
 package types
 
-import (
-	"reflect"
-)
+import "reflect"
 
 /**
  *  Mutable Dictionary Wrapper
@@ -207,18 +205,6 @@ func (dict *Dictionary) GetFloat32(key string, defaultValue float32) float32 {
 func (dict *Dictionary) GetFloat64(key string, defaultValue float64) float64 {
 	value := dict.Get(key)
 	return ConvertFloat64(value, defaultValue)
-}
-
-// Override
-func (dict *Dictionary) GetComplex64(key string, defaultValue complex64) complex64 {
-	value := dict.Get(key)
-	return ConvertComplex64(value, defaultValue)
-}
-
-// Override
-func (dict *Dictionary) GetComplex128(key string, defaultValue complex128) complex128 {
-	value := dict.Get(key)
-	return ConvertComplex128(value, defaultValue)
 }
 
 // Override

@@ -25,17 +25,6 @@
  */
 package types
 
-//goland:noinspection GoSnakeCaseUsage
-var BOOLEAN_STATES = map[string]bool{
-	"1": true, "yes": true, "true": true, "on": true,
-
-	"0": false, "no": false, "false": false, "off": false,
-	//"+0": false, "-0": false, "0.0": false, "+0.0": false, "-0.0": false,
-	"null": false, "none": false, "undefined": false,
-}
-//goland:noinspection GoSnakeCaseUsage
-var MAX_BOOLEAN_LEN = len("undefined")
-
 /**
  *  Data Converter
  */
@@ -59,9 +48,6 @@ type Converter interface {
 
 	GetFloat32   (value interface{}, defaultValue float32) float32
 	GetFloat64   (value interface{}, defaultValue float64) float64
-
-	GetComplex64 (value interface{}, defaultValue complex64) complex64
-	GetComplex128(value interface{}, defaultValue complex128) complex128
 
 	GetTime      (value interface{}, defaultValue Time) Time
 
@@ -122,13 +108,6 @@ func ConvertFloat32(value interface{}, defaultValue float32) float32 {
 }
 func ConvertFloat64(value interface{}, defaultValue float64) float64 {
 	return sharedConverter.GetFloat64(value, defaultValue)
-}
-
-func ConvertComplex64(value interface{}, defaultValue complex64) complex64 {
-	return sharedConverter.GetComplex64(value, defaultValue)
-}
-func ConvertComplex128(value interface{}, defaultValue complex128) complex128 {
-	return sharedConverter.GetComplex128(value, defaultValue)
 }
 
 func ConvertTime(value interface{}, defaultValue Time) Time {

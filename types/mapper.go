@@ -25,8 +25,6 @@
  */
 package types
 
-import "reflect"
-
 type StringKeyMap = map[string]interface{}
 
 type Mapper interface {
@@ -78,9 +76,6 @@ type Mapper interface {
 	GetFloat32   (key string, defaultValue float32) float32
 	GetFloat64   (key string, defaultValue float64) float64
 
-	GetComplex64 (key string, defaultValue complex64) complex64
-	GetComplex128(key string, defaultValue complex128) complex128
-
 	GetTime      (key string, defaultValue Time) Time
 	SetTime      (key string, value Time)
 
@@ -101,48 +96,4 @@ func MapKeys(dictionary StringKeyMap) []string {
 
 func NewMap() StringKeyMap {
 	return make(StringKeyMap)
-}
-
-//
-//  Reflect Value
-//
-
-func reflectMap(rv reflect.Value) StringKeyMap {
-	// check type
-	dict, ok := rv.Interface().(StringKeyMap)
-	if ok {
-		return dict
-	}
-	// copy map from reflection
-	dict = NewMap()
-	iter := rv.MapRange()
-	for iter.Next() {
-		key := iter.Key()
-		//if key.Kind() != reflect.String {
-		//	//panic(fmt.Sprintf("map key error: %v", key))
-		//	continue
-		//}
-		dict[key.String()] = reflectItemValue(iter.Value())
-	}
-	return dict
-}
-
-func reflectList(rv reflect.Value) []interface{} {
-	size := rv.Len()
-	array := make([]interface{}, size)
-	for i := 0; i < size; i++ {
-		array[i] = reflectItemValue(rv.Index(i))
-	}
-	return array
-}
-
-func reflectItemValue(value reflect.Value) interface{} {
-	switch value.Kind() {
-	case reflect.Map:
-		return reflectMap(value)
-	case reflect.Array, reflect.Slice:
-		return reflectList(value)
-	default:
-		return value.Interface()
-	}
 }
