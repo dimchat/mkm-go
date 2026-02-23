@@ -27,82 +27,76 @@ package types
 
 import "reflect"
 
-/**
- *  IObject
- */
+// IObject
 type Object interface {
 
-	Equal(other interface{}) bool
+	// Equal checks if this object is equal to another object.
+	Equal(other any) bool
 }
 
-/**
- *  Get object type (class name)
- */
-func ObjectType(i interface{}) string {
-	if i == nil {
+// ObjectType returns the type name of the given object.
+// If the object is nil, it returns "<nil>".
+func ObjectType(a any) string {
+	if a == nil {
 		return "<nil>"
 	}
-	t := reflect.TypeOf(i)
+	t := reflect.TypeOf(a)
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
 	return t.String()
 }
 
-/**
- *  Check whether the two objects equal
- *
- *  WARNING:
- *      Don't call this method in Object.Equal()
- */
-func ObjectsEqual(i1, i2 interface{}) bool {
-	if i1 == nil && i2 == nil {
+// ObjectsEqual checks if two objects are equal.
+// WARNING: Do not call this method inside Object.Equal().
+func ObjectsEqual(a1, a2 any) bool {
+	if a1 == nil && a2 == nil {
 		return true
-	} else if i1 == nil || i2 == nil {
+	} else if a1 == nil || a2 == nil {
 		return false
-	} else if p1, ok := i1.(Object); ok {
-		return p1.Equal(i2)
+	} else if p1, ok := a1.(Object); ok {
+		return p1.Equal(a2)
 	//} else if p2, ok := i2.(Object); ok {
 	//	return p2.Equal(i1)
 	}
 	// check values
-	v1 := ObjectTargetValue(i1)
-	v2 := ObjectTargetValue(i2)
+	v1 := ObjectTargetValue(a1)
+	v2 := ObjectTargetValue(a2)
 	if v1 == nil && v2 == nil {
 		return true
 	} else if v1 == nil || v2 == nil {
 		return false
 	}
 	// other types
-	return reflect.DeepEqual(i1, i2)
+	return reflect.DeepEqual(a1, a2)
 }
 
-/**
- *  Get targeted value that the object pointer pointing to
- */
-func ObjectTargetValue(i interface{}) interface{} {
-	v, _ := ObjectReflectValue(i)
+// ObjectTargetValue returns the value pointed to by the given object.
+func ObjectTargetValue(a any) any {
+	v, _ := ObjectReflectValue(a)
 	return v
 }
 
-func ObjectReflectValue(i interface{}) (interface{}, reflect.Value) {
-	v := reflect.ValueOf(i)
+// ObjectReflectValue returns the reflect.Value of the given object and its underlying value.
+func ObjectReflectValue(a any) (any, reflect.Value) {
+	v := reflect.ValueOf(a)
 	if !v.IsValid() {
 		return nil, v
 	} else if v.Kind() != reflect.Ptr {
-		return i, v
+		return a, v
 	} else if v.IsNil() {
 		return nil, v
 	}
 	return v.Elem().Interface(), v
 }
 
-func ObjectReflectPointer(i interface{}) (interface{}, reflect.Value) {
-	v := reflect.ValueOf(i)
+// ObjectReflectPointer returns the reflect.Value of the given object and its pointer.
+func ObjectReflectPointer(a any) (any, reflect.Value) {
+	v := reflect.ValueOf(a)
 	if !v.IsValid() {
 		return nil, v
 	} else if v.Kind() == reflect.Ptr {
-		return i, v
+		return a, v
 	} else if v.CanAddr() {
 		return v.Addr().Interface(), v
 	}
@@ -111,30 +105,24 @@ func ObjectReflectPointer(i interface{}) (interface{}, reflect.Value) {
 	return ptr.Interface(), v
 }
 
-/**
- *  Get address of the object value
- */
-func ObjectPointer(i interface{}) interface{} {
-	p, _ := ObjectReflectPointer(i)
+// ObjectPointer returns the address of the object value.
+func ObjectPointer(a any) any {
+	p, _ := ObjectReflectPointer(a)
 	return p
 }
 
-/**
- *  Check whether the variable is a pointer
- */
-func ObjectIsPointer(i interface{}) bool {
-	v := reflect.ValueOf(i)
+// ObjectIsPointer checks whether the variable is a pointer.
+func ObjectIsPointer(a any) bool {
+	v := reflect.ValueOf(a)
 	if !v.IsValid() {
 		return false
 	}
 	return v.Kind() == reflect.Ptr
 }
 
-/**
- *  Check whether the value is nil
- */
-func ValueIsNil(i interface{}) bool {
-	v := reflect.ValueOf(i)
+// ValueIsNil checks whether the value is nil.
+func ValueIsNil(a any) bool {
+	v := reflect.ValueOf(a)
 	if !v.IsValid() {
 		return true
 	}

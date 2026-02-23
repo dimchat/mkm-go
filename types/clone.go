@@ -26,33 +26,33 @@
 package types
 
 type Cloneable interface {
-	Clone() interface{}
+
+	// customized copying
+	Clone() any
 }
 
-/**
- *  Data Copier
- */
+// Data Copier
 type Copier interface {
 
 	//
 	//  Shallow Copy
 	//
 
-	Copy(object interface{}) interface{}
+	Copy(object any) any
 
 	CopyMap(dictionary StringKeyMap) StringKeyMap
 
-	CopyList(array []interface{}) []interface{}
+	CopyList(array []any) []any
 
 	//
 	//  Deep Copy
 	//
 
-	DeepCopy(object interface{}) interface{}
+	DeepCopy(object any) any
 
 	DeepCopyMap(dictionary StringKeyMap) StringKeyMap
 
-	DeepCopyList(array []interface{}) []interface{}
+	DeepCopyList(array []any) []any
 }
 
 var sharedCopier Copier = &DataCopier{}
@@ -61,11 +61,11 @@ func SetCopier(copier Copier) {
 	sharedCopier = copier
 }
 
-/**
- *  Shallow Copy
- *  ~~~~~~~~~~~~
- */
-func Copy(object interface{}) interface{} {
+//
+//  Shallow Copy
+//
+
+func Copy(object any) any {
 	return sharedCopier.Copy(object)
 }
 
@@ -73,15 +73,15 @@ func CopyMap(dictionary StringKeyMap) StringKeyMap {
 	return sharedCopier.CopyMap(dictionary)
 }
 
-func CopyList(array []interface{}) []interface{} {
+func CopyList(array []any) []any {
 	return sharedCopier.CopyList(array)
 }
 
-/**
- *  Deep Copy
- *  ~~~~~~~~~
- */
-func DeepCopy(object interface{}) interface{} {
+//
+//  Deep Copy
+//
+
+func DeepCopy(object any) any {
 	return sharedCopier.DeepCopy(object)
 }
 
@@ -89,19 +89,17 @@ func DeepCopyMap(dictionary StringKeyMap) StringKeyMap {
 	return sharedCopier.DeepCopyMap(dictionary)
 }
 
-func DeepCopyList(array []interface{}) []interface{} {
+func DeepCopyList(array []any) []any {
 	return sharedCopier.DeepCopyList(array)
 }
 
-/**
- *  Default Data Copier
- */
+// Default Data Copier
 type DataCopier struct {
 	//Copier
 }
 
 // Override
-func (DataCopier) Copy(object interface{}) interface{} {
+func (DataCopier) Copy(object any) any {
 	if object == nil {
 		return nil
 	}
@@ -112,7 +110,7 @@ func (DataCopier) Copy(object interface{}) interface{} {
 		return CopyMap(v.Map())
 	case StringKeyMap:
 		return CopyMap(v)
-	case []interface{}:
+	case []any:
 		return CopyList(v)
 	default:
 		return object
@@ -120,7 +118,7 @@ func (DataCopier) Copy(object interface{}) interface{} {
 }
 
 // Override
-func (DataCopier) DeepCopy(object interface{}) interface{} {
+func (DataCopier) DeepCopy(object any) any {
 	if object == nil {
 		return nil
 	}
@@ -131,7 +129,7 @@ func (DataCopier) DeepCopy(object interface{}) interface{} {
 		return DeepCopyMap(v.Map())
 	case StringKeyMap:
 		return DeepCopyMap(v)
-	case []interface{}:
+	case []any:
 		return DeepCopyList(v)
 	default:
 		return object
@@ -157,8 +155,8 @@ func (DataCopier) DeepCopyMap(dictionary StringKeyMap) StringKeyMap {
 }
 
 // Override
-func (DataCopier) CopyList(array []interface{}) []interface{} {
-	clone := make([]interface{}, len(array))
+func (DataCopier) CopyList(array []any) []any {
+	clone := make([]any, len(array))
 	for index, item := range array {
 		clone[index] = item
 	}
@@ -166,8 +164,8 @@ func (DataCopier) CopyList(array []interface{}) []interface{} {
 }
 
 // Override
-func (DataCopier) DeepCopyList(array []interface{}) []interface{} {
-	clone := make([]interface{}, len(array))
+func (DataCopier) DeepCopyList(array []any) []any {
+	clone := make([]any, len(array))
 	for index, item := range array {
 		clone[index] = DeepCopy(item)
 	}

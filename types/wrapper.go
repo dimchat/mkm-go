@@ -30,15 +30,14 @@ import (
 	"reflect"
 )
 
-/**
- *  Default Data Wrapper
- */
+// DataWrapper is the default implementation of Wrapper
+// Provides basic implementation of the Wrapper interface
 type DataWrapper struct {
 	//Wrapper
 }
 
 // Override
-func (DataWrapper) GetString(value interface{}) string {
+func (DataWrapper) GetString(value any) string {
 	if value == nil {
 		//panic(fmt.Sprintf("string value error: %v", value))
 		return ""
@@ -67,7 +66,7 @@ func (DataWrapper) GetString(value interface{}) string {
 }
 
 // Override
-func (DataWrapper) GetMap(value interface{}) StringKeyMap {
+func (DataWrapper) GetMap(value any) StringKeyMap {
 	if value == nil {
 		//panic(fmt.Sprintf("map value error: %v", value))
 		return nil
@@ -96,13 +95,13 @@ func (DataWrapper) GetMap(value interface{}) StringKeyMap {
 }
 
 // Override
-func (DataWrapper) GetList(value interface{}) []interface{} {
+func (DataWrapper) GetList(value any) []any {
 	if value == nil {
 		//panic(fmt.Sprintf("list value error: %v", value))
 		return nil
 	}
 	switch v := value.(type) {
-	case []interface{}:
+	case []any:
 		return v
 	}
 	// other types
@@ -110,7 +109,7 @@ func (DataWrapper) GetList(value interface{}) []interface{} {
 	if target == nil {
 		//panic(fmt.Sprintf("list value error: %v", value))
 		return nil
-	} else if v, ok := target.([]interface{}); ok {
+	} else if v, ok := target.([]any); ok {
 		return v
 	}
 	switch rv.Kind() {
@@ -123,7 +122,7 @@ func (DataWrapper) GetList(value interface{}) []interface{} {
 }
 
 // Override
-func (DataWrapper) Unwrap(value interface{}) interface{} {
+func (DataWrapper) Unwrap(value any) any {
 	if value == nil {
 		return nil
 	}
@@ -132,7 +131,7 @@ func (DataWrapper) Unwrap(value interface{}) interface{} {
 		return UnwrapMap(v.Map())
 	case StringKeyMap:
 		return UnwrapMap(v)
-	case []interface{}:
+	case []any:
 		return UnwrapList(v)
 	case Stringer: // fmt.Stringer:
 		return v.String()
@@ -143,7 +142,7 @@ func (DataWrapper) Unwrap(value interface{}) interface{} {
 		return nil
 	} else if v, ok := target.(StringKeyMap); ok {
 		return UnwrapMap(v)
-	} else if v, ok := target.([]interface{}); ok {
+	} else if v, ok := target.([]any); ok {
 		return UnwrapList(v)
 	} else if v, ok := target.(string); ok {
 		return v
@@ -174,12 +173,12 @@ func (DataWrapper) UnwrapMap(dict StringKeyMap) StringKeyMap {
 }
 
 // Override
-func (DataWrapper) UnwrapList(array []interface{}) []interface{} {
+func (DataWrapper) UnwrapList(array []any) []any {
 	if array == nil {
 		return nil
 	}
 	// unwrap recursively
-	result := make([]interface{}, len(array))
+	result := make([]any, len(array))
 	for index, item := range array {
 		result[index] = Unwrap(item)
 	}

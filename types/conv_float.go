@@ -36,7 +36,7 @@ import (
 //
 
 // Override
-func (DataConverter) GetFloat32(value interface{}, defaultValue float32) float32 {
+func (DataConverter) GetFloat32(value any, defaultValue float32) float32 {
 	v, err := convFloat64(value)
 	if err != nil {
 		return defaultValue
@@ -45,7 +45,7 @@ func (DataConverter) GetFloat32(value interface{}, defaultValue float32) float32
 }
 
 // Override
-func (DataConverter) GetFloat64(value interface{}, defaultValue float64) float64 {
+func (DataConverter) GetFloat64(value any, defaultValue float64) float64 {
 	v, err := convFloat64(value)
 	if err != nil {
 		return defaultValue
@@ -53,7 +53,7 @@ func (DataConverter) GetFloat64(value interface{}, defaultValue float64) float64
 	return v
 }
 
-func convFloat64(value interface{}) (float64, error) {
+func convFloat64(value any) (float64, error) {
 	if value == nil {
 		return 0, errors.New("nil value")
 	}

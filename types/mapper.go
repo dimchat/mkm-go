@@ -25,63 +25,59 @@
  */
 package types
 
-type StringKeyMap = map[string]interface{}
+type StringKeyMap = map[string]any
 
+// Mapper interface defines operations for a mutable dictionary.
 type Mapper interface {
 	Object
 
-	Get(key string) interface{}
-	Set(key string, value interface{})
+	Get(key string) any
+	Set(key string, value any)
 	Remove(key string)
 
+	// Contains checks if the key exists in the dictionary.
 	Contains(key string) bool
 
+	// IsEmpty checks if the dictionary is empty.
 	IsEmpty() bool
 
-	/**
-	 *  Get all keys
-	 */
+	// Keys returns a slice of all keys in the dictionary.
 	Keys() []string
 
-	/**
-	 *  Get inner map
-	 */
+	// Map returns the inner map.
 	Map() StringKeyMap
 
-	/**
-	 *  Copy inner map
-	 */
+	// CopyMap returns a copy of the inner map.
 	CopyMap(deep bool) StringKeyMap
 
 	//
 	//  Convert values
 	//
 
-	GetString    (key string, defaultValue string) string
+	GetString   (key string, defaultValue string) string
 
-	GetBool      (key string, defaultValue bool) bool
+	GetBool     (key string, defaultValue bool) bool
 
-	GetInt       (key string, defaultValue int) int
-	GetInt8      (key string, defaultValue int8) int8
-	GetInt16     (key string, defaultValue int16) int16
-	GetInt32     (key string, defaultValue int32) int32
-	GetInt64     (key string, defaultValue int64) int64
+	GetInt      (key string, defaultValue int) int
+	GetInt8     (key string, defaultValue int8) int8
+	GetInt16    (key string, defaultValue int16) int16
+	GetInt32    (key string, defaultValue int32) int32
+	GetInt64    (key string, defaultValue int64) int64
 
-	GetUInt      (key string, defaultValue uint) uint
-	GetUInt8     (key string, defaultValue uint8) uint8
-	GetUInt16    (key string, defaultValue uint16) uint16
-	GetUInt32    (key string, defaultValue uint32) uint32
-	GetUInt64    (key string, defaultValue uint64) uint64
+	GetUInt     (key string, defaultValue uint) uint
+	GetUInt8    (key string, defaultValue uint8) uint8
+	GetUInt16   (key string, defaultValue uint16) uint16
+	GetUInt32   (key string, defaultValue uint32) uint32
+	GetUInt64   (key string, defaultValue uint64) uint64
 
-	GetFloat32   (key string, defaultValue float32) float32
-	GetFloat64   (key string, defaultValue float64) float64
+	GetFloat32  (key string, defaultValue float32) float32
+	GetFloat64  (key string, defaultValue float64) float64
 
-	GetTime      (key string, defaultValue Time) Time
-	SetTime      (key string, value Time)
+	GetTime     (key string, defaultValue Time) Time
+	SetTime     (key string, value Time)
 
-	SetStringer  (key string, value Stringer)
-	SetMapper    (key string, value Mapper)
-
+	SetStringer (key string, value Stringer)
+	SetMapper   (key string, value Mapper)
 }
 
 func MapKeys(dictionary StringKeyMap) []string {

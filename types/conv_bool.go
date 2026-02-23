@@ -63,7 +63,7 @@ func parseBool(s string) (bool, error) {
 }
 
 // Override
-func (DataConverter) GetBool(value interface{}, defaultValue bool) bool {
+func (DataConverter) GetBool(value any, defaultValue bool) bool {
 	if value == nil {
 		return defaultValue
 	}

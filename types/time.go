@@ -174,7 +174,7 @@ func TimeFromFloat64(seconds float64) Time {
 }
 
 // parse from timestamp in seconds
-func ParseTime(timestamp interface{}) Time {
+func ParseTime(timestamp any) Time {
 	if ValueIsNil(timestamp) {
 		return nil // TimeNil()
 	}

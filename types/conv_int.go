@@ -36,7 +36,7 @@ import (
 //
 
 // Override
-func (DataConverter) GetInt(value interface{}, defaultValue int) int {
+func (DataConverter) GetInt(value any, defaultValue int) int {
 	v, err := convInt64(value)
 	if err != nil {
 		return defaultValue
@@ -45,7 +45,7 @@ func (DataConverter) GetInt(value interface{}, defaultValue int) int {
 }
 
 // Override
-func (DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
+func (DataConverter) GetInt8(value any, defaultValue int8) int8 {
 	v, err := convInt64(value)
 	if err != nil {
 		return defaultValue
@@ -54,7 +54,7 @@ func (DataConverter) GetInt8(value interface{}, defaultValue int8) int8 {
 }
 
 // Override
-func (DataConverter) GetInt16(value interface{}, defaultValue int16) int16 {
+func (DataConverter) GetInt16(value any, defaultValue int16) int16 {
 	v, err := convInt64(value)
 	if err != nil {
 		return defaultValue
@@ -63,7 +63,7 @@ func (DataConverter) GetInt16(value interface{}, defaultValue int16) int16 {
 }
 
 // Override
-func (DataConverter) GetInt32(value interface{}, defaultValue int32) int32 {
+func (DataConverter) GetInt32(value any, defaultValue int32) int32 {
 	v, err := convInt64(value)
 	if err != nil {
 		return defaultValue
@@ -72,7 +72,7 @@ func (DataConverter) GetInt32(value interface{}, defaultValue int32) int32 {
 }
 
 // Override
-func (DataConverter) GetInt64(value interface{}, defaultValue int64) int64 {
+func (DataConverter) GetInt64(value any, defaultValue int64) int64 {
 	v, err := convInt64(value)
 	if err != nil {
 		return defaultValue
@@ -80,7 +80,7 @@ func (DataConverter) GetInt64(value interface{}, defaultValue int64) int64 {
 	return v
 }
 
-func convInt64(value interface{}) (int64, error) {
+func convInt64(value any) (int64, error) {
 	if value == nil {
 		return 0, errors.New("nil value")
 	}

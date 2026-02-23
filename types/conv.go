@@ -30,9 +30,7 @@ import (
 	"strconv"
 )
 
-/**
- *  Default Converter
- */
+// Default Converter
 type DataConverter struct {
 	//Converter
 }
@@ -42,7 +40,7 @@ type DataConverter struct {
 //
 
 // Override
-func (DataConverter) GetString(value interface{}, defaultValue string) string {
+func (DataConverter) GetString(value any, defaultValue string) string {
 	if value == nil {
 		return defaultValue
 	}
@@ -99,7 +97,7 @@ func formatFloat(f float64, bitSize int) string {
 //
 
 // Override
-func (DataConverter) GetTime(value interface{}, defaultValue Time) Time {
+func (DataConverter) GetTime(value any, defaultValue Time) Time {
 	if value == nil {
 		return defaultValue
 	}

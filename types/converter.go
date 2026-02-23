@@ -25,31 +25,29 @@
  */
 package types
 
-/**
- *  Data Converter
- */
+// Data Converter
 type Converter interface {
 
-	GetString    (value interface{}, defaultValue string) string
+	GetString  (value any, defaultValue string) string
 
-	GetBool      (value interface{}, defaultValue bool) bool
+	GetBool    (value any, defaultValue bool) bool
 
-	GetInt       (value interface{}, defaultValue int) int
-	GetInt8      (value interface{}, defaultValue int8) int8
-	GetInt16     (value interface{}, defaultValue int16) int16
-	GetInt32     (value interface{}, defaultValue int32) int32
-	GetInt64     (value interface{}, defaultValue int64) int64
+	GetInt     (value any, defaultValue int) int
+	GetInt8    (value any, defaultValue int8) int8
+	GetInt16   (value any, defaultValue int16) int16
+	GetInt32   (value any, defaultValue int32) int32
+	GetInt64   (value any, defaultValue int64) int64
 
-	GetUInt      (value interface{}, defaultValue uint) uint
-	GetUInt8     (value interface{}, defaultValue uint8) uint8
-	GetUInt16    (value interface{}, defaultValue uint16) uint16
-	GetUInt32    (value interface{}, defaultValue uint32) uint32
-	GetUInt64    (value interface{}, defaultValue uint64) uint64
+	GetUInt    (value any, defaultValue uint) uint
+	GetUInt8   (value any, defaultValue uint8) uint8
+	GetUInt16  (value any, defaultValue uint16) uint16
+	GetUInt32  (value any, defaultValue uint32) uint32
+	GetUInt64  (value any, defaultValue uint64) uint64
 
-	GetFloat32   (value interface{}, defaultValue float32) float32
-	GetFloat64   (value interface{}, defaultValue float64) float64
+	GetFloat32 (value any, defaultValue float32) float32
+	GetFloat64 (value any, defaultValue float64) float64
 
-	GetTime      (value interface{}, defaultValue Time) Time
+	GetTime    (value any, defaultValue Time) Time
 
 }
 
@@ -63,53 +61,53 @@ func SetConverter(converter Converter) {
 //  Interfaces
 //
 
-func ConvertString(value interface{}, defaultValue string) string {
+func ConvertString(value any, defaultValue string) string {
 	return sharedConverter.GetString(value, defaultValue)
 }
 
-func ConvertBool(value interface{}, defaultValue bool) bool {
+func ConvertBool(value any, defaultValue bool) bool {
 	return sharedConverter.GetBool(value, defaultValue)
 }
 
-func ConvertInt(value interface{}, defaultValue int) int {
+func ConvertInt(value any, defaultValue int) int {
 	return sharedConverter.GetInt(value, defaultValue)
 }
-func ConvertInt8(value interface{}, defaultValue int8) int8 {
+func ConvertInt8(value any, defaultValue int8) int8 {
 	return sharedConverter.GetInt8(value, defaultValue)
 }
-func ConvertInt16(value interface{}, defaultValue int16) int16 {
+func ConvertInt16(value any, defaultValue int16) int16 {
 	return sharedConverter.GetInt16(value, defaultValue)
 }
-func ConvertInt32(value interface{}, defaultValue int32) int32 {
+func ConvertInt32(value any, defaultValue int32) int32 {
 	return sharedConverter.GetInt32(value, defaultValue)
 }
-func ConvertInt64(value interface{}, defaultValue int64) int64 {
+func ConvertInt64(value any, defaultValue int64) int64 {
 	return sharedConverter.GetInt64(value, defaultValue)
 }
 
-func ConvertUInt(value interface{}, defaultValue uint) uint {
+func ConvertUInt(value any, defaultValue uint) uint {
 	return sharedConverter.GetUInt(value, defaultValue)
 }
-func ConvertUInt8(value interface{}, defaultValue uint8) uint8 {
+func ConvertUInt8(value any, defaultValue uint8) uint8 {
 	return sharedConverter.GetUInt8(value, defaultValue)
 }
-func ConvertUInt16(value interface{}, defaultValue uint16) uint16 {
+func ConvertUInt16(value any, defaultValue uint16) uint16 {
 	return sharedConverter.GetUInt16(value, defaultValue)
 }
-func ConvertUInt32(value interface{}, defaultValue uint32) uint32 {
+func ConvertUInt32(value any, defaultValue uint32) uint32 {
 	return sharedConverter.GetUInt32(value, defaultValue)
 }
-func ConvertUInt64(value interface{}, defaultValue uint64) uint64 {
+func ConvertUInt64(value any, defaultValue uint64) uint64 {
 	return sharedConverter.GetUInt64(value, defaultValue)
 }
 
-func ConvertFloat32(value interface{}, defaultValue float32) float32 {
+func ConvertFloat32(value any, defaultValue float32) float32 {
 	return sharedConverter.GetFloat32(value, defaultValue)
 }
-func ConvertFloat64(value interface{}, defaultValue float64) float64 {
+func ConvertFloat64(value any, defaultValue float64) float64 {
 	return sharedConverter.GetFloat64(value, defaultValue)
 }
 
-func ConvertTime(value interface{}, defaultValue Time) Time {
+func ConvertTime(value any, defaultValue Time) Time {
 	return sharedConverter.GetTime(value, defaultValue)
 }

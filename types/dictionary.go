@@ -27,13 +27,10 @@ package types
 
 import "reflect"
 
-/**
- *  Mutable Dictionary Wrapper
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~
- *
- *  typedef:
- *      Map<string, *>
- */
+// Dictionary is a mutable wrapper around a string-keyed map.
+//
+//	typedef:
+//	    map[string]any
 type Dictionary struct {
 	//Mapper
 
@@ -50,7 +47,7 @@ func NewDictionary(dict StringKeyMap) *Dictionary {
 //-------- IObject
 
 // Override
-func (dict *Dictionary) Equal(other interface{}) bool {
+func (dict *Dictionary) Equal(other any) bool {
 	if other == nil {
 		return dict.IsEmpty()
 	}
@@ -70,7 +67,7 @@ func (dict *Dictionary) Equal(other interface{}) bool {
 //-------- IMap
 
 // Override
-func (dict *Dictionary) Get(key string) interface{} {
+func (dict *Dictionary) Get(key string) any {
 	value, exists := dict.dictionary[key]
 	if !exists {
 		return nil
@@ -79,7 +76,7 @@ func (dict *Dictionary) Get(key string) interface{} {
 }
 
 // Override
-func (dict *Dictionary) Set(key string, value interface{}) {
+func (dict *Dictionary) Set(key string, value any) {
 	if ValueIsNil(value) {
 		delete(dict.dictionary, key)
 	} else {

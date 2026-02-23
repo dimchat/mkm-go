@@ -27,6 +27,8 @@ package types
 
 import "net/url"
 
+type Values = url.Values
+
 type URL interface {
 
 	// String reassembles the [URL] into a valid URL string.
@@ -51,6 +53,19 @@ type URL interface {
 	//   - if u.RawQuery is empty, ?query is omitted.
 	//   - if u.Fragment is empty, #fragment is omitted.
 	String() string
+
+	// IsAbs reports whether the [URL] is absolute.
+	// Absolute means that it has a non-empty scheme.
+	IsAbs() bool
+
+	// Query parses RawQuery and returns the corresponding values.
+	// It silently discards malformed value pairs.
+	// To check errors use [ParseQuery].
+	Query() Values
+
+	// RequestURI returns the encoded path?query or opaque?query
+	// string that would be used in an HTTP request for u.
+	RequestURI() string
 
 	// Hostname returns u.Host, stripping any valid port number if present.
 	//

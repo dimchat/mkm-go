@@ -27,44 +27,35 @@ package types
 
 import "reflect"
 
-/**
- *  Data Wrapper
- */
+// Wrapper is a data wrapper interface
+//
+// Defines various unwrapping methods for wrapped data,
+// supporting string, Map, list and other types
 type Wrapper interface {
 
-	/**
-	 *  Get inner string
-	 *  ~~~~~~~~~~~~~~~~
-	 *  Remove first wrapper
-	 */
-	GetString(str interface{}) string
+	// GetString gets the string value inside the wrapper
+	// Removes the first layer of wrapping and returns the original string
+	GetString(str any) string
 
-	/**
-	 *  Get inner map
-	 *  ~~~~~~~~~~~~~
-	 *  Remove first wrapper
-	 */
-	GetMap(dict interface{}) StringKeyMap
+	// GetMap gets the map value inside the wrapper
+	// Removes the first layer of wrapping and returns the original map of StringKeyMap type
+	GetMap(dict any) StringKeyMap
 
-	/**
-	 *  Get inner list
-	 *  ~~~~~~~~~~~~~~
-	 *  Remove first wrapper
-	 */
-	GetList(array interface{}) []interface{}
+	// GetList gets the list value inside the wrapper
+	// Removes the first layer of wrapping and returns the original list of []any type
+	GetList(array any) []any
 
-	/**
-	 *  Unwrap recursively
-	 *  ~~~~~~~~~~~~~~~~~~
-	 *  Remove all wrappers
-	 */
-	Unwrap(object interface{}) interface{}
+	// Unwrap unwraps the object recursively
+	// Removes all layers of wrapping and returns the most original object value
+	Unwrap(object any) any
 
-	// Unwrap values for keys in map
+	// UnwrapMap unwraps all values corresponding to keys in the Map
+	// Performs unwrapping operation on each value in StringKeyMap and returns a new Map
 	UnwrapMap(dict StringKeyMap) StringKeyMap
 
-	// Unwrap values in the array
-	UnwrapList(array []interface{}) []interface{}
+	// UnwrapList unwraps all elements in the list
+	// Performs unwrapping operation on each element in []any and returns a new list
+	UnwrapList(array []any) []any
 }
 
 var sharedWrapper Wrapper = &DataWrapper{}
@@ -77,37 +68,25 @@ func SetWrapper(wrapper Wrapper) {
 //  Interfaces
 //
 
-/**
- *  Get inner String
- *  <p>
- *      Remove first wrapper
- *  </p>
- */
-func FetchString(str interface{}) string {
+// FetchString gets the string value inside the wrapper
+// Removes the first layer of wrapping and returns the original string
+func FetchString(str any) string {
 	return sharedWrapper.GetString(str)
 }
 
-/**
- *  Get inner Map
- *  <p>
- *      Remove first wrapper
- *  </p>
- */
-func FetchMap(dict interface{}) StringKeyMap {
+// FetchMap gets the map value inside the wrapper
+// Removes the first layer of wrapping and returns the original map of StringKeyMap type
+func FetchMap(dict any) StringKeyMap {
 	return sharedWrapper.GetMap(dict)
 }
 
-func FetchList(array interface{}) []interface{} {
+func FetchList(array any) []any {
 	return sharedWrapper.GetList(array)
 }
 
-/**
- *  Unwrap recursively
- *  <p>
- *      Remove all wrappers
- *  </p>
- */
-func Unwrap(object interface{}) interface{} {
+// Unwrap unwraps the object recursively
+// Removes all layers of wrapping and returns the most original object value
+func Unwrap(object any) any {
 	return sharedWrapper.Unwrap(object)
 }
 
@@ -115,7 +94,7 @@ func UnwrapMap(dict StringKeyMap) StringKeyMap {
 	return sharedWrapper.UnwrapMap(dict)
 }
 
-func UnwrapList(array []interface{}) []interface{} {
+func UnwrapList(array []any) []any {
 	return sharedWrapper.UnwrapList(array)
 }
 
@@ -144,14 +123,14 @@ func reflectMap(rv reflect.Value) StringKeyMap {
 	return dict
 }
 
-func reflectList(rv reflect.Value) []interface{} {
+func reflectList(rv reflect.Value) []any {
 	// check type
-	array, ok := rv.Interface().([]interface{})
+	array, ok := rv.Interface().([]any)
 	if ok {
 		return array
 	}
 	size := rv.Len()
-	array = make([]interface{}, size)
+	array = make([]any, size)
 	// copy list items from reflection
 	for index := 0; index < size; index++ {
 		array[index] = reflectItemValue(rv.Index(index))
@@ -159,7 +138,7 @@ func reflectList(rv reflect.Value) []interface{} {
 	return array
 }
 
-func reflectItemValue(value reflect.Value) interface{} {
+func reflectItemValue(value reflect.Value) any {
 	switch value.Kind() {
 	case reflect.Map:
 		return reflectMap(value)

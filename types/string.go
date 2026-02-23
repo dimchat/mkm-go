@@ -25,9 +25,7 @@
  */
 package types
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type Stringer interface {
 	Object
@@ -38,10 +36,10 @@ type Stringer interface {
 	IsEmpty() bool // Length() == 0
 }
 
-/**
- *  Constant String Wrapper
- *  ~~~~~~~~~~~~~~~~~~~~~~~
- */
+// ConstantString is a constant string wrapper
+//
+// Used to encapsulate immutable string values,
+// with the text field storing the string content internally
 type ConstantString struct {
 	//Stringer
 
@@ -72,7 +70,7 @@ func (cs ConstantString) String() string {
 //-------- IObject
 
 // Override
-func (cs ConstantString) Equal(other interface{}) bool {
+func (cs ConstantString) Equal(other any) bool {
 	if other == nil {
 		return cs.text == ""
 	}
