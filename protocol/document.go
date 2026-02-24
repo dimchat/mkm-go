@@ -36,139 +36,120 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  The Additional Information (Profile)
- *
- *      'Meta' is the information for entity which never changed,
- *          which contains the key for verify signature;
- *      'TAI' is the variable part (signed by meta.key's private key),
- *          which could contain a public key for asymmetric encryption.
- */
+// TAI (The Additional Information / Profile) defines the interface for mutable entity metadata
+//
+// Key distinctions from Meta:
+//   - Meta: Immutable entity information (contains verification keys for signatures)
+//   - TAI: Mutable entity profile data (signed with the private key matching meta.key)
+//   - TAI may contain public keys for asymmetric encryption
 type TAI interface {
 
-	/**
-	 *  Check if signature matched
-	 *
-	 * @return False on signature not matched
-	 */
+	// IsValid checks if the TAI's signature is valid and matches the contained data
+	//
+	// Returns: false if signature verification fails, true if all checks pass
 	IsValid() bool
 
 	//-------- signature
 
-	/**
-	 *  Verify 'data' and 'signature' with public key
-	 *
-	 * @param metaKey - public key in meta.key
-	 * @return true on signature matched
-	 */
+	// Verify validates the TAI's data and signature using the provided meta public key
+	//
+	// Parameters
+	//   - metaKey: Public verification key from meta.key (matches the signing private key)
+	// Returns: true if signature matches the data and public key, false otherwise
 	Verify(metaKey VerifyKey) bool
 
-	/**
-	 *  Encode properties to 'data' and sign it to 'signature'
-	 *
-	 * @param sKey - private key match meta.key
-	 * @return signature
-	 */
+	// Sign encodes TAI properties to data and generates a signature for the data
+	//
+	// Resets the internal 'data' and 'signature' fields with the new values
+	//
+	// Parameters
+	//   - sKey: Private signing key that matches meta.key (used to sign the data)
+	// Returns: Raw binary signature of the encoded properties data
 	Sign(sKey SignKey) []byte
 
 	//-------- properties
 
-	/**
-	 *  Get all properties
-	 *
-	 * @return properties
-	 */
+	// Properties returns all key-value properties stored in the TAI
+	//
+	// Returns: StringKeyMap containing all TAI properties
 	Properties() StringKeyMap
 
-	/**
-	 *  Get property data with key
-	 *
-	 * @param name - property name
-	 * @return property data
-	 */
-	GetProperty(name string) interface{}
+	// GetProperty retrieves the value of a specific property by name
+	//
+	// Parameters
+	//   - name: Name of the property to retrieve
+	// Returns: Value of the property (any type), nil if the property does not exist
+	GetProperty(name string) any
 
-	/**
-	 *  Update property with key and data
-	 *  (this will reset 'data' and 'signature')
-	 *
-	 * @param name - property name
-	 * @param value - property data
-	 */
-	SetProperty(name string, value interface{})
+	// SetProperty updates a property with the given name and value
+	//
+	// Note: This operation resets the internal 'data' and 'signature' fields (requires re-signing)
+	//
+	// Parameters:
+	//   - name: Name of the property to update
+	//   - value: New value for the property (any type)
+	SetProperty(name string, value any)
 }
 
+// DocumentType defines the type of a Document (string alias for type safety)
+// Example values: "visa", "bulletin", etc.
 type DocumentType = string
 
-/**
- *  User/Group Profile
- *  <p>
- *      This class is used to generate entity profile
- *  </p>
- *
- *  <blockquote><pre>
- *  data format: {
- *      "did"       : "{EntityID}",      // entity ID
- *      "type"      : "visa",            // "bulletin", ...
- *      "data"      : "{JSON}",          // data = json_encode(info)
- *      "signature" : "{BASE64_ENCODE}"  // signature = sign(data, SK);
- *  }
- *  </pre></blockquote>
- */
+// Document defines the interface for User/Group profile documents
+//
+// Extends Mapper and TAI interfaces, representing a signed entity profile document
+//
+//	Data structure: {
+//	    "did"       : "{EntityID}",      // entity ID
+//	    "type"      : "visa",            // "bulletin", ...
+//	    "data"      : "{JSON}",          // data = json_encode(info)
+//	    "signature" : "{BASE64_ENCODE}"  // signature = sign(data, SK);
+//	}
 type Document interface {
 	Mapper
 	TAI
 
-	/**
-	 *  Get entity ID
-	 *
-	 * @return entity ID
-	 */
+	// ID returns the entity ID associated with the document
+	//
+	// Returns: Entity ID (ID interface) of the document owner
 	//ID() ID
 
 	//---- properties getter/setter
 
-	/**
-	 * Get sign time
-	 */
+	// Time returns the timestamp when the document was signed
+	//
+	// Represents the creation/last update time of the document
 	Time() Time
 
-	/**
-	 *  Get entity name
-	 *
-	 * @return name string
-	 */
+	// Name returns the entity name associated with the document
+	//
+	// Returns: String name of the document owner (entity)
 	//Name() string
 	//SetName(name string)
 }
 
-/**
- *  Document Factory
- *  ~~~~~~~~~~~~~~~~
- */
+// DocumentFactory defines the factory interface for Document
 type DocumentFactory interface {
 
-	/**
-	 *  Create document
-	 *  <p>
-	 *      1. Create document with data &amp; signature loaded from local storage
-	 *  </p>
-	 *  <p>
-	 *      2. Create a new empty document with type
-	 *  </p>
-	 *
-	 * @param data      - document data (JsON)
-	 * @param signature - document signature (Base64)
-	 * @return Document
-	 */
+	// CreateDocument creates a Document instance from raw data and signature
+	//
+	// Two primary use cases:
+	//   1. Load existing document from local storage (with pre-existing data and signature)
+	//   2. Create a new empty document (with empty data/signature) by specifying DocumentType
+	//
+	// Parameters:
+	//   - data: Encoded document data (JSON string)
+	//   - signature: Signature of the data (BASE64-encoded TransportableData)
+	// Returns: Newly created Document instance
 	CreateDocument(data string, signature TransportableData) Document
 
-	/**
-	 *  Parse map object to entity document
-	 *
-	 * @param doc - info
-	 * @return Document
-	 */
+	// ParseDocument converts a StringKeyMap into a Document instance
+	//
+	// Expects the map to follow the Document data structure format (did/type/data/signature)
+	//
+	// Parameters
+	//   - doc: Document information in StringKeyMap format
+	// Returns: Parsed Document instance (nil if parsing/validation fails)
 	ParseDocument(doc StringKeyMap) Document
 }
 
@@ -181,7 +162,7 @@ func CreateDocument(docType DocumentType, data string, signature TransportableDa
 	return helper.CreateDocument(docType, data, signature)
 }
 
-func ParseDocument(doc interface{}) Document {
+func ParseDocument(doc any) Document {
 	helper := GetDocumentHelper()
 	return helper.ParseDocument(doc)
 }
@@ -200,7 +181,7 @@ func SetDocumentFactory(docType DocumentType, factory DocumentFactory) {
 //  Conveniences
 //
 
-func DocumentConvert(array interface{}) []Document {
+func DocumentConvert(array any) []Document {
 	profiles := FetchList(array)
 	documents := make([]Document, 0, len(profiles))
 	var doc Document

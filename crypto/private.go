@@ -25,55 +25,41 @@
  */
 package crypto
 
-import (
-	. "github.com/dimchat/mkm-go/types"
-)
+import . "github.com/dimchat/mkm-go/types"
 
-/**
- *  Asymmetric Cryptography Private Key
- *  <p>
- *      This class is used to decrypt symmetric key or sign message data
- *  </p>
- *
- *  <blockquote><pre>
- *  key data format: {
- *      "algorithm" : "RSA", // "ECC", ...
- *      "data"      : "{BASE64_ENCODE}",
- *      ...
- *  }
- *  </pre></blockquote>
- */
+// PrivateKey defines the interface for asymmetric cryptographic private keys
+//
+// Used for generating digital signatures
+//
+//	Key data structure: {
+//	    "algorithm" : "RSA",  // "ECC", ...
+//	    "data"      : "{BASE64_ENCODE}",
+//	    ...
+//	}
 type PrivateKey interface {
 	AsymmetricKey
 	ISignKey
 
-	/**
-	 *  Get public key from private key
-	 *
-	 * @return public key paired to this private key
-	 */
+	// PublicKey returns the paired PublicKey associated with this PrivateKey
+	//
+	// Returns: Public key that forms a key pair with this private key
 	PublicKey() PublicKey
 }
 
-/**
- *  Private Key Factory
- *  ~~~~~~~~~~~~~~~~~~~
- */
+// PrivateKeyFactory defines the factory interface for PrivateKey
 type PrivateKeyFactory interface {
 
-	/**
-	 *  Generate key
-	 *
-	 * @return PrivateKey
-	 */
+	// GeneratePrivateKey creates a new random PrivateKey (and its paired PublicKey)
+	// using the default algorithm
+	//
+	// Returns: Newly generated PrivateKey instance
 	GeneratePrivateKey() PrivateKey
 
-	/**
-	 *  Parse map object to key
-	 *
-	 * @param key - key info
-	 * @return PrivateKey
-	 */
+	// ParsePrivateKey parses a StringKeyMap into a PrivateKey instance
+	//
+	// Parameters:
+	//   - key: Key info in StringKeyMap format (matches PrivateKey data structure)
+	// Returns: Parsed PrivateKey instance
 	ParsePrivateKey(key StringKeyMap) PrivateKey
 }
 
@@ -86,7 +72,7 @@ func GeneratePrivateKey(algorithm string) PrivateKey {
 	return helper.GeneratePrivateKey(algorithm)
 }
 
-func ParsePrivateKey(key interface{}) PrivateKey {
+func ParsePrivateKey(key any) PrivateKey {
 	helper := GetPrivateKeyHelper()
 	return helper.ParsePrivateKey(key)
 }

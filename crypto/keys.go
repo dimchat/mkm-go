@@ -30,38 +30,26 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  Cryptography Key
- *  <p>
- *      Cryptography key with designated algorithm
- *  </p>
- *
- *  <blockquote><pre>
- *  key data format: {
- *      "algorithm" : "RSA", // ECC, AES, ...
- *      "data"      : "{BASE64_ENCODE}",
- *      ...
- *  }
- *  </pre></blockquote>
- */
+// CryptographyKey defines the base interface for cryptographic keys with designated algorithms
+//
+//	Key data structure: {
+//	    "algorithm" : "RSA", // ECC, AES, ...
+//	    "data"      : "{BASE64_ENCODE}",
+//	    ...
+//	}
 type CryptographyKey interface {
 	Mapper
 
-	/**
-	 *  Get key algorithm name
-	 *
-	 * @return algorithm name
-	 */
+	// Algorithm returns the name of the cryptographic algorithm associated with the key
+	//
+	// Typical return values: "RSA", "ECC", "AES", ...
 	Algorithm() string
 
-	/**
-	 *  Get key data
-	 *
-	 * @return key data
-	 */
+	// Data returns the key material as TransportableData (encoded binary key data)
 	Data() TransportableData
 }
 
+// EncryptKey represents a key capable of encryption (symmetric or asymmetric public key)
 type EncryptKey interface {
 	IEncryptKey
 	CryptographyKey
@@ -70,26 +58,22 @@ type IEncryptKey interface {
 
 	/**
 	 *  1. Symmetric Key:
-	 *     <blockquote><pre>
 	 *         ciphertext = encrypt(plaintext, PW)
-	 *     </pre></blockquote>
 	 *
 	 *  2. Asymmetric Public Key:
-	 *     <blockquote><pre>
 	 *         ciphertext = encrypt(plaintext, PK);
-	 *     </pre></blockquote>
-	 *
-	 * @param plaintext
-	 *        plain data
-	 *
-	 * @param extra
-	 *        store extra variables ('IV' for 'AES')
-	 *
-	 * @return ciphertext
 	 */
+
+	// Encrypt encrypts plaintext binary data using the key
+	//
+	// Parameters:
+	//   - plaintext: Raw binary data to be encrypted (plaintext)
+	//   - extra: Algorithm-specific extra parameters (e.g., "IV" for AES encryption)
+	// Returns: Encrypted binary data (ciphertext)
 	Encrypt(plaintext []byte, extra StringKeyMap) []byte
 }
 
+// DecryptKey represents a key capable of decryption (symmetric or asymmetric private key)
 type DecryptKey interface {
 	IDecryptKey
 	CryptographyKey
@@ -98,40 +82,40 @@ type IDecryptKey interface {
 
 	/**
 	 *  1. Symmetric Key:
-	 *     <blockquote><pre>
 	 *         plaintext = decrypt(ciphertext, PW);
-	 *     </pre></blockquote>
 	 *
 	 *  2. Asymmetric Private Key:
-	 *     <blockquote><pre>
 	 *         plaintext = decrypt(ciphertext, SK);
-	 *     </pre></blockquote>
-	 *
-	 * @param ciphertext
-	 *        encrypted data
-	 *
-	 * @param params
-	 *        extra params ('IV' for 'AES')
-	 *
-	 * @return plaintext
 	 */
+
+	// Decrypt decrypts ciphertext binary data using the key
+	//
+	// Parameters:
+	//   - ciphertext: Encrypted binary data to be decrypted
+	//   - params: Algorithm-specific parameters (e.g., "IV" for AES decryption)
+	// Returns: Decrypted binary data (plaintext)
 	Decrypt(ciphertext []byte, params StringKeyMap) []byte
 
 	/**
 	 *  Check symmetric keys by encryption.
-	 *  <blockquote><pre>
 	 *      CT = encrypt(data, PK);
 	 *      OK = decrypt(CT, SK) == data;
-	 *  </pre></blockquote>
-	 *
-	 * @param pKey
-	 *        encrypt (public) key
-	 *
-	 * @return true on signature matched
 	 */
+
+	// MatchEncryptKey verifies if this DecryptKey matches the given EncryptKey (key pair validation)
+	//
+	// Validation logic:
+	//   1. Encrypt test data with the provided EncryptKey
+	//   2. Decrypt the ciphertext with this DecryptKey
+	//   3. Check if decrypted data matches original test data
+	//
+	// Parameters:
+	//   - pKey: EncryptKey (public/secret key) to validate against
+	// Returns: true if key pair is valid, false otherwise
 	MatchEncryptKey(pKey EncryptKey) bool
 }
 
+// SignKey represents a key capable of generating digital signatures (asymmetric private key)
 type SignKey interface {
 	ISignKey
 	CryptographyKey
@@ -140,18 +124,18 @@ type ISignKey interface {
 
 	/**
 	 *  Get signature for data
-	 *  <blockquote><pre>
 	 *      signature = sign(data, SK);
-	 *  </pre></blockquote>
-	 *
-	 * @param data
-	 *        data to be signed
-	 *
-	 * @return signature
 	 */
+
+	// Sign generates a digital signature for the given binary data
+	//
+	// Parameters:
+	//   - data: Binary data to be signed
+	// Returns: Binary digital signature of the input data
 	Sign(data []byte) []byte
 }
 
+// VerifyKey represents a key capable of verifying digital signatures (asymmetric public key)
 type VerifyKey interface {
 	IVerifyKey
 	CryptographyKey
@@ -160,39 +144,37 @@ type IVerifyKey interface {
 
 	/**
 	 *  Verify signature with data
-	 *  <blockquote><pre>
 	 *      OK = verify(data, signature, PK);
-	 *  </pre></blockquote>
-	 *
-	 * @param data
-	 *        data
-	 *
-	 * @param signature
-	 *        signature of data
-	 *
-	 * @return true on signature matched
 	 */
+
+	// Verify checks if the given signature is valid for the provided data
+	//
+	// Parameters:
+	//   - data: Original binary data that was signed
+	//   - signature: Digital signature to verify against the data
+	// Returns: true if signature is valid, false otherwise
 	Verify(data []byte, signature []byte) bool
 
 	/**
 	 *  Check asymmetric keys by signature.
-	 *  <blockquote><pre>
 	 *      signature = sign(data, SK);
 	 *      OK = verify(data, signature, PK);
-	 *  </pre></blockquote>
-	 *
-	 * @param sKey
-	 *        private key
-	 *
-	 * @return true on signature matched
 	 */
+
+	// MatchSignKey verifies if this VerifyKey matches the given SignKey (signature key pair validation)
+	//
+	// Validation logic:
+	//   1. Generate signature for test data with the provided SignKey
+	//   2. Verify the signature with this VerifyKey
+	//   3. Check if verification succeeds
+	//
+	// Parameters:
+	//   - sKey: SignKey (private key) to validate against
+	// Returns: true if key pair is valid, false otherwise
 	MatchSignKey(sKey SignKey) bool
 }
 
-/**
- *  Asymmetric Cryptography Key
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
- */
+// AsymmetricKey defines the interface for asymmetric cryptographic keys
 type AsymmetricKey interface {
 	CryptographyKey
 }

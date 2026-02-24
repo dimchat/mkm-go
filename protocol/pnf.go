@@ -32,110 +32,92 @@ import (
 )
 
 /**
- *  Transportable File
- *  <p>
- *      PNF - Portable Network File
- *  </p>
- *
- *  <blockquote><pre>
- *  0.  "{URL}"
- *  1. {
- *         "data"     : "...",        // base64_encode(fileContent)
- *         "filename" : "avatar.png",
- *
- *         "URL"      : "http://...", // download from CDN
- *         // before fileContent uploaded to a public CDN,
- *         // it can be encrypted by a symmetric key
- *         "key"      : {             // symmetric key to decrypt file data
- *             "algorithm" : "AES",   // "DES", ...
- *             "data"      : "{BASE64_ENCODE}",
- *             ...
- *         }
- *      }
- *  </pre></blockquote>
+ *  PNF - Portable Network File
  */
+
+// TransportableFile defines the interface for transportable file resources
+//
+//	Supported serialization formats (subset of TransportableResource):
+//	    2. "{URL}"
+//	    3. {
+//	        "data"     : "...",        // base64_encode(fileContent)
+//	        "filename" : "avatar.png",
+//
+//	        "URL"      : "http://...", // download from CDN (file may be encrypted)
+//	        "key"      : {             // symmetric key to decrypt file data
+//	            "algorithm" : "AES",   // "DES", ...
+//	            "data"      : "{BASE64_ENCODE}",
+//	            ... }
+//	    }
+//
+// Note: Large file content should be uploaded to CDN (set URL) instead of embedding in the "data" field
 type TransportableFile interface {
 	Mapper
 	TransportableResource
 
-	/** When file data is too big, don't set it in this dictionary,
-	 *  but upload it to a CDN and set the download URL instead.
-	 */
+	// Data returns the raw file content as TransportableData (encoded binary data)
+	//
+	// For large files, this may return nil (URL is used instead)
 	Data() TransportableData
 	SetData(data TransportableData)
 
+	// Filename returns the name of the file (e.g., "avatar.png")
 	Filename() string
 	SetFilename(filename string)
 
-	/** Download URL
-	 */
+	// URL returns the CDN download URL of the file
 	URL() URL
 	SetURL(url URL)
 
-	/** Password for decrypting the downloaded data from CDN,
-	 *  default is a plain key, which just return the same data when decrypting.
-	 */
+	// Password returns the decrypt key for CDN-downloaded encrypted data
+	//
+	// Default: Plain key (returns original data when decrypted)
 	Password() DecryptKey
 	SetPassword(key DecryptKey)
 
-	/** Get encoded string
-	 *
-	 * @return "URL", or
-	 *         "{...}"
-	 */
+	// String returns the encoded string representation of the TransportableFile
+	//
+	// Possible return values:
+	//   - "{URL}"
+	//   - "{...}"
 	String() string
 
-	/**
-	 *  Encode data and update inner map
-	 *
-	 * @return inner map
-	 */
+	// Map returns the inner string-keyed map with encoded file data
+	// Updates the inner map with the latest encoded data before returning
 	//Map() StringKeyMap
 
-	/**
-	 *  if contains "URL" and "filename" only,
-	 *      String();
-	 *  else,
-	 *      Map();
-	 */
-	//Serialize() interface{}
+	// Serialize implements TransportableResource interface
+	// Serialization logic:
+	//   - If only "URL" and "filename" exist: returns String() result
+	//   - Otherwise: returns Map() result
+	//Serialize() any
 }
 
 /**
  *  PNF Factory
  */
+
+// TransportableFileFactory defines the factory interface for TransportableFile
 type TransportableFileFactory interface {
 
-	/**
-	 *  Create PNF
-	 *
-	 * @param data
-	 *        file content (not encrypted)
-	 *
-	 * @param filename
-	 *        file name
-	 *
-	 * @param url
-	 *        download URL
-	 *
-	 * @param password
-	 *        decrypt key for downloaded data
-	 *
-	 * @return PNF object
-	 */
+	// CreateTransportableFile creates a TransportableFile (PNF) object
+	//
+	// Parameters:
+	//   - data: Raw file content (unencrypted) as TransportableData (nil for CDN-only files)
+	//   - filename: Name of the file (e.g., "avatar.png")
+	//   - url: CDN download URL (optional, used for large files)
+	//   - password: Decrypt key for CDN-downloaded encrypted data (nil for unencrypted files)
+	// Returns: Newly created TransportableFile (PNF) object
 	CreateTransportableFile(
 		data TransportableData, filename string,
 		url URL, password DecryptKey,
 	) TransportableFile
 
-	/**
-	 *  Parse string/map object to PNF
-	 *
-	 * @param pnf
-	 *        PNF info
-	 *
-	 * @return PNF object
-	 */
+	// ParseTransportableFile parses a map object into a TransportableFile (PNF) object
+	//
+	// Parameters:
+	//   - pnf: Input PNF info (StringKeyMap representing format 0 or 1 of TransportableFile)
+	// Returns: Parsed TransportableFile (PNF) object
 	ParseTransportableFile(pnf StringKeyMap) TransportableFile
 }
 
@@ -149,7 +131,7 @@ func CreateTransportableFile(data TransportableData, filename string,
 	return helper.CreateTransportableFile(data, filename, url, password)
 }
 
-func ParseTransportableFile(pnf interface{}) TransportableFile {
+func ParseTransportableFile(pnf any) TransportableFile {
 	helper := GetTransportableFileHelper()
 	return helper.ParseTransportableFile(pnf)
 }

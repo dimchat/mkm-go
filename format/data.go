@@ -25,31 +25,27 @@
  */
 package format
 
-/**
- *  Data Coder
- *  ~~~~~~~~~~
- *  Hex, Base58, Base64, ...
- *
- *  1. encode binary data to string;
- *  2. decode string to binary data.
- */
+// DataCoder defines the interface for binary data encoding/decoding
+//
+//	Supported encodings include:
+//	    Hex, Base58, Base64, ...
 type DataCoder interface {
 
-	/**
-	 *  Encode binary data to local string
-	 *
-	 * @param data - binary data
-	 * @return local string
-	 */
+	// Encode converts binary data to a local string representation
+	//
+	// Parameters:
+	//   - data: Input binary data to be encoded
+	//
+	// Returns: Local string representation of the binary data
 	Encode(data []byte) string
 
-	/**
-	 *  Decode local string to binary data
-	 *
-	 * @param string - local string
-	 * @return binary data
-	 */
-	Decode(string string) []byte
+	// Decode parses a local string back to original binary data
+	//
+	// Parameters:
+	//   - str: Input local string to be decoded
+	//
+	// Returns: Original binary data parsed from the input string
+	Decode(str string) []byte
 }
 
 //

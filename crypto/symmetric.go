@@ -25,24 +25,17 @@
  */
 package crypto
 
-import (
-	. "github.com/dimchat/mkm-go/types"
-)
+import . "github.com/dimchat/mkm-go/types"
 
-/**
- *  Symmetric Cryptography Key
- *  <p>
- *      This class is used to encrypt or decrypt message data
- *  </p>
- *
- *  <blockquote><pre>
- *  key data format: {
- *      "algorithm" : "AES", // "DES", ...
- *      "data"      : "{BASE64_ENCODE}",
- *      ...
- *  }
- *  </pre></blockquote>
- */
+// SymmetricKey defines the interface for symmetric cryptographic keys
+//
+// Used for both encryption and decryption of message data (same key for both operations)
+//
+//	Key data structure: {
+//	    "algorithm" : "AES", // "DES", ...
+//	    "data"      : "{BASE64_ENCODE}",
+//	    ...
+//	}
 type SymmetricKey interface {
 	CryptographyKey
 	IEncryptKey
@@ -54,25 +47,19 @@ type SymmetricKey interface {
 //	DES = "DES"
 //)
 
-/**
- *  Symmetric Key Factory
- *  ~~~~~~~~~~~~~~~~~~~~~
- */
+// SymmetricKeyFactory defines the factory interface for SymmetricKey
 type SymmetricKeyFactory interface {
 
-	/**
-	 *  Generate key
-	 *
-	 * @return SymmetricKey
-	 */
+	// GenerateSymmetricKey creates a new random SymmetricKey using the default algorithm
+	//
+	// Returns: Newly generated SymmetricKey instance
 	GenerateSymmetricKey() SymmetricKey
 
-	/**
-	 *  Parse map object to key
-	 *
-	 * @param key - key info
-	 * @return SymmetricKey
-	 */
+	// ParseSymmetricKey parses a StringKeyMap into a SymmetricKey instance
+	//
+	// Parameters:
+	//   - key: Key info in StringKeyMap format (matches SymmetricKey data structure)
+	// Returns: Parsed SymmetricKey instance
 	ParseSymmetricKey(key StringKeyMap) SymmetricKey
 }
 
@@ -85,7 +72,7 @@ func GenerateSymmetricKey(algorithm string) SymmetricKey {
 	return helper.GenerateSymmetricKey(algorithm)
 }
 
-func ParseSymmetricKey(key interface{}) SymmetricKey {
+func ParseSymmetricKey(key any) SymmetricKey {
 	helper := GetSymmetricKeyHelper()
 	return helper.ParseSymmetricKey(key)
 }

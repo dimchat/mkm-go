@@ -27,31 +27,27 @@ package format
 
 import . "github.com/dimchat/mkm-go/types"
 
-/**
- *  Object Coder
- *  ~~~~~~~~~~~~
- *  JsON, XML, ...
- *
- *  1. encode object to string;
- *  2. decode string to object.
- */
+// ObjectCoder defines the interface for object serialization/deserialization
+//
+//	Supported formats include:
+//	    JSON, XML, ...
 type ObjectCoder interface {
 
-	/**
-	 *  Encode Map/List object to string
-	 *
-	 * @param object - Map or List
-	 * @return serialized string
-	 */
-	Encode(object interface{}) string
+	// Encode converts a Map or List object to its serialized string form
+	//
+	// Parameters:
+	//   - object: The input Map or List to be encoded
+	//
+	// Returns: The serialized string representation of the object
+	Encode(object any) string
 
-	/**
-	 *  Decode string to Map/List object
-	 *
-	 * @param string - serialized string
-	 * @return Map or List
-	 */
-	Decode(string string) interface{}
+	// Decode parses a serialized string back to a Map or List object
+	//
+	// Parameters:
+	//   - str: The serialized string to be decoded
+	//
+	// Returns: The reconstructed Map or List object
+	Decode(str string) any
 }
 
 //
@@ -64,11 +60,11 @@ func SetJSONCoder(coder ObjectCoder) {
 	jsonCoder = coder
 }
 
-func JSONEncode(object interface{}) string {
+func JSONEncode(object any) string {
 	return jsonCoder.Encode(object)
 }
 
-func JSONDecode(string string) interface{} {
+func JSONDecode(string string) any {
 	return jsonCoder.Decode(string)
 }
 

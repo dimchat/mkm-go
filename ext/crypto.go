@@ -37,26 +37,32 @@ const _promise = "Moky loves May Lee forever!"
 
 var promise = []byte(_promise)
 
-/**
- *  Check asymmetric keys
- *
- * @param sKey - private key
- * @param pKey - public key
- * @return true on keys matched
- */
+// MatchAsymmetricKeys verifies if a private SignKey matches a public VerifyKey (asymmetric key pair validation)
+//
+// Validation logic: Generates a signature for the predefined promise data with the private key,
+// then verifies the signature with the public key to confirm key pair validity.
+//
+// Parameters:
+//   - sKey: Private SignKey (signing key) to validate
+//   - pKey: Public VerifyKey (verification key) to validate against
+//
+// Returns: true if the keys form a valid asymmetric key pair, false otherwise
 func MatchAsymmetricKeys(sKey SignKey, pKey VerifyKey) bool {
 	// try to verify with signature
 	signature := sKey.Sign(promise)
 	return pKey.Verify(promise, signature)
 }
 
-/**
- *  Check symmetric keys
- *
- * @param pKey - symmetric key1
- * @param sKey - symmetric key2
- * @return true on keys equal
- */
+// MatchSymmetricKeys checks if two symmetric keys (EncryptKey and DecryptKey) are identical
+//
+// Validation logic: Encrypts predefined promise data with the first key, decrypts with the second key,
+// then checks if the decrypted plaintext matches the original promise data.
+//
+// Parameters:
+//   - pKey: First symmetric key (EncryptKey) to compare
+//   - sKey: Second symmetric key (DecryptKey) to compare
+//
+// Returns: true if the two symmetric keys are identical, false otherwise
 func MatchSymmetricKeys(pKey EncryptKey, sKey DecryptKey) bool {
 	// check by encryption
 	params := NewMap()
@@ -68,6 +74,7 @@ func MatchSymmetricKeys(pKey EncryptKey, sKey DecryptKey) bool {
 /**
  *  CryptographyKey GeneralFactory
  */
+
 type GeneralCryptoHelper interface {
 	//SymmetricKeyHelper
 	//PrivateKeyHelper

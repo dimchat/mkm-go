@@ -25,38 +25,30 @@
  */
 package crypto
 
-import (
-	. "github.com/dimchat/mkm-go/types"
-)
+import . "github.com/dimchat/mkm-go/types"
 
-/**
- *  Asymmetric Cryptography Public Key
- *
- *  <blockquote><pre>
- *  key data format: {
- *      "algorithm" : "RSA", // "ECC", ...
- *      "data"      : "{BASE64_ENCODE}",
- *      ...
- *  }
- *  </pre></blockquote>
- */
+// PublicKey defines the interface for asymmetric cryptographic public keys
+//
+// Used for signature verification
+//
+//	Key data structure: {
+//	    "algorithm" : "RSA", // "ECC", ...
+//	    "data"      : "{BASE64_ENCODE}",
+//	    ...
+//	}
 type PublicKey interface {
 	AsymmetricKey
 	IVerifyKey
 }
 
-/**
- *  Public Key Factory
- *  ~~~~~~~~~~~~~~~~~~
- */
+// PublicKeyFactory defines the factory interface for PublicKey
 type PublicKeyFactory interface {
 
-	/**
-	 *  Parse map object to key
-	 *
-	 * @param key - key info
-	 * @return PublicKey
-	 */
+	// ParsePublicKey parses a StringKeyMap into a PublicKey instance
+	//
+	// Parameters
+	//   - key: Key info in StringKeyMap format (matches PublicKey data structure)
+	// Returns: Parsed PublicKey instance
 	ParsePublicKey(key StringKeyMap) PublicKey
 }
 
@@ -64,7 +56,7 @@ type PublicKeyFactory interface {
 //  Factory method
 //
 
-func ParsePublicKey(key interface{}) PublicKey {
+func ParsePublicKey(key any) PublicKey {
 	helper := GetPublicKeyHelper()
 	return helper.ParsePublicKey(key)
 }

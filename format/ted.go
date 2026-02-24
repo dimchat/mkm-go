@@ -25,31 +25,24 @@
  */
 package format
 
-import (
-	. "github.com/dimchat/mkm-go/types"
-)
+import . "github.com/dimchat/mkm-go/types"
 
-/**
- *  Serializable Data or File Content
- *
- *  <blockquote><pre>
- *  0. "{BASE64_ENCODE}"
- *  1. "data:image/png;base64,{BASE64_ENCODE}"
- *  2. "https://..."
- *  3. {
- *        "data"     : "...",        // base64_encode(fileContent)
- *        "filename" : "avatar.png",
- *
- *        "URL"      : "http://...", // download from CDN
- *         // before fileContent uploaded to a public CDN,
- *         // it can be encrypted by a symmetric key
- *        "key"      : {             // symmetric key to decrypt file data
- *            "algorithm" : "AES",   // "DES", ...
- *            "data"      : "{BASE64_ENCODE}"
- *        }
- *    }
- *  </pre></blockquote>
- */
+// TransportableResource defines the interface for serializable data or file content
+//
+//	Supported serialization formats:
+//	    0. "{BASE64_ENCODE}"
+//	    1. "data:image/png;base64,{BASE64_ENCODE}"
+//	    2. "https://..."
+//	    3. {
+//	        "data"     : "...",        // base64_encode(fileContent)
+//	        "filename" : "avatar.png",
+//
+//	        "URL"      : "http://...", // download from CDN (file may be encrypted)
+//	        "key"      : {             // symmetric key to decrypt file data
+//	            "algorithm" : "AES",   // "DES", ...
+//	            "data"      : "{BASE64_ENCODE}",
+//	            ... }
+//	    }
 type TransportableResource interface {
 
 	/*  Format
@@ -64,85 +57,64 @@ type TransportableResource interface {
 	 *          3. {...}
 	 */
 
-	/**
-	 *  Encode data
-	 *
-	 * @return String or Map
-	 */
-	Serialize() interface{}
+	// Serialize encodes the resource data into a transportable format
+	//
+	// The return type can be a string (formats 0,1,2) or a map (format 3)
+	Serialize() any
 }
 
 /**
- *  Transportable Data
- *  <p>
- *      TED - Transportable Encoded Data
- *  </p>
- *
- *  <blockquote><pre>
- *      0. "{BASE64_ENCODE}"
- *      1. "data:image/png;base64,{BASE64_ENCODE}"
- *  </pre></blockquote>
+ *  TED - Transportable Encoded Data
  */
+
+// TransportableData defines the interface for transportable encoded data
+//
+//	Supported serialization formats (subset of TransportableResource):
+//	    0. "{BASE64_ENCODE}"
+//	    1. "data:image/png;base64,{BASE64_ENCODE}"
 type TransportableData interface {
 	Stringer
 	TransportableResource
 
-	/*
-	   //
-	   //  encoding algorithm
-	   //
-	   String DEFAULT = "base64";
-	   String BASE_64 = "base64";
-	   String BASE_58 = "base58";
-	   String HEX     = "hex";
-	*/
+	// Supported encoding algorithms (reference):
+	//   - "base64" (DEFAULT)
+	//   - "base58"
+	//   - "hex"
 
-	/**
-	 *  Get data encoding algorithm
-	 *
-	 * @return "base64"
-	 */
+	// Encoding returns the data encoding algorithm used
+	// Typical return value: "base64"
 	Encoding() string
 
-	/**
-	 *  Get original data
-	 *
-	 * @return plaintext
-	 */
+	// Bytes returns the original raw (plaintext) binary data
 	Bytes() []byte
 
-	/**
-	 *  Get length of bytes
-	 *
-	 * @return len(plaintext)
-	 */
+	// Size returns the length of the original binary data: len(plaintext)
 	Size() int
 
-	/**
-	 *  Get encoded string
-	 *
-	 * @return "{BASE64_ENCODE}", or
-	 *         "data:image/png;base64,{BASE64_ENCODE}"
-	 */
+	// String returns the encoded string representation
+	//
+	// Possible return values:
+	//   - "{BASE64_ENCODE}"
+	//   - "data:image/png;base64,{BASE64_ENCODE}"
 	//String() string
 
-	/**
-	 *  String()
-	 */
-	//Serialize() interface{}
+	// Serialize implements TransportableResource interface (aliases String())
+	//Serialize() any
 }
 
 /**
  *  TED Factory
  */
+
+// TransportableDataFactory defines the factory interface for TransportableData
 type TransportableDataFactory interface {
 
-	/**
-	 *  Parse string object to TED
-	 *
-	 * @param ted - TED string
-	 * @return TED object
-	 */
+	// ParseTransportableData parses a TED string into a TransportableData object
+	//
+	// Parameters:
+	//   - ted: Input TED string (format 0 or 1 of TransportableData)
+	//
+	// Returns: Parsed TransportableData object
 	ParseTransportableData(ted string) TransportableData
 }
 
@@ -150,7 +122,7 @@ type TransportableDataFactory interface {
 //  Factory method
 //
 
-func ParseTransportableData(ted interface{}) TransportableData {
+func ParseTransportableData(ted any) TransportableData {
 	helper := GetTransportableDataHelper()
 	return helper.ParseTransportableData(ted)
 }

@@ -35,17 +35,16 @@ import (
 	. "github.com/dimchat/mkm-go/types"
 )
 
-/**
- *  ID for entity (User/Group)
- *  ~~~~~~~~~~~~~~~~~~~~~~~~~~
- *
- *      data format: "name@address[/terminal]"
- *
- *      fields:
- *          name     - entity name, the seed of fingerprint to build address
- *          address  - a string to identify an entity
- *          terminal - entity login resource(device), OPTIONAL
- */
+// Identifier is a concrete implementation of the ID interface for entity identifiers
+//
+// Represents a concrete ID for entities (User/Group/Bot/...)
+//
+// Data format: "name@address[/terminal]"
+//
+// Field definitions:
+//   - name: Entity name (seed for fingerprint used to build the address)
+//   - address: Unique Address identifier for the entity
+//   - terminal: Entity login resource/device (OPTIONAL field)
 type Identifier struct {
 	//ID
 	ConstantString

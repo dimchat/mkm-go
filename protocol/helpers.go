@@ -39,11 +39,12 @@ import (
 /**
  *  Address Helper
  */
+
 type AddressHelper interface {
 	SetAddressFactory(factory AddressFactory)
 	GetAddressFactory() AddressFactory
 
-	ParseAddress(address interface{}) Address
+	ParseAddress(address any) Address
 
 	GenerateAddress(meta Meta, network EntityType) Address
 }
@@ -61,11 +62,12 @@ func GetAddressHelper() AddressHelper {
 /**
  *  ID Helper
  */
+
 type IDHelper interface {
 	SetIDFactory(factory IDFactory)
 	GetIDFactory() IDFactory
 
-	ParseID(did interface{}) ID
+	ParseID(did any) ID
 
 	CreateID(name string, address Address, terminal string) ID
 
@@ -85,6 +87,7 @@ func GetIDHelper() IDHelper {
 /**
  *  Meta Helper
  */
+
 type MetaHelper interface {
 	SetMetaFactory(version MetaType, factory MetaFactory)
 	GetMetaFactory(version MetaType) MetaFactory
@@ -93,7 +96,7 @@ type MetaHelper interface {
 
 	GenerateMeta(version MetaType, sKey SignKey, seed string) Meta
 
-	ParseMeta(meta interface{}) Meta
+	ParseMeta(meta any) Meta
 }
 
 var sharedMetaHelper MetaHelper = nil
@@ -109,13 +112,14 @@ func GetMetaHelper() MetaHelper {
 /**
  *  Document Helper
  */
+
 type DocumentHelper interface {
 	SetDocumentFactory(docType DocumentType, factory DocumentFactory)
 	GetDocumentFactory(docType DocumentType) DocumentFactory
 
 	CreateDocument(docType DocumentType, data string, signature TransportableData) Document
 
-	ParseDocument(doc interface{}) Document
+	ParseDocument(doc any) Document
 }
 
 var sharedDocumentHelper DocumentHelper = nil
@@ -131,11 +135,12 @@ func GetDocumentHelper() DocumentHelper {
 /**
  *  PNF Helper
  */
+
 type TransportableFileHelper interface {
 	SetTransportableFileFactory(factory TransportableFileFactory)
 	GetTransportableFileFactory() TransportableFileFactory
 
-	ParseTransportableFile(pnf interface{}) TransportableFile
+	ParseTransportableFile(pnf any) TransportableFile
 
 	CreateTransportableFile(data TransportableData, filename string,
 		url URL, password DecryptKey) TransportableFile

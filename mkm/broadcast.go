@@ -56,6 +56,7 @@ var EVERYONE = NewID(Everyone, EVERYWHERE, "") // "everyone@everywhere"
 /**
  *  Broadcast Address
  */
+
 type BroadcastAddress struct {
 	//Address
 	ConstantString

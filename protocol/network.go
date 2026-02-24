@@ -31,7 +31,7 @@
 package protocol
 
 /*
- *  @enum MKMEntityType
+ *  @enum EntityType
  *
  *  @abstract A network ID to indicate what kind the entity is.
  *
@@ -39,7 +39,7 @@ package protocol
  *      a team, even a thing.
  *
  *      MKMEntityType_User indicates this entity is a person's account.
- *      An account should have a public key, which proved by meta data.
+ *      An account should have a public key, which proved by meta info.
  *
  *      MKMEntityType_Group indicates this entity is a group of people,
  *      which should have a founder (also the owner), and some members.
@@ -63,6 +63,7 @@ package protocol
  *
  *      (All above are just some advices to help choosing numbers :P)
  */
+
 type EntityType uint8
 
 const (
@@ -70,12 +71,14 @@ const (
 	/**
 	 *  Main: 0, 1
 	 */
+
 	USER            EntityType = 0x00  // 0000 0000
 	GROUP           EntityType = 0x01  // 0000 0001 (User Group)
 
 	/**
 	 *  Network: 2, 3
 	 */
+
 	STATION         EntityType = 0x02  // 0000 0010 (Server Node)
 	ISP             EntityType = 0x03  // 0000 0011 (Service Provider)
 	//STATION_GROUP EntityType = 0x03  // 0000 0011
@@ -83,6 +86,7 @@ const (
 	/**
 	 *  Bot: 4, 5
 	 */
+
 	BOT             EntityType = 0x04  // 0000 0100 (Business Node)
 	ICP             EntityType = 0x05  // 0000 0101 (Content Provider)
 	//BOT_GROUP     EntityType = 0x05  // 0000 0101
@@ -90,6 +94,7 @@ const (
 	/*
 	 *  Management: 6, 7, 8
 	 */
+
 	//SUPERVISOR    EntityType = 0x06  // 0000 0110 (Company CEO)
 	//COMPANY       EntityType = 0x07  // 0000 0111 (Super Group for ISP/ICP)
 	//CA            EntityType = 0x08  // 0000 1000 (Certification Authority)
@@ -97,12 +102,14 @@ const (
 	/*
 	 *  Customized: 64, 65
 	 */
+
 	//APP_USER      EntityType = 0x40  // 0100 0000 (Application Customized User)
 	//APP_GROUP     EntityType = 0x41  // 0100 0001 (Application Customized Group)
 
 	/**
 	 *  Broadcast: 128, 129
 	 */
+
 	ANY             EntityType = 0x80  // 1000 0000 (anyone@anywhere)
 	EVERY           EntityType = 0x81  // 1000 0001 (everyone@everywhere)
 

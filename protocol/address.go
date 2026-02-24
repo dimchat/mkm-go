@@ -30,47 +30,35 @@
  */
 package protocol
 
-import (
-	. "github.com/dimchat/mkm-go/types"
-)
+import . "github.com/dimchat/mkm-go/types"
 
-/**
- *  Address for MKM ID
- *  ~~~~~~~~~~~~~~~~~~
- *  This class is used to build address for ID
- */
+// Address defines the interface for MKM ID addresses
+//
+// Represents a network-specific address used to identify entities (User/Group) in the MKM system
 type Address interface {
 	Stringer
 
-	/**
-	 *  get address type
-	 *
-	 * @return network type
-	 */
+	// Network returns the network/entity type associated with this address
+	// Returns: EntityType representing the network type (e.g., User, Group, Bot, ...)
 	Network() EntityType
 }
 
-/**
- *  Address Factory
- *  ~~~~~~~~~~~~~~~
- */
+// AddressFactory defines the factory interface for Address
 type AddressFactory interface {
 
-	/**
-	 *  Generate address with meta & network
-	 *
-	 * @param meta - meta info
-	 * @param network - address type
-	 * @return Address
-	 */
+	// GenerateAddress creates a new Address instance using meta information and network type
+	//
+	// Parameters:
+	//   - meta: Meta information used to generate the address (fingerprint seed)
+	//   - network: EntityType specifying the address/network type
+	// Returns: Newly generated Address instance
 	GenerateAddress(meta Meta, network EntityType) Address
 
-	/**
-	 *  Parse string object to address
-	 *
-	 * @param address - address string
-	 * @return Address
-	 */
+	// ParseAddress converts an address string into an Address instance
+	//
+	// Parameters
+	//   - address: String representation of the address to parse
+	// Returns: Parsed Address instance (nil if parsing fails)
 	ParseAddress(address string) Address
 }
 
@@ -83,7 +71,7 @@ func GenerateAddress(meta Meta, network EntityType) Address {
 	return helper.GenerateAddress(meta, network)
 }
 
-func ParseAddress(address interface{}) Address {
+func ParseAddress(address any) Address {
 	helper := GetAddressHelper()
 	return helper.ParseAddress(address)
 }

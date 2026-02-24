@@ -38,6 +38,7 @@ import (
 /**
  *  Account GeneralFactory
  */
+
 type GeneralAccountHelper interface {
 	//AddressHelper
 	//IDHelper

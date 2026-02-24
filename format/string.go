@@ -25,30 +25,26 @@
  */
 package format
 
-/**
- *  String Coder
- *  ~~~~~~~~~~~~
- *  UTF-8, UTF-16, GBK, GB2312, ...
- *
- *  1. encode string to binary data;
- *  2. decode binary data to string.
- */
+// StringCoder defines the interface for string encoding/decoding between string and binary data
+//
+//	Supported character encodings include:
+//	    UTF-8, UTF-16, GBK, GB2312, ...
 type StringCoder interface {
 
-	/**
-	 *  Encode local string to binary data
-	 *
-	 * @param string - local string
-	 * @return binary data
-	 */
-	Encode(string string) []byte
+	// Encode converts a local string to binary data (byte slice) using the specified charset
+	//
+	// Parameters:
+	//   - str: Input local string to be encoded
+	//
+	// Returns: Binary data (byte slice) of the encoded string
+	Encode(str string) []byte
 
-	/**
-	 *  Decode binary data to local string
-	 *
-	 * @param bytes - binary data
-	 * @return local string
-	 */
+	// Decode parses binary data (byte slice) back to a local string using the specified charset
+	//
+	// Parameters:
+	//   - bytes: Input binary data (byte slice) to be decoded
+	//
+	// Returns: Local string decoded from the binary data
 	Decode(bytes []byte) string
 }
 

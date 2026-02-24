@@ -25,19 +25,18 @@
  */
 package digest
 
-/**
- *  Message Digest
- *  ~~~~~~~~~~~~~~
- *  MD5, SHA1, SHA256, Keccak256, RipeMD160, ...
- */
+// MessageDigester defines the interface for computing message digests/hash values
+//
+//	Supported algorithms include:
+//	    MD5, SHA1, SHA256, Keccak256, RipeMD160, ...
 type MessageDigester interface {
 
-	/**
-	 *  Get digest of binary data
-	 *
-	 * @param data - binary data
-	 * @return binary data
-	 */
+	// Digest computes and returns the digest/hash of the given binary data
+	//
+	// Parameters:
+	//   - data: Input binary data to be hashed
+	//
+	// Returns: Binary digest/hash value of the input data
 	Digest(data []byte) []byte
 }
 
@@ -72,6 +71,7 @@ func KECCAK256(bytes []byte) []byte {
 //
 //  RipeMD-160
 //
+
 var ripemd160Digester MessageDigester = nil
 
 func SetRIPEMD160Digester(digester MessageDigester) {

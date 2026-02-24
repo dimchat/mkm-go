@@ -28,11 +28,12 @@ package format
 /**
  *  TED Helper
  */
+
 type TransportableDataHelper interface {
 	SetTransportableDataFactory(factory TransportableDataFactory)
 	GetTransportableDataFactory() TransportableDataFactory
 
-	ParseTransportableData(ted interface{}) TransportableData
+	ParseTransportableData(ted any) TransportableData
 }
 
 var sharedTransportableDataHelper TransportableDataHelper = nil

@@ -28,13 +28,14 @@ package crypto
 /**
  * SymmetricKey Helper
  */
+
 type SymmetricKeyHelper interface {
 	SetSymmetricKeyFactory(algorithm string, factory SymmetricKeyFactory)
 	GetSymmetricKeyFactory(algorithm string) SymmetricKeyFactory
 
 	GenerateSymmetricKey(algorithm string) SymmetricKey
 
-	ParseSymmetricKey(key interface{}) SymmetricKey
+	ParseSymmetricKey(key any) SymmetricKey
 }
 
 var sharedSymmetricKeyHelper SymmetricKeyHelper = nil
@@ -50,11 +51,12 @@ func GetSymmetricKeyHelper() SymmetricKeyHelper {
 /**
  *  PublicKey Helper
  */
+
 type PublicKeyHelper interface {
 	SetPublicKeyFactory(algorithm string, factory PublicKeyFactory)
 	GetPublicKeyFactory(algorithm string) PublicKeyFactory
 
-	ParsePublicKey(key interface{}) PublicKey
+	ParsePublicKey(key any) PublicKey
 }
 
 var sharedPublicKeyHelper PublicKeyHelper = nil
@@ -70,12 +72,13 @@ func GetPublicKeyHelper() PublicKeyHelper {
 /**
  *  PrivateKey Helper
  */
+
 type PrivateKeyHelper interface {
 	SetPrivateKeyFactory(algorithm string, factory PrivateKeyFactory)
 	GetPrivateKeyFactory(algorithm string) PrivateKeyFactory
 
 	GeneratePrivateKey(algorithm string) PrivateKey
-	ParsePrivateKey(key interface{}) PrivateKey
+	ParsePrivateKey(key any) PrivateKey
 }
 
 var sharedPrivateKeyHelper PrivateKeyHelper = nil
