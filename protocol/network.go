@@ -38,19 +38,19 @@ package protocol
  *  @discussion An address can identify a person, a group of people,
  *      a team, even a thing.
  *
- *      MKMEntityType_User indicates this entity is a person's account.
+ *      EntityType_User indicates this entity is a person's account.
  *      An account should have a public key, which proved by meta info.
  *
- *      MKMEntityType_Group indicates this entity is a group of people,
+ *      EntityType_Group indicates this entity is a group of people,
  *      which should have a founder (also the owner), and some members.
  *
- *      MKMEntityType_Station indicates this entity is a DIM network station.
+ *      EntityType_Station indicates this entity is a DIM network station.
  *
- *      MKMEntityType_ISP indicates this entity is a group for stations.
+ *      EntityType_ISP indicates this entity is a group for stations.
  *
- *      MKMEntityType_Bot indicates this entity is a bot user.
+ *      EntityType_Bot indicates this entity is a bot user.
  *
- *      MKMEntityType_Company indicates a company for stations and/or bots.
+ *      EntityType_Company indicates a company for stations and/or bots.
  *
  *  Bits:
  *      0000 0001 - group flag

@@ -25,7 +25,7 @@
  */
 package types
 
-type StringKeyMap = map[string]any
+type StringKeyMap = map[string]interface{}
 
 // Mapper interface defines operations for a mutable dictionary.
 type Mapper interface {
